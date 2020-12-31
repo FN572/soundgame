@@ -34,4 +34,51 @@ Visit the following page to generate a token:
 
 #### GitHub Enterprise
 
-GitHub Enterprise users will be asked to enter the GitHub E
+GitHub Enterprise users will be asked to enter the GitHub Enterprise url and whether they want to verify SSL certificates.
+
+#### Authentication Source Code
+
+Curious what's going on behind the scenes with authentication?  Check out the [authentication source code](https://github.com/donnemartin/gitsome/blob/master/gitsome/config.py#L177-L328).
+
+#### User Feed
+
+`gitsome` will need your news feed url to run the `gh feed` command with no arguments.
+
+![Imgur](http://i.imgur.com/2LWcyS6.png)
+
+To integrate `gitsome` with your news feed, visit the following url while logged into GitHub:
+
+[https://github.com](https://github.com)
+
+You will be asked to enter the url found when clicking 'Subscribe to your news feed', which will look something like this:
+
+    https://github.com/donnemartin.private.atom?token=TOKEN
+
+![Imgur](http://i.imgur.com/f2zvdIm.png)
+
+### gh create-comment
+
+Create a comment on the given issue.
+
+Usage:
+
+    $ gh create-comment [user_repo_number] [-t/--text]
+
+Param(s):
+
+```
+:type user_repo_number: str
+:param user_repo_number: The user/repo/issue_number.
+```
+
+Option(s):
+
+```
+:type text: str
+:param text: The comment text.
+```
+
+Example(s):
+
+    $ gh create-comment donnemartin/saws/1 -t "hello world"
+    $ gh create-comment donnemartin
