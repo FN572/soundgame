@@ -81,4 +81,69 @@ Option(s):
 Example(s):
 
     $ gh create-comment donnemartin/saws/1 -t "hello world"
-    $ gh create-comment donnemartin
+    $ gh create-comment donnemartin/saws/1 --text "hello world"
+
+### gh create-issue
+
+Create an issue.
+
+Usage:
+
+    $ gh create-issue [user_repo] [-t/--issue_title] [-d/--issue_desc]
+
+Param(s):
+
+```
+:type user_repo: str
+:param user_repo: The user/repo.
+```
+
+Option(s):
+
+```
+:type issue_title: str
+:param issue_title: The issue title.
+
+:type issue_desc: str
+:param issue_desc: The issue body (optional).
+```
+
+Example(s):
+
+    $ gh create-issue donnemartin/gitsome -t "title"
+    $ gh create-issue donnemartin/gitsome -t "title" -d "desc"
+    $ gh create-issue donnemartin/gitsome --issue_title "title" --issue_desc "desc"
+
+### gh create-repo
+
+Create a repo.
+
+Usage:
+
+    $ gh create-repo [repo_name] [-d/--repo_desc] [-pr/--private]
+
+Param(s):
+
+```
+:type repo_name: str
+:param repo_name: The repo name.
+```
+
+Option(s):
+
+```
+:type repo_desc: str
+:param repo_desc: The repo description (optional).
+
+:type private: bool
+:param private: Determines whether the repo is private.
+    Default: False.
+```
+
+Example(s):
+
+    $ gh create-repo repo_name
+    $ gh create-repo repo_name -d "desc"
+    $ gh create-repo repo_name --repo_desc "desc"
+    $ gh create-repo repo_name -pr
+    $ gh create-repo re
