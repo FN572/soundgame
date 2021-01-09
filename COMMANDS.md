@@ -146,4 +146,62 @@ Example(s):
     $ gh create-repo repo_name -d "desc"
     $ gh create-repo repo_name --repo_desc "desc"
     $ gh create-repo repo_name -pr
-    $ gh create-repo re
+    $ gh create-repo repo_name --repo_desc "desc" --private
+
+### gh emails
+
+List all the user's registered emails.
+
+Usage/Example(s):
+
+    $ gh emails
+
+### gh emojis
+
+List all GitHub supported emojis.
+
+Usage:
+
+    $ gh emojis [-p/--pager]
+
+Option(s):
+
+```
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh emojis
+    $ gh emojis -p
+    $ gh emojis --pager
+
+### gh feed
+
+List all activity for the given user or repo.
+
+If `user_or_repo` is not provided, uses the logged in user's news feed seen while visiting https://github.com.  If `user_or_repo` is provided, shows either the public or `[-pr/--private]` feed activity of the user or repo.
+
+Usage:
+
+    $ gh feed [user_or_repo] [-pr/--private] [-p/--pager]
+
+Param(s):
+
+```
+:type user_or_repo: str
+:param user_or_repo: The user or repo to list events for (optional).
+    If no entry, defaults to the logged in user's feed.
+```
+
+Option(s):
+
+```
+:type private: bool
+:param private: Determines whether to show the private events (True)
+    or public events (False).
+
+:type pager: bool
+:param pager: Determines whe
