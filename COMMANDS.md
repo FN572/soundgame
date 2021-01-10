@@ -275,4 +275,79 @@ Param(s):
 
 ```
 :type user: str
-:param user: The user login (op
+:param user: The user login (optional).
+    If None, returns the followers of the logged in user.
+```
+
+Option(s):
+
+```
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh followers
+    $ gh followers -p
+    $ gh followers octocat --pager
+
+### gh gitignore-template
+
+Output the gitignore template for the given language.
+
+Usage:
+
+    $ gh gitignore-template [language]
+
+Param(s):
+
+```
+:type language: str
+:param language: The language.
+```
+
+Example(s):
+
+    $ gh gitignore-template Python
+    $ gh gitignore-template Python > .gitignore
+
+![Imgur](http://i.imgur.com/S5m5ZcO.png)
+
+### gh gitignore-templates
+
+Output all supported gitignore templates.
+
+Usage:
+
+    $ gh gitignore-templates [-p/--pager]
+
+Option(s):
+
+```
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh gitignore-templates
+    $ gh gitignore-templates -p
+    $ gh gitignore-templates --pager
+
+![Imgur](http://i.imgur.com/u8qYx1s.png)
+
+### gh issue
+
+Output detailed information about the given issue.
+
+Usage:
+
+    $ gh issue [user_repo_number]
+
+Param(s):
+
+```
+:type user_rep
