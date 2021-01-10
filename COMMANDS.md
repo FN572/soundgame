@@ -350,4 +350,62 @@ Usage:
 Param(s):
 
 ```
-:type user_rep
+:type user_repo_number: str
+:param user_repo_number: The user/repo/issue_number.
+```
+
+Example(s):
+
+    $ gh issue donnemartin/saws/1
+
+![Imgur](http://i.imgur.com/ZFv9MuV.png)
+
+### gh issues
+
+List all issues matching the filter.
+
+Usage:
+
+    $ gh issues [-f/--issue_filter] [-s/--issue_state] [-l/--limit] [-p/--pager]
+
+Option(s):
+
+```
+:type issue_filter: str
+:param issue_filter: assigned, created, mentioned, subscribed (default).
+
+:type issue_state: str
+:param issue_state: all, open (default), closed.
+
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh issues
+    $ gh issues -f assigned
+    $ gh issues --issue_filter created
+    $ gh issues -s all -l 20 -p
+    $ gh issues --issue_state closed --limit 20 --pager
+    $ gh issues -f created -s all -p
+
+![Imgur](http://i.imgur.com/AB5zxxo.png)
+
+### gh license
+
+Output the license template for the given license.
+
+Usage:
+
+    $ gh license [license_name]
+
+Param(s):
+
+```
+:type license_name: str
+:param license_n
