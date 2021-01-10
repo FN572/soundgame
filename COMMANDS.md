@@ -408,4 +408,63 @@ Param(s):
 
 ```
 :type license_name: str
-:param license_n
+:param license_name: The license name.
+```
+
+Example(s):
+
+    $ gh license apache-2.0
+    $ gh license mit > LICENSE
+
+![Imgur](http://i.imgur.com/zJHVxaA.png)
+
+### gh licenses
+
+Output all supported license templates.
+
+Usage/Licenses:
+
+    $ gh licenses
+
+![Imgur](http://i.imgur.com/S9SbMLJ.png)
+
+### gh me
+
+List information about the logged in user.
+
+Displaying the avatar will require [installing the optional `PIL` dependency](#installing-pil).
+
+Usage:
+
+    $ gh me [-b/--browser] [-t/--text_avatar] [-l/--limit] [-p/--pager]
+
+Option(s):
+
+```
+:type browser: bool
+:param browser: Determines whether to view the profile
+    in a browser, or in the terminal.
+
+:type text_avatar: bool
+:param text_avatar: Determines whether to view the profile
+    avatar in plain text.
+    On Windows this value is always set to True due to lack of
+    support of `img2txt` on Windows.
+
+:type limit: int
+:param limit: The number of user repos to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh me
+    $ gh me -b
+    $ gh me --browser
+    $ gh me -t -l 20 -p
+    $ gh me --text_avatar --limit 20 --pager
+
+![Imgur](http://i.imgur.com/csk5j0S.png)
