@@ -468,3 +468,74 @@ Example(s):
     $ gh me --text_avatar --limit 20 --pager
 
 ![Imgur](http://i.imgur.com/csk5j0S.png)
+
+### gh notifications
+
+List all notifications.
+
+Usage:
+
+    $ gh notifications [-l/--limit] [-p/--pager]
+
+Option(s):
+
+```
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh notifications
+    $ gh notifications -l 20 -p
+    $ gh notifications --limit 20 --pager
+
+![Imgur](http://i.imgur.com/uwmwxsW.png)
+
+### gh octo
+
+Output an Easter egg or the given message from Octocat.
+
+Usage:
+
+    $ gh octo [say]
+
+Param(s):
+
+```
+:type say: str
+:param say: What Octocat should say.
+        If say is None, octocat speaks an Easter egg.
+```
+
+Example(s):
+
+    $ gh octo
+    $ gh octo "foo bar"
+
+![Imgur](http://i.imgur.com/bNzCa5p.png)
+
+### gh pull-request
+
+Output detailed information about the given pull request.
+
+Usage:
+
+    $ gh pull-request [user_repo_number]
+
+Param(s):
+
+```
+:type user_repo_number: str
+:param user_repo_number: The user/repo/pull_number.
+```
+
+Example(s):
+
+    $ gh pull-request donnemartin/saws/80
+
+![Imgur](http://i.imgu
