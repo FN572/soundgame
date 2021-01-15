@@ -659,4 +659,41 @@ qualifers:
   combination of these.
 - `author` Finds issues created by a certain user.
 - `assignee` Finds issues that are assigned to a certain user.
-- `mentions` Finds 
+- `mentions` Finds issues that mention a certain user.
+- `commenter` Finds issues that a certain user commented on.
+- `involves` Finds issues that were either created by a certain user,
+  assigned to that user, mention that user, or were commented on by
+  that user.
+- `state` Filter issues based on whether they’re open or closed.
+- `labels` Filters issues based on their labels.
+- `language` Searches for issues within repositories that match a
+  certain language.
+- `created` or `updated` Filters issues based on times of creation,
+  or when they were last updated.
+- `comments` Filters issues based on the quantity of comments.
+- `user` or `repo` Limits searches to a specific user or
+  repository.
+
+For more information about these qualifiers, see: http://git.io/d1oELA
+```
+
+Option(s):
+
+```
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh search-issues "foo type:pr author:donnemartin" -l 20 -p
+    $ gh search-issues "foobarbaz in:title created:>=2015-01-01" --limit 20 --pager
+
+
+Additional Example(s):
+
+```
