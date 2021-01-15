@@ -609,4 +609,54 @@ Param(s):
 ```
 :type repo_filter: str
 :param repo_filter:  The filter for repo names.
-    Only repos matching the filter will be retu
+    Only repos matching the filter will be returned.
+    If None, outputs all the logged in user's repos.
+```
+
+Option(s):
+
+```
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh repos
+    $ gh repos aws
+    $ gh repos aws -l 20 -p
+    $ gh repos aws --limit 20 --pager
+
+![Imgur](http://i.imgur.com/YXWPWma.png)
+
+### gh search-issues
+
+Search for all issues matching the given query.
+
+For more information about the query qualifiers, visit the [searching issues reference](https://help.github.com/articles/searching-issues/).
+
+Usage:
+
+    $ gh search-issues [query] [-l/--limit] [-p/--pager]
+
+Param(s):
+
+```
+:type query: str
+:param query: The search query.
+
+The query can contain any combination of the following supported
+qualifers:
+
+- `type` With this qualifier you can restrict the search to issues
+  or pull request only.
+- `in` Qualifies which fields are searched. With this qualifier you
+  can restrict the search to just the title, body, comments, or any
+  combination of these.
+- `author` Finds issues created by a certain user.
+- `assignee` Finds issues that are assigned to a certain user.
+- `mentions` Finds 
