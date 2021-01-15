@@ -538,4 +538,75 @@ Example(s):
 
     $ gh pull-request donnemartin/saws/80
 
-![Imgur](http://i.imgu
+![Imgur](http://i.imgur.com/3MtKjKy.png)
+
+### gh pull-requests
+
+List all pull requests.
+
+Usage:
+
+    $ gh pull-requests [-l/--limit] [-p/--pager]
+
+Option(s):
+
+```
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh pull-requests
+    $ gh pull-requests -l 20 -p
+    $ gh pull-requests --limit 20 --pager
+
+![Imgur](http://i.imgur.com/4A2eYM9.png)
+
+### gh rate-limit
+
+Output the rate limit.  Not available for GitHub Enterprise.
+
+Usage/Example(s):
+
+    $ gh rate-limit
+
+### gh repo
+
+Output detailed information about the given repo.
+
+Usage:
+
+    $ gh repo [user_repo]
+
+Param(s):
+
+```
+:type user_repo: str
+:param user_repo: The user/repo.
+```
+
+Example(s):
+
+    $ gh repo donnemartin/haxor-news
+
+![Imgur](http://i.imgur.com/XFMpWCI.png)
+
+### gh repos
+
+List all repos matching the given filter.
+
+Usage:
+
+    $ gh repos [repo_filter] [-l/--limit] [-p/--pager]
+
+Param(s):
+
+```
+:type repo_filter: str
+:param repo_filter:  The filter for repo names.
+    Only repos matching the filter will be retu
