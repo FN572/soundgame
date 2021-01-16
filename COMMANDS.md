@@ -697,3 +697,43 @@ Example(s):
 Additional Example(s):
 
 ```
+Search issues that have your user name tagged @donnemartin:
+    $ gh search-issues "is:issue donnemartin is:open" -p
+
+Search issues that have the most +1s:
+    $ gh search-issues "is:open is:issue sort:reactions-+1-desc" -p
+
+Search issues that have the most comments:
+    $ gh search-issues "is:open is:issue sort:comments-desc" -p
+
+Search issues with the "help wanted" tag:
+    $ gh search-issues "is:open is:issue label:\"help wanted\"" -p
+
+Search all your open private issues:
+    $ gh search-issues "is:open is:issue is:private" -p
+```
+
+![Imgur](http://i.imgur.com/DXXxkBD.png)
+
+### gh search-repos
+
+Search for all repos matching the given query.
+
+For more information about the query qualifiers, visit the [searching repos reference](https://help.github.com/articles/searching-repositories/).
+
+Usage:
+
+    $ gh search-repos [query] [-s/--sort] [-l/--limit] [-p/--pager]
+
+Param(s):
+
+```
+:type query: str
+:param query: The search query.
+
+The query can contain any combination of the following supported
+qualifers:
+
+- `in` Qualifies which fields are searched. With this qualifier you
+  can restrict the search to just the repository name, description,
+  readme
