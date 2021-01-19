@@ -837,4 +837,52 @@ Option(s):
     Daily is the default.
 
 :type monthly: bool
-:param mont
+:param monthly: Determines whether to show the monthly rankings.
+    Daily is the default.
+    If both `monthly` and `weekly` are set, `monthly` takes precedence.
+
+:type devs: bool
+:param devs: determines whether to display the trending
+        devs or repos.  Only valid with the -b/--browser option.
+
+:type browser: bool
+:param browser: Determines whether to view the profile
+        in a browser, or in the terminal.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh trending
+    $ gh trending Python -w -p
+    $ gh trending Python --weekly --devs --browser
+    $ gh trending --browser
+
+![Imgur](http://i.imgur.com/Dx77HFW.png)
+
+### gh user
+
+List information about the given user.
+
+Displaying the avatar will require [installing the optional `PIL` dependency](#installing-pil).
+
+Usage:
+
+    $ gh user [user_id] [-b/--browser] [-t/--text_avatar] [-l/--limit] [-p/--pager]
+
+Param(s):
+
+```
+:type user_id: str
+:param user_id: The user id/login.
+    If None, returns followers of the logged in user.
+```
+
+Option(s):
+
+```
+:type browser: bool
+:param browser: Determines whether to view the
