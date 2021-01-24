@@ -885,4 +885,54 @@ Option(s):
 
 ```
 :type browser: bool
-:param browser: Determines whether to view the
+:param browser: Determines whether to view the profile
+    in a browser, or in the terminal.
+
+:type text_avatar: bool
+:param text_avatar: Determines whether to view the profile
+    avatar in plain text instead of ansi (default).
+    On Windows this value is always set to True due to lack of
+    support of `img2txt` on Windows.
+
+:type limit: int
+:param limit: The number of items to display.
+
+:type pager: bool
+:param pager: Determines whether to show the output in a pager,
+    if available.
+```
+
+Example(s):
+
+    $ gh user octocat
+    $ gh user octocat -b
+    $ gh user octocat --browser
+    $ gh user octocat -t -l 10 -p
+    $ gh user octocat --text_avatar --limit 10 --pager
+
+![Imgur](http://i.imgur.com/xVoVPVe.png)
+
+### gh view
+
+View the given notification/repo/issue/pull_request/user index in the terminal or a browser.
+
+This method is meant to be called after one of the following commands
+which outputs a table of notifications/repos/issues/pull_requests/users:
+
+    $ gh repos
+    $ gh search-repos
+    $ gh starred
+
+    $ gh issues
+    $ gh pull-requests
+    $ gh search-issues
+
+    $ gh notifications
+    $ gh trending
+
+    $ gh user
+    $ gh me
+
+Usage:
+
+    $ gh view [index] [-b/--
