@@ -935,4 +935,48 @@ which outputs a table of notifications/repos/issues/pull_requests/users:
 
 Usage:
 
-    $ gh view [index] [-b/--
+    $ gh view [index] [-b/--browser]
+
+Param(s):
+
+```
+:type index: str
+:param index: Determines the index to view.
+```
+
+Option(s):
+
+```
+:type browser: bool
+:param browser: Determines whether to view the profile
+    in a browser, or in the terminal.
+```
+
+Example(s):
+
+    $ gh repos
+    $ gh view 1
+
+    $ gh starred
+    $ gh view 1 -b
+    $ gh view 1 --browser
+
+![Imgur](http://i.imgur.com/NVEwGbV.png)
+
+### Option: View in a Pager
+
+Many `gh` commands support a `-p/--pager` option that displays results in a pager, where available.
+
+Usage:
+
+    $ gh <command> [param] [options] -p
+    $ gh <command> [param] [options] --pager
+
+### Option: View in a Browser
+
+Many `gh` commands support a `-b/--browser` option that displays results in your default browser instead of your terminal.
+
+Usage:
+
+    $ gh <command> [param] [options] -b
+    $ gh <command> [param] [options] --browser
