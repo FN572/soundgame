@@ -10,4 +10,24 @@ You may, however, use features of `gitsome` that do not require GitHub authentic
 
 ## What do we use your information for?
 
-Any of the information we collect from you is used solely to interact with GitHub and/or GitHub
+Any of the information we collect from you is used solely to interact with GitHub and/or GitHub Enterprise.  Other than to provide integration with GitHub, we do not disclose or transfer your information to outside parties.
+
+## How do we protect your information?
+
+All supplied sensitive information is encrypted during transmission to GitHub via Secure Socket Layer (SSL) technology.
+
+## Terms and Conditions
+
+Please also visit our Terms and Conditions section establishing the use, disclaimers, and limitations of liability governing the use of `gitsome`.
+
+## Your Consent
+
+By using `gitsome`, you consent to our privacy policy.
+
+## Changes to our Privacy Policy
+
+If we decide to change our privacy policy, we will post those changes on this page.
+
+## Contacting Us
+
+Any questions about this document should be addressed to [Donne Martin](donne.martin@gmail.com).
