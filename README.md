@@ -37,4 +37,37 @@ The Git command line **does not integrate with GitHub**, forcing you to toggle b
 
 Not all GitHub workflows work well in a terminal; `gitsome` attempts to target those that do.
 
-`gitsome` includes 29
+`gitsome` includes 29 GitHub integrated commands that work with **[ALL](#enabling-gh-tab-completions-outside-of-gitsome)** shells:
+
+    $ gh <command> [param] [options]
+
+* [Quick reference](#github-integration-commands-quick-reference)
+* [General reference](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md)
+
+Run `gh` commands along with [Git-Extras](https://github.com/tj/git-extras/blob/master/Commands.md) and [hub](https://hub.github.com/) commands to unlock even more GitHub integrations!
+
+![Imgur](http://i.imgur.com/sG09AJH.png)
+
+### Git and GitHub Autocompleter With Interactive Help
+
+You can run the <u>**optional**</u> shell:
+
+     $ gitsome
+
+to enable **autocompletion** and **interactive help** for the following:
+
+* Git commands
+* Git options
+* Git branches, tags, etc
+* [Git-Extras commands](https://github.com/tj/git-extras/blob/master/Commands.md)
+* [GitHub integration commands](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md)
+
+![Imgur](http://i.imgur.com/08OMNjz.png)
+
+![Imgur](http://i.imgur.com/fHjMwlh.png)
+
+### General Autocompleter
+
+`gitsome` autocompletes the following:
+
+*
