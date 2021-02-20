@@ -110,4 +110,33 @@ Color options include:
 
 ```
 'black', 'red', 'green', 'yellow',
-'blue', 'magenta', 'cyan', 'wh
+'blue', 'magenta', 'cyan', 'white'
+```
+
+For no color, set the value(s) to `None`.  `white` can appear as light gray on some terminals.
+
+![Imgur](http://i.imgur.com/BN1lfEf.png)
+
+## Available Platforms
+
+`gitsome` is available for Mac, Linux, Unix, [Windows](#windows-support), and [Docker](#running-as-docker-container).
+
+## TODO
+
+>Not all GitHub workflows work well in a terminal; `gitsome` attempts to target those that do.
+
+* Add additional GitHub API integrations
+
+`gitsome` is just getting started.  Feel free to [contribute!](#contributing)
+
+## Index
+
+### GitHub Integration Commands
+
+* [GitHub Integration Commands Syntax](#github-integration-commands-syntax)
+* [GitHub Integration Commands Listing](#github-integration-commands-listing)
+* [GitHub Integration Commands Quick Reference](#github-integration-commands-quick-reference)
+* [GitHub Integration Commands Reference in COMMANDS.md](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md)
+    * [`gh configure`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-configure)
+    * [`gh create-comment`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-create-comment)
+    * [`gh create-iss
