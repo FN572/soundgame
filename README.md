@@ -162,4 +162,20 @@ For no color, set the value(s) to `None`.  `white` can appear as light gray on s
     * [`gh repos`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-repos)
     * [`gh search-issues`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-search-issues)
     * [`gh search-repos`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-search-repos)
-    * [`gh starred`](https://github.com/donnemartin/gitsome/blo
+    * [`gh starred`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-starred)
+    * [`gh trending`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-trending)
+    * [`gh user`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-user)
+    * [`gh view`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-view)
+* [Option: View in a Pager](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#option-view-in-a-pager)
+* [Option: View in a Browser](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#option-view-in-a-browser)
+
+### Installation and Tests
+
+* [Installation](#installation)
+    * [Pip Installation](#pip-installation)
+    * [Virtual Environment Installation](#virtual-environment-installation)
+    * [Running as a Docker Container](#running-as-a-docker-container)
+    * [Running the `gh configure` Command](#running-the-gh-configure-command)
+        * [For GitHub Enterprise Users](#for-github-enterprise-users)
+    * [Enabling Bash Completions](#enabling-bash-completions)
+    * [Enabling `gh` Tab Completions Outside of `gitsome`](#enabling-gh-tab-completions-outside-of
