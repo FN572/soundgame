@@ -178,4 +178,38 @@ For no color, set the value(s) to `None`.  `white` can appear as light gray on s
     * [Running the `gh configure` Command](#running-the-gh-configure-command)
         * [For GitHub Enterprise Users](#for-github-enterprise-users)
     * [Enabling Bash Completions](#enabling-bash-completions)
-    * [Enabling `gh` Tab Completions Outside of `gitsome`](#enabling-gh-tab-completions-outside-of
+    * [Enabling `gh` Tab Completions Outside of `gitsome`](#enabling-gh-tab-completions-outside-of-gitsome)
+        * [For Zsh Users](#for-zsh-users)
+    * [Optional: Installing `PIL` or `Pillow`](#optional-installing-pil-or-pillow)
+    * [Supported Python Versions](#supported-python-versions)
+    * [Supported Platforms](#supported-platforms)
+    * [Windows Support](#windows-support)
+* [Developer Installation](#developer-installation)
+    * [Continuous Integration](#continuous-integration)
+    * [Unit Tests and Code Coverage](#unit-tests-and-code-coverage)
+    * [Documentation](#documentation)
+
+### Misc
+
+* [Contributing](#contributing)
+* [Credits](#credits)
+* [Contact Info](#contact-info)
+* [License](#license)
+
+## GitHub Integration Commands Syntax
+
+Usage:
+
+    $ gh <command> [param] [options]
+
+## GitHub Integration Commands Listing
+
+```
+  configure            Configure gitsome.
+  create-comment       Create a comment on the given issue.
+  create-issue         Create an issue.
+  create-repo          Create a repo.
+  emails               List all the user's registered emails.
+  emojis               List all GitHub supported emojis.
+  feed                 List all activity for the given user or repo.
+  followers  
