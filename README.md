@@ -212,4 +212,22 @@ Usage:
   emails               List all the user's registered emails.
   emojis               List all GitHub supported emojis.
   feed                 List all activity for the given user or repo.
-  followers  
+  followers            List all followers and the total follower count.
+  following            List all followed users and the total followed count.
+  gitignore-template   Output the gitignore template for the given language.
+  gitignore-templates  Output all supported gitignore templates.
+  issue                Output detailed information about the given issue.
+  issues               List all issues matching the filter.
+  license              Output the license template for the given license.
+  licenses             Output all supported license templates.
+  me                   List information about the logged in user.
+  notifications        List all notifications.
+  octo                 Output an Easter egg or the given message from Octocat.
+  pull-request         Output detailed information about the given pull request.
+  pull-requests        List all pull requests.
+  rate-limit           Output the rate limit.  Not available for Enterprise.
+  repo                 Output detailed information about the given filter.
+  repos                List all repos matching the given filter.
+  search-issues        Search for all issues matching the given query.
+  search-repos         Search for all repos matching the given query.
+  
