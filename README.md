@@ -230,4 +230,38 @@ Usage:
   repos                List all repos matching the given filter.
   search-issues        Search for all issues matching the given query.
   search-repos         Search for all repos matching the given query.
-  
+  starred              Output starred repos.
+  trending             List trending repos for the given language.
+  user                 List information about the given user.
+  view                 View the given index in the terminal or a browser.
+```
+
+## GitHub Integration Commands Reference: COMMANDS.md
+
+See the [GitHub Integration Commands Reference in COMMANDS.md](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md) for a **detailed discussion** of all GitHub integration commands, parameters, options, and examples.
+
+Check out the next section for a **quick reference**.
+
+## GitHub Integration Commands Quick Reference
+
+### Configuring `gitsome`
+
+To properly integrate with GitHub, you must first configure `gitsome`:
+
+    $ gh configure
+
+For GitHub Enterprise users, run with the `-e/--enterprise` flag:
+
+    $ gh configure -e
+
+### Listing Feeds
+
+#### Listing Your News Feed
+
+    $ gh feed
+
+![Imgur](http://i.imgur.com/2LWcyS6.png)
+
+#### Listing A User's Activity Feed
+
+View your activity feed or another user's activity feed, optionally through a pager with `-p/--pager`.  The [pager option](#option-view-in-a-pager) is 
