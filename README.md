@@ -308,4 +308,42 @@ For more information about the filter and state qualifiers, visit the [`gh issue
 
     $ gh starred "repo filter"
 
-![Imgur](http://i.imgu
+![Imgur](http://i.imgur.com/JB88Kw8.png)
+
+### Searching Issues and Repos
+
+#### Searching Issues
+
+Search issues that have the most +1s:
+
+    $ gh search-issues "is:open is:issue sort:reactions-+1-desc" -p
+
+![Imgur](http://i.imgur.com/DXXxkBD.png)
+
+Search issues that have the most comments:
+
+    $ gh search-issues "is:open is:issue sort:comments-desc" -p
+
+Search issues with the "help wanted" tag:
+
+    $ gh search-issues "is:open is:issue label:\"help wanted\"" -p
+
+Search issues that have your user name tagged **@donnemartin**:
+
+    $ gh search-issues "is:issue donnemartin is:open" -p
+
+Search all your open private issues:
+
+    $ gh search-issues "is:open is:issue is:private" -p
+
+For more information about the query qualifiers, visit the [searching issues reference](https://help.github.com/articles/searching-issues/).
+
+#### Searching Repos
+
+Search all Python repos created on or after 2015, with >= 1000 stars:
+
+    $ gh search-repos "created:>=2015-01-01 stars:>=1000 language:python" --sort stars -p
+
+![Imgur](http://i.imgur.com/kazXWWY.png)
+
+For more information about the query qualifiers, visit the [searching repos reference](https://help.github.com/articles/searching-repositorie
