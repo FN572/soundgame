@@ -264,4 +264,48 @@ For GitHub Enterprise users, run with the `-e/--enterprise` flag:
 
 #### Listing A User's Activity Feed
 
-View your activity feed or another user's activity feed, optionally through a pager with `-p/--pager`.  The [pager option](#option-view-in-a-pager) is 
+View your activity feed or another user's activity feed, optionally through a pager with `-p/--pager`.  The [pager option](#option-view-in-a-pager) is available for many commands.
+
+    $ gh feed donnemartin -p
+
+![Imgur](http://i.imgur.com/kryGLXz.png)
+
+#### Listing A Repo's Activity Feed
+
+    $ gh feed donnemartin/gitsome -p
+
+![Imgur](http://i.imgur.com/d2kxDg9.png)
+
+### Listing Notifications
+
+    $ gh notifications
+
+![Imgur](http://i.imgur.com/uwmwxsW.png)
+
+### Listing Pull Requests
+
+View all pull requests for your repos:
+
+    $ gh pull-requests
+
+![Imgur](http://i.imgur.com/4A2eYM9.png)
+
+### Filtering Issues
+
+View all open issues where you have been mentioned:
+
+    $ gh issues --issue_state open --issue_filter mentioned
+
+![Imgur](http://i.imgur.com/AB5zxxo.png)
+
+View all issues, filtering for only those assigned to you, regardless of state (open, closed):
+
+    $ gh issues --issue_state all --issue_filter assigned
+
+For more information about the filter and state qualifiers, visit the [`gh issues`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-issues) reference in [COMMANDS.md](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md).
+
+### Filtering Starred Repos
+
+    $ gh starred "repo filter"
+
+![Imgur](http://i.imgu
