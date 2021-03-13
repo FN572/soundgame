@@ -402,4 +402,65 @@ Set up your `.gitignore`:
 
 ### Setting Up `LICENSE`
 
-List all available `LICENSE
+List all available `LICENSE` templates:
+
+    $ gh licenses
+
+![Imgur](http://i.imgur.com/S9SbMLJ.png)
+
+Set up your  or `LICENSE`:
+
+    $ gh license MIT > LICENSE
+
+![Imgur](http://i.imgur.com/zJHVxaA.png)
+
+### Summoning Octocat
+
+Call on Octocat to say the given message or an Easter egg:
+
+    $ gh octo [say]
+
+![Imgur](http://i.imgur.com/bNzCa5p.png)
+
+### Viewing Profiles
+
+#### Viewing A User's Profile
+
+    $ gh user octocat
+
+![Imgur](http://i.imgur.com/xVoVPVe.png)
+
+#### Viewing Your Profile
+
+View your profile with the `gh user [YOUR_USER_ID]` command or with the following shortcut:
+
+    $ gh me
+
+![Imgur](http://i.imgur.com/csk5j0S.png)
+
+### Creating Comments, Issues, and Repos
+
+Create a comment:
+
+    $ gh create-comment donnemartin/gitsome/1 -t "hello world"
+
+Create an issue:
+
+    $ gh create-issue donnemartin/gitsome -t "title" -b "body"
+
+Create a repo:
+
+    $ gh create-repo gitsome
+
+### Option: View in a Pager
+
+Many `gh` commands support a `-p/--pager` option that displays results in a pager, where available.
+
+Usage:
+
+    $ gh <command> [param] [options] -p
+    $ gh <command> [param] [options] --pager
+
+### Option: View in a Browser
+
+Many `gh` commands support a `-
