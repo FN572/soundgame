@@ -346,4 +346,60 @@ Search all Python repos created on or after 2015, with >= 1000 stars:
 
 ![Imgur](http://i.imgur.com/kazXWWY.png)
 
-For more information about the query qualifiers, visit the [searching repos reference](https://help.github.com/articles/searching-repositorie
+For more information about the query qualifiers, visit the [searching repos reference](https://help.github.com/articles/searching-repositories/).
+
+### Listing Trending Repos and Devs
+
+View trending repos:
+
+    $ gh trending [language] [-w/--weekly] [-m/--monthly] [-d/--devs] [-b/--browser]
+
+![Imgur](http://i.imgur.com/aa1gOg7.png)
+
+View trending devs (devs are currently only supported in browser):
+
+    $ gh trending [language] --devs --browser
+
+### Viewing Content
+
+#### The `view` command
+
+View the previously listed notifications, pull requests, issues, repos, users etc, with HTML nicely formatted for your terminal, or optionally in your browser:
+
+    $ gh view [#] [-b/--browser]
+
+![Imgur](http://i.imgur.com/NVEwGbV.png)
+
+#### The `issue` command
+
+View an issue:
+
+    $ gh issue donnemartin/saws/1
+
+![Imgur](http://i.imgur.com/ZFv9MuV.png)
+
+#### The `pull-request` command
+
+View a pull request:
+
+    $ gh pull-request donnemartin/awesome-aws/2
+
+![Imgur](http://i.imgur.com/3MtKjKy.png)
+
+### Setting Up `.gitignore`
+
+List all available `.gitignore` templates:
+
+    $ gh gitignore-templates
+
+![Imgur](http://i.imgur.com/u8qYx1s.png)
+
+Set up your `.gitignore`:
+
+    $ gh gitignore-template Python > .gitignore
+
+![Imgur](http://i.imgur.com/S5m5ZcO.png)
+
+### Setting Up `LICENSE`
+
+List all available `LICENSE
