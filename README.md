@@ -463,4 +463,27 @@ Usage:
 
 ### Option: View in a Browser
 
-Many `gh` commands support a `-
+Many `gh` commands support a `-b/--browser` option that displays results in your default browser instead of your terminal.
+
+Usage:
+
+    $ gh <command> [param] [options] -b
+    $ gh <command> [param] [options] --browser
+
+See the [COMMANDS.md](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md) for a detailed listing of all GitHub integration commands, parameters, options, and examples.
+
+Having trouble remembering these commands?  Check out the handy [autocompleter with interactive help](#git-and-github-autocompleter-with-interactive-help) to guide you through each command.
+
+*Note, you can combine `gitsome` with other utilities such as [Git-Extras](https://github.com/tj/git-extras/blob/master/Commands.md).*
+
+## Installation
+
+### Pip Installation
+
+[![PyPI version](https://badge.fury.io/py/gitsome.svg)](http://badge.fury.io/py/gitsome) [![PyPI](https://img.shields.io/pypi/pyversions/gitsome.svg)](https://pypi.python.org/pypi/gitsome/)
+
+`gitsome` is hosted on [PyPI](https://pypi.python.org/pypi/gitsome).  The following command will install `gitsome`:
+
+    $ pip3 install gitsome
+
+You can also install the latest `gitsome` from GitHu
