@@ -486,4 +486,37 @@ Having trouble remembering these commands?  Check out the handy [autocompleter w
 
     $ pip3 install gitsome
 
-You can also install the latest `gitsome` from GitHu
+You can also install the latest `gitsome` from GitHub source which can contain changes not yet pushed to PyPI:
+
+    $ pip3 install git+https://github.com/donnemartin/gitsome.git
+
+If you are not installing in a `virtualenv`, you might need to run with `sudo`:
+
+    $ sudo pip3 install gitsome
+
+#### `pip3`
+
+Depending on your setup, you might also want to run `pip3` with the [`-H flag`](http://stackoverflow.com/a/28619739):
+
+    $ sudo -H pip3 install gitsome
+
+For most linux users, `pip3` can be installed on your system using the `python3-pip` package.
+
+For example, Ubuntu users can run:
+
+    $ sudo apt-get install python3-pip
+
+See this [ticket](https://github.com/donnemartin/gitsome/issues/4) for more details.
+
+### Virtual Environment Installation
+
+You can install Python packages in a [`virtualenv`](http://docs.python-guide.org/en/latest/dev/virtualenvs/) to avoid potential issues with dependencies or permissions.
+
+If you are a Windows user or if you would like more details on `virtualenv`, check out this [guide](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+
+Install `virtualenv` and `virtualenvwrapper`:
+
+    $ pip3 install virtualenv
+    $ pip3 install virtualenvwrapper
+    $ export WORKON_HOME=~/.virtualenvs
+    $ source /usr/local/b
