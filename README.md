@@ -519,4 +519,40 @@ Install `virtualenv` and `virtualenvwrapper`:
     $ pip3 install virtualenv
     $ pip3 install virtualenvwrapper
     $ export WORKON_HOME=~/.virtualenvs
-    $ source /usr/local/b
+    $ source /usr/local/bin/virtualenvwrapper.sh
+
+Create a `gitsome` `virtualenv` and install `gitsome`:
+
+    $ mkvirtualenv gitsome
+    $ pip3 install gitsome
+
+If the `pip` install does not work, you might be running Python 2 by default.  Check what version of Python you are running:
+
+    $ python --version
+
+If the call above results in Python 2, find the path for Python 3:
+
+    $ which python3  # Python 3 path for mkvirtualenv's --python option
+
+Install Python 3 if needed.  Set the Python version when calling `mkvirtualenv`:
+
+    $ mkvirtualenv --python [Python 3 path from above] gitsome
+    $ pip3 install gitsome
+
+If you want to activate the `gitsome` `virtualenv` again later, run:
+
+    $ workon gitsome
+
+To deactivate the `gitsome` `virtualenv`, run:
+
+    $ deactivate
+
+### Running as a Docker Container
+
+You can run gitsome in a Docker container to avoid installing Python and `pip3` locally. To install Docker check out the [official Docker documentation](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker).
+
+Once you have docker installed you can run gitsome:
+
+    $ docker run -ti --rm mariolet/gitsome
+
+You can use Docker volumes to let gitsome access your working directory, yo
