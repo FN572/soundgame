@@ -589,4 +589,40 @@ Run GitHub-integrated commands:
 
     $ gh <command> [param] [options]
 
-Note: Running the `gitsome` shell is not required to execute `gh` commands.  After [installing](#installation) `gitsome` you ca
+Note: Running the `gitsome` shell is not required to execute `gh` commands.  After [installing](#installation) `gitsome` you can run `gh` commands from any shell.
+
+### Running the `gh configure` Command
+
+To properly integrate with GitHub, `gitsome` must be properly configured:
+
+    $ gh configure
+
+#### For GitHub Enterprise Users
+
+Run with the `-e/--enterprise` flag:
+
+    $ gh configure -e
+
+View more details in the [gh configure](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-configure) section.
+
+### Enabling Bash Completions
+
+By default, `gitsome` looks at the following [locations to enable bash completions](https://github.com/donnemartin/gitsome/blob/master/xonsh/environ.py#L123-L131).
+
+To add additional bash completions, update the `~/.xonshrc` file with the location of your bash completions.
+
+If `~/.xonshrc` does not exist, create it:
+
+    $ touch ~/.xonshrc
+
+For example, if additional completions are found in `/usr/local/etc/my_bash_completion.d/completion.bash`, add the following line in `~/.xonshrc`:
+
+```
+$BASH_COMPLETIONS.append('/usr/local/etc/my_bash_completion.d/completion.bash')
+```
+
+You will need to restart `gitsome` for the changes to take effect.
+
+### Enabling `gh` Tab Completions Outside of `gitsome`
+
+You can run `gh` commands outside of the `gitsome
