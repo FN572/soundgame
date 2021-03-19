@@ -555,4 +555,38 @@ Once you have docker installed you can run gitsome:
 
     $ docker run -ti --rm mariolet/gitsome
 
-You can use Docker volumes to let gitsome access your working directory, yo
+You can use Docker volumes to let gitsome access your working directory, your local .gitsomeconfig and .gitconfig:
+
+    $ docker run -ti --rm -v $(pwd):/src/              \
+       -v ${HOME}/.gitsomeconfig:/root/.gitsomeconfig  \
+       -v ${HOME}/.gitconfig:/root/.gitconfig          \
+       mariolet/gitsome
+
+If you are running this command often you will probably want to define an alias:
+
+    $ alias gitsome="docker run -ti --rm -v $(pwd):/src/              \
+                      -v ${HOME}/.gitsomeconfig:/root/.gitsomeconfig  \
+                      -v ${HOME}/.gitconfig:/root/.gitconfig          \
+                      mariolet/gitsome"
+
+To build the Docker image from sources:
+
+    $ git clone https://github.com/donnemartin/gitsome.git
+    $ cd gitsome
+    $ docker build -t gitsome .
+
+### Starting the `gitsome` Shell
+
+Once installed, run the optional `gitsome` autocompleter with interactive help:
+
+    $ gitsome
+
+Running the optional `gitsome` shell will provide you with autocompletion, interactive help, fish-style suggestions, a Python REPL, etc.
+
+### Running `gh` Commands
+
+Run GitHub-integrated commands:
+
+    $ gh <command> [param] [options]
+
+Note: Running the `gitsome` shell is not required to execute `gh` commands.  After [installing](#installation) `gitsome` you ca
