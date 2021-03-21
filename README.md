@@ -625,4 +625,44 @@ You will need to restart `gitsome` for the changes to take effect.
 
 ### Enabling `gh` Tab Completions Outside of `gitsome`
 
-You can run `gh` commands outside of the `gitsome
+You can run `gh` commands outside of the `gitsome` shell completer.  To enable `gh` tab completions for this workflow, copy the [`gh_complete.sh`](https://github.com/donnemartin/gitsome/blob/master/scripts/gh_complete.sh) file locally.
+
+Let bash know completion is available for the `gh` command within your current session:
+
+    $ source /path/to/gh_complete.sh
+
+To enable tab completion for all terminal sessions, add the following to your `bashrc` file:
+
+    source /path/to/gh_complete.sh
+
+Reload your `bashrc`:
+
+    $ source ~/.bashrc
+
+Tip: `.` is the short form of `source`, so you can run this instead:
+
+    $ . ~/.bashrc
+
+#### For Zsh Users
+
+`zsh` includes a module which is compatible with bash completions.
+
+Download the [`gh_complete.sh`](https://github.com/donnemartin/gitsome/blob/master/scripts/gh_complete.sh) file as above and append the following to your `.zshrc`:
+
+    autoload bashcompinit
+    bashcompinit
+    source /path/to/gh_complete.sh
+
+Reload your `zshrc`:
+
+     $ source ~/.zshrc
+
+### Optional: Installing `PIL` or `Pillow`
+
+Displaying the avatar for the `gh me` and `gh user` commands will require installing the optional `PIL` or `Pillow` dependency.
+
+Windows* and Mac:
+
+    $ pip3 install Pillow
+
+*See 
