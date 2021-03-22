@@ -665,4 +665,38 @@ Windows* and Mac:
 
     $ pip3 install Pillow
 
-*See 
+*See the [Windows Support](#windows-support) section for limitations on the avatar.
+
+Ubuntu users, check out these [instructions on askubuntu](http://askubuntu.com/a/272095)
+
+### Supported Python Versions
+
+* Python 3.4
+* Python 3.5
+* Python 3.6
+* Python 3.7
+
+`gitsome` is powered by `xonsh` which does not currently support Python 2.x, as discussed in this [ticket](https://github.com/scopatz/xonsh/issues/66).
+
+### Supported Platforms
+
+* Mac OS X
+    * Tested on OS X 10.10
+* Linux, Unix
+    * Tested on Ubuntu 14.04 LTS
+* Windows
+    * Tested on Windows 10
+
+### Windows Support
+
+`gitsome` has been tested on Windows 10 with `cmd` and `cmder`.
+
+Although you can use the standard Windows command prompt, you'll probably have a better experience with either [cmder](https://github.com/cmderdev/cmder) or [conemu](https://github.com/Maximus5/ConEmu).
+
+![Imgur](http://i.imgur.com/A1VCsjV.png)
+
+#### Text Only Avatar
+
+The commands [`gh user`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-user) and [`gh me`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-me) will always have the `-t/--text_avatar` flag enabled, since [`img2txt`](#credits) does not support the ansi avatar on Windows.
+
+###
