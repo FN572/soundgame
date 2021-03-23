@@ -699,4 +699,39 @@ Although you can use the standard Windows command prompt, you'll probably have a
 
 The commands [`gh user`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-user) and [`gh me`](https://github.com/donnemartin/gitsome/blob/master/COMMANDS.md#gh-me) will always have the `-t/--text_avatar` flag enabled, since [`img2txt`](#credits) does not support the ansi avatar on Windows.
 
-###
+#### Config File
+
+On Windows, the `.gitsomeconfig ` file can be found in `%userprofile%`.  For example:
+
+    C:\Users\dmartin\.gitsomeconfig
+
+## Developer Installation
+
+If you're interested in contributing to `gitsome`, run the following commands:
+
+    $ git clone https://github.com/donnemartin/gitsome.git
+    $ cd gitsome
+    $ pip3 install -e .
+    $ pip3 install -r requirements-dev.txt
+    $ gitsome
+    $ gh <command> [param] [options]
+
+#### `pip3`
+
+If you get an error while installing saying that you need Python 3.4+, it could be because your `pip` command is configured for an older version of Python. To fix this issue, it is recommended to install `pip3`:
+
+    $ sudo apt-get install python3-pip
+
+See this [ticket](https://github.com/donnemartin/gitsome/issues/4) for more details.
+
+### Continuous Integration
+
+[![Build Status](https://travis-ci.org/donnemartin/gitsome.svg?branch=master)](https://travis-ci.org/donnemartin/gitsome)
+
+Continuous integration details are available on [Travis CI](https://travis-ci.org/donnemartin/gitsome).
+
+### Unit Tests and Code Coverage
+
+Run unit tests in your active Python environment:
+
+    $ python te
