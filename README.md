@@ -734,4 +734,33 @@ Continuous integration details are available on [Travis CI](https://travis-ci.or
 
 Run unit tests in your active Python environment:
 
-    $ python te
+    $ python tests/run_tests.py
+
+Run unit tests with [tox](https://pypi.python.org/pypi/tox) on multiple Python environments:
+
+    $ tox
+
+### Documentation
+
+Source code documentation will soon be available on [Readthedocs.org](https://readthedocs.org/).  Check out the [source docstrings](https://github.com/donnemartin/gitsome/blob/master/gitsome/githubcli.py).
+
+Run the following to build the docs:
+
+    $ scripts/update_docs.sh
+
+## Contributing
+
+Contributions are welcome!
+
+Review the [Contributing Guidelines](https://github.com/donnemartin/gitsome/blob/master/CONTRIBUTING.md) for details on how to:
+
+* Submit issues
+* Submit pull requests
+
+## Credits
+
+* [click](https://github.com/pallets/click) by [mitsuhiko](https://github.com/mitsuhiko)
+* [github_trends_rss](https://github.com/ryotarai/github_trends_rss) by [ryotarai](https://github.com/ryotarai)
+* [github3.py](https://github.com/sigmavirus24/github3.py) by [sigmavirus24](https://github.com/sigmavirus24)
+* [html2text](https://github.com/aaronsw/html2text) by [aaronsw](https://github.com/aaronsw)
+* [img2txt](https://github.com/hit9/img2txt) by [hit9](https
