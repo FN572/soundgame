@@ -763,4 +763,29 @@ Review the [Contributing Guidelines](https://github.com/donnemartin/gitsome/blob
 * [github_trends_rss](https://github.com/ryotarai/github_trends_rss) by [ryotarai](https://github.com/ryotarai)
 * [github3.py](https://github.com/sigmavirus24/github3.py) by [sigmavirus24](https://github.com/sigmavirus24)
 * [html2text](https://github.com/aaronsw/html2text) by [aaronsw](https://github.com/aaronsw)
-* [img2txt](https://github.com/hit9/img2txt) by [hit9](https
+* [img2txt](https://github.com/hit9/img2txt) by [hit9](https://github.com/hit9)
+* [python-prompt-toolkit](https://github.com/jonathanslenders/python-prompt-toolkit) by [jonathanslenders](https://github.com/jonathanslenders)
+* [requests](https://github.com/kennethreitz/requests) by [kennethreitz](https://github.com/kennethreitz)
+* [xonsh](https://github.com/scopatz/xonsh) by [scopatz](https://github.com/scopatz)
+
+## Contact Info
+
+Feel free to contact me to discuss any issues, questions, or comments.
+
+My contact info can be found on my [GitHub page](https://github.com/donnemartin).
+
+## License
+
+*I am providing code and resources in this repository to you under an open source license.  Because this is my personal repository, the license you receive to my code and resources is from me and not my employer (Facebook).*
+
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+    Copyright 2016 Donne Martin
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless req
