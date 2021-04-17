@@ -186,3 +186,146 @@ COMPLETIONS_GH = {
         'args': {
             'octocat/Spoon-Knife/3': 'str (req) user/repo/pull_number combo.',
         },
+        'opts': {},
+    },
+    'pull-requests': {
+        'desc': 'Lists all pull requests.',
+        'args': {},
+        'opts': {
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'rate-limit': {
+        'desc': 'Outputs the rate limit.',
+        'args': {},
+        'opts': {},
+    },
+    'repo': {
+        'desc': 'Outputs detailed information about the given repo.',
+        'args': {
+            'octocat/Spoon-Knife': 'str (req) user/repository combo.',
+        },
+        'opts': {},
+    },
+    'repos': {
+        'desc': 'Lists all repos matching the given filter.',
+        'args': {
+            '"foo bar optional filter"': 'str (opt) filters repos by name.',
+        },
+        'opts': {
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'search-issues': {
+        'desc': 'Searches for all issues matching the given query.',
+        'args': {
+            '"foobarbaz in:title created:>=2015-01-01"': 'str (req) the search query.',
+        },
+        'opts': {
+            '-s': 'str (opt) "stars", "forks", "updated", if blank, sorts by query best match.',
+            '--sort': 'str (opt) "stars", "forks", "updated", if blank, sorts by query best match.',
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'search-repos': {
+        'desc': 'Searches for all repos matching the given query.',
+        'args': {
+            '"created:>=2015-01-01 stars:>=1500 language:python"': 'str (req) the search query.',
+        },
+        'opts': {
+            '-s': 'str (opt) "stars", "forks", "updated", if blank, sorts by query best match.',
+            '--sort': 'str (opt) "stars", "forks", "updated", if blank, sorts by query best match.',
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'starred': {
+        'desc': 'Outputs starred repos.',
+        'args': {
+            '"foo bar optional filter"': 'str (opt) filters repos by name.',
+        },
+        'opts': {
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'trending': {
+        'desc': 'Lists trending repos for the given language.',
+        'args': {
+            'Overall': 'str (opt) the language filter for trending repos, if blank, the overall rankings are shown.',
+        },
+        'opts': {
+            '-w': 'flag (opt) show the weekly trending repos.',
+            '--weekly': 'flag (opt) show the weekly trending repos.',
+            '-m': 'flag (opt) show the monthly trending repos.',
+            '--monthly': 'flag (opt) show the monthly trending repos.',
+            '-D': 'flag (opt) view trending devs.  Only valid with -b/--browser.',
+            '--devs': 'flag (opt) view trending devs.  Only valid with -b/--browser.',
+            '-b': 'flag (opt) view profile in a browser instead of the terminal.',
+            '--browser': 'flag (opt) view profile in a browser instead of the terminal.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'user': {
+        'desc': 'Lists information about the given user.',
+        'args': {
+            'github --pager': "str (req) the user's login id.",
+        },
+        'opts': {
+            '-b': 'flag (opt) view profile in a browser instead of the terminal.',
+            '--browser': 'flag (opt) view profile in a browser instead of the terminal.',
+            '-t': 'see associated -- option for details.',
+            '--text_avatar': 'flag (opt) view profile pic in plain text.',
+            '-l': 'flag (opt) num items to show, defaults to 1000.',
+            '--limit': 'flag (opt) num items to show, defaults to 1000.',
+            '-p': 'flag (opt) show results in a pager.',
+            '--pager': 'flag (opt) show results in a pager.',
+        },
+    },
+    'view': {
+        'desc': 'Views the given repo or issue index in the terminal or a browser.',
+        'args': {
+            '1': 'int (req) the 1-based index to view.',
+        },
+        'opts': {
+            '-b': 'flag (opt) view profile in a browser instead of the terminal.',
+            '--browser': 'flag (opt) view profile in a browser instead of the terminal.',
+        },
+    },
+}
+META_LOOKUP_GH = {
+    '10': 'limit: int (opt) limits the posts displayed',
+    '"(?i)(Python|Django)"': ('regex_query: string (opt) applies a regular '
+                              'expression comment filter'),
+    '1': 'index: int (req) views the post index',
+    '"user"': 'user:string (req) shows info on the specified user',
+    'gh': 'Git auto-completer with GitHub integration.',
+}
+SUBCOMMANDS = {}
+
+
+def build_meta_lookups():
+    for subcommand, args_opts in COMPLETIONS_GH.items():
+        META_LOOKUP_GH.update({subcommand: COMPLETIONS_GH[subcommand]['desc']})
+        SUBCOMMANDS.update({subcommand: COMPLETIONS_GH[subcommand]['desc']})
+        for opt, meta in args_opts['opts'].items():
+            META_LOOKUP_GH.update({opt: meta})
+        for arg, meta in args_opts['args'].items():
+            META_LOOKUP_GH.update({arg: meta})
+
+
+build_meta_lookups()
