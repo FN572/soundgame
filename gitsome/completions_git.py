@@ -308,4 +308,11 @@ META_LOOKUP_GIT_EXTRAS = {
     'sed': 'replace patterns in git-controlled files.',
     'setup': 'Set up a git repository.',
     'show-merged-branches': 'Show merged branches.',
-    'show-tree': 'show branch 
+    'show-tree': 'show branch tree of commit history.',
+    'show-unmerged-branches': 'Show unmerged branches.',
+    'squash': 'Import changes from a branch.',
+    'summary': 'Show repository summary.',
+    'touch': 'Touch and add file to the index.',
+    'undo': 'Remove latest commits.',
+    'unlock': 'Unlock a file excluded from version control.',
+}
