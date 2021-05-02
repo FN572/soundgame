@@ -39,4 +39,31 @@ class Formatter(object):
     :param pretty_dt: An instance of pretty_date_time.
     """
 
-    def 
+    def __init__(self, config):
+        self.config = config
+        self.event_type_mapping = {
+            'CommitCommentEvent': 'commented on commit',
+            'CreateEvent': 'created',
+            'DeleteEvent': 'deleted',
+            'FollowEvent': 'followed',
+            'ForkEvent': 'forked',
+            'GistEvent': 'created/updated gist',
+            'GollumEvent': 'created/updated wiki',
+            'IssueCommentEvent': 'commented on',
+            'IssuesEvent': '',
+            'MemberEvent': 'added collaborator',
+            'MembershipEvent': 'added/removed user',
+            'PublicEvent': 'open sourced',
+            'PullRequestEvent': '',
+            'PullRequestReviewCommentEvent': 'commented on pull request',
+            'PushEvent': 'pushed to',
+            'ReleaseEvent': 'released',
+            'RepositoryEvent': 'created repository',
+            'WatchEvent': 'starred',
+        }
+        self.event_handlers = {
+            'CommitCommentEvent': self._format_commit_comment_event,
+            'CreateEvent': self._format_create_delete_event,
+            'DeleteEvent': self._format_create_delete_event,
+            'FollowEvent': self._format_general_event,
+  
