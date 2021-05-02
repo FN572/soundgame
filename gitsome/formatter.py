@@ -66,4 +66,28 @@ class Formatter(object):
             'CreateEvent': self._format_create_delete_event,
             'DeleteEvent': self._format_create_delete_event,
             'FollowEvent': self._format_general_event,
-  
+            'ForkEvent': self._format_fork_event,
+            'ForkApplyEvent': self._format_general_event,
+            'GistEvent': self._format_general_event,
+            'GollumEvent': self._format_general_event,
+            'IssueCommentEvent': self._format_issue_commment_event,
+            'IssuesEvent': self._format_issues_event,
+            'MemberEvent': self._format_general_event,
+            'MembershipEvent': self._format_general_event,
+            'PublicEvent': self._format_general_event,
+            'PullRequestEvent': self._format_pull_request_event,
+            'PullRequestReviewCommentEvent': self._format_commit_comment_event,
+            'PushEvent': self._format_push_event,
+            'ReleaseEvent': self._format_release_event,
+            'StatusEvent': self._format_general_event,
+            'TeamAddEvent': self._format_general_event,
+            'RepositoryEvent': self._format_general_event,
+            'WatchEvent': self._format_general_event,
+        }
+        self.pretty_dt = pretty_date_time
+
+    def _format_time(self, event):
+        """Format time.
+
+        :type event: :class:`github3` Event.
+        
