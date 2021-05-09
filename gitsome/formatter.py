@@ -124,4 +124,39 @@ class Formatter(object):
             calculate the indent dynamically.
 
         :type sha: str
-        :param sha: The commit ha
+        :param sha: The commit hash.
+
+        :rtype: str
+        :return: The formattted commit comment.
+        """
+        subsequent_indent = indent
+        if sha != '':
+            subsequent_indent += '         '
+        message = self.strip_line_breaks(message)
+        formatted_message = click.wrap_text(
+            text=click.style(sha, fg=self.config.clr_tertiary)+message,
+            initial_indent=indent,
+            subsequent_indent=subsequent_indent)
+        if newline:
+            formatted_message = click.style('\n' + formatted_message)
+        return formatted_message
+
+    def _format_sha(self, sha):
+        """Format commit hash.
+
+        :type sha: str
+        :param sha: The commit hash.
+        """
+        return sha[:7]
+
+    def _format_commit_comment_event(self, event):
+        """Format commit comment and commit hash.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type] + ' ',
+                           fg=self.config.clr_secondary)
+        item += click.style(
+            self._format_sha(event.payload['comment'].commit_id),
+            fg=self.config.clr_t
