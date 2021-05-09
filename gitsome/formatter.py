@@ -90,4 +90,38 @@ class Formatter(object):
         """Format time.
 
         :type event: :class:`github3` Event.
-        
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(
+            ' (' + str(self.pretty_dt(event.created_at)) + ')',
+            fg=self.config.clr_time)
+        return item
+
+    def _format_issue_comment(self, event, key):
+        """Format an issue comment.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        issue = '{repo[0]}/{repo[1]}#{num}'.format(
+            repo=event.payload[key].repository,
+            num=event.payload[key].number)
+        return click.style(issue, fg=self.config.clr_tertiary)
+
+    def _format_indented_message(self, message, newline=True,
+                                 indent='         ', sha=''):
+        """Format an indented message.
+
+        :type message: str
+        :param message: The commit comment.
+
+        :type newline: bool
+        :param newline: Determines whether to prepend a newline.
+
+        :type indent: str
+        :param indent: The indent, consisting of blank chars.
+            TODO: Consider passing an int denoting # blank chars, or try to
+            calculate the indent dynamically.
+
+        :type sha: str
+        :param sha: The commit ha
