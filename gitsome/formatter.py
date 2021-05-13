@@ -188,4 +188,31 @@ class Formatter(object):
         """
         item = click.style(self.event_type_mapping[event.type],
                            fg=self.config.clr_secondary)
-        item += click.style(' ' + ev
+        item += click.style(' ' + event.payload['ref_type'],
+                            fg=self.config.clr_secondary)
+        if event.payload['ref']:
+            item += click.style(' ' + event.payload['ref'],
+                                fg=self.config.clr_tertiary)
+        item += click.style(' at ', fg=self.config.clr_secondary)
+        item += click.style(self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+        item += self._format_time(event)
+        try:
+            item += self._format_indented_message(
+                ('' if event.payload['description'] is None
+                 else event.payload['description']))
+        except KeyError:
+            pass
+        return item
+
+    def _format_fork_event(self, event):
+        """Format a repo fork event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type],
+                           fg=self.config.clr_secondary)
+        item += click.style(' ' + self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+        item 
