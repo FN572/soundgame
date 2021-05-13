@@ -159,4 +159,33 @@ class Formatter(object):
                            fg=self.config.clr_secondary)
         item += click.style(
             self._format_sha(event.payload['comment'].commit_id),
-            fg=self.config.clr_t
+            fg=self.config.clr_tertiary)
+        item += click.style(' at ', fg=self.config.clr_secondary)
+        item += click.style(self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+        try:
+            item += click.style(
+                '#' + str(event.payload['pull_request'].number) + ' ',
+                fg=self.config.clr_tertiary)
+        except KeyError:
+            pass
+        item += self._format_time(event)
+        try:
+            item += self._format_indented_message(
+                event.payload['pull_request'].title)
+            item += self._format_indented_message(
+                event.payload['comment'].body, indent='           ')
+        except KeyError:
+            item += self._format_indented_message(
+                event.payload['comment'].body)
+        return item
+
+    def _format_create_delete_event(self, event):
+        """Format a create or delete event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type],
+                           fg=self.config.clr_secondary)
+        item += click.style(' ' + ev
