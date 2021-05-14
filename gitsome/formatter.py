@@ -245,4 +245,34 @@ class Formatter(object):
         item += self._format_issue_comment(event, key='issue')
         item += self._format_time(event)
         item += self._format_indented_message(
-            event.payload['
+            event.payload['issue'].title)
+        return item
+
+    def _format_pull_request_event(self, event):
+        """Format a pull request event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(event.payload['action'] + ' pull request ',
+                           fg=self.config.clr_secondary)
+        item += self._format_issue_comment(event, key='pull_request')
+        item += self._format_time(event)
+        item += self._format_indented_message(
+            event.payload['pull_request'].title)
+        return item
+
+    def _format_push_event(self, event):
+        """Format a push event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type],
+                           fg=self.config.clr_secondary)
+        branch = event.payload['ref'].split('/')[-1]
+        item += click.style(' ' + branch, fg=self.config.clr_tertiary)
+        item += click.style(' at ', fg=self.config.clr_secondary)
+        item += click.style(self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+ 
