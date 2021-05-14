@@ -215,4 +215,34 @@ class Formatter(object):
                            fg=self.config.clr_secondary)
         item += click.style(' ' + self.format_user_repo(event.repo),
                             fg=self.config.clr_tertiary)
-        item 
+        item += self._format_time(event)
+        return item
+
+    def _format_issue_commment_event(self, event):
+        """Format a repo fork event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type] + ' ',
+                           fg=self.config.clr_secondary)
+        item += self._format_issue_comment(event, key='issue')
+        item += self._format_time(event)
+        item += self._format_indented_message(
+            event.payload['issue'].title)
+        item += self._format_indented_message(
+            event.payload['comment'].body, indent='           ')
+        return item
+
+    def _format_issues_event(self, event):
+        """Format an issue event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(event.payload['action'] + ' issue ',
+                           fg=self.config.clr_secondary)
+        item += self._format_issue_comment(event, key='issue')
+        item += self._format_time(event)
+        item += self._format_indented_message(
+            event.payload['
