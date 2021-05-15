@@ -275,4 +275,32 @@ class Formatter(object):
         item += click.style(' at ', fg=self.config.clr_secondary)
         item += click.style(self.format_user_repo(event.repo),
                             fg=self.config.clr_tertiary)
- 
+        item += self._format_time(event)
+        for commit in event.payload['commits']:
+            sha = click.style(self._format_sha(commit['sha']) + ': ',
+                              fg=self.config.clr_message)
+            item += self._format_indented_message(
+                commit['message'], sha=sha)
+        return item
+
+    def _format_release_event(self, event):
+        """Format a release event.
+
+        :type event: :class:`github3` Event.
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type] + ' ',
+                           fg=self.config.clr_secondary)
+        item += click.style(event.payload['release'].tag_name + ' ',
+                            fg=self.config.clr_tertiary)
+        item += click.style('at ', fg=self.config.clr_secondary)
+        item += click.style(self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+        item += self._format_time(event)
+        return item
+
+    def _format_general_event(self, event):
+        """Format an event, general case used by various event types.
+
+        :type event: :class:`github3` Event.
+        :par
