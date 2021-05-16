@@ -303,4 +303,36 @@ class Formatter(object):
         """Format an event, general case used by various event types.
 
         :type event: :class:`github3` Event.
-        :par
+        :param event: An instance of `github3` Event.
+        """
+        item = click.style(self.event_type_mapping[event.type] + ' ',
+                           fg=self.config.clr_secondary)
+        item += click.style(self.format_user_repo(event.repo),
+                            fg=self.config.clr_tertiary)
+        item += self._format_time(event)
+        return item
+
+    def format_email(self, view_entry):
+        """Format an email.
+
+        :type view_entry: :class:`github3` Email
+        :param view_entry: An instance of `github3` Email.
+
+        :rtype: str
+        :return: The formattted email.
+        """
+        email = view_entry.item
+        item = self.format_index_title(view_entry.index, email.email)
+        item += '\n'
+        item += click.style(('        ' + 'Primary: ' +
+                             str(email.primary).ljust(7) + ' '),
+                            fg=self.config.clr_secondary)
+        item += click.style(('Verified: ' +
+                             str(email.verified).ljust(5) + ' '),
+                            fg=self.config.clr_tertiary)
+        return item
+
+    def format_emoji(self, view_entry):
+        """Format an emoji.
+
+        :type 
