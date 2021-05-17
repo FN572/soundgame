@@ -335,4 +335,43 @@ class Formatter(object):
     def format_emoji(self, view_entry):
         """Format an emoji.
 
-        :type 
+        :type view_entry: str
+        :param view_entry: The emoji name.
+
+        :rtype: str
+        :return: The formattted emoji.
+        """
+        emoji = view_entry.item
+        item = self.format_index_title(view_entry.index, emoji)
+        return item
+
+    def format_event(self, view_entry):
+        """Format an event.
+
+        :type view_entry: :class:`github3` Event
+        :param view_entry: An instance of `github3` Event.
+
+        :rtype: str
+        :return: The formattted event.
+        """
+        event = view_entry.item
+        item = self.format_index_title(view_entry.index, str(event.actor))
+        item += self.event_handlers[event.type](event)
+        return item
+
+    def format_gitignore_template_name(self, view_entry):
+        """Format a gitignore template name.
+
+        :type view_entry: str
+        :param view_entry: The gitignore template name.
+
+        :rtype: str
+        :return: The formattted gitignore template name.
+        """
+        gitignore_template_name = view_entry.item
+        item = self.format_index_title(view_entry.index,
+                                       gitignore_template_name)
+        return item
+
+    def format_feed_entry(self, view_entry):
+        """Forma
