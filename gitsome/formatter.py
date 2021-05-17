@@ -374,4 +374,30 @@ class Formatter(object):
         return item
 
     def format_feed_entry(self, view_entry):
-        """Forma
+        """Format a feed entry.
+
+        :type view_entry: dict
+        :param view_entry: The URITemplates feed.
+
+        :rtype: str
+        :return: The formattted feed entry.
+        """
+        feed_entry = view_entry.item
+        item_parts = feed_entry.title.split(' ')
+        title = item_parts[0]
+        action = item_parts[1:-1]
+        repo = item_parts[-1]
+        item = self.format_index_title(view_entry.index, title)
+        if action[0] == 'forked':
+            item += click.style(action[0] + ' ', fg=self.config.clr_secondary)
+            item += click.style(action[1] + ' ', fg=self.config.clr_tertiary)
+        else:
+            item += click.style(' '.join(action), fg=self.config.clr_secondary)
+            item += click.style(' ' + repo + ' ', fg=self.config.clr_tertiary)
+        item += click.style(
+            '(' + str(self.pretty_dt(feed_entry.updated_parsed)) + ')',
+            fg=self.config.clr_time)
+        if action[0] == 'commented':
+            comment_parts = feed_entry['summary'].split('blockquote')
+            if len(comment_parts) > 2:
+                comment = comment_parts[-2]
