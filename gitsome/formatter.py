@@ -401,3 +401,29 @@ class Formatter(object):
             comment_parts = feed_entry['summary'].split('blockquote')
             if len(comment_parts) > 2:
                 comment = comment_parts[-2]
+                parts_mention = comment.split('class="user-mention">')
+                if len(parts_mention) > 1:
+                    comment = parts_mention[1]
+                comment = self._format_indented_message(comment, newline=False)
+                comment = re.sub(r'(</a>*)', r'', comment)
+                comment = re.sub(r'(<p>*)', r'', comment)
+                comment = re.sub(r'(</p>*)', r'', comment)
+                comment = re.sub(r'(</*)', r'', comment)
+                comment = re.sub(r'(>      *)', r'', comment)
+                item += click.style('\n' + comment, fg=self.config.clr_message)
+        return item
+
+    def format_license_name(self, view_entry):
+        """Format a license template name.
+
+        :type view_entry: :class:`github3` License
+        :param view_entry: An instance of `github3` License.
+
+        :rtype: str
+        :return: The formattted license template name.
+        """
+        license_template_name = view_entry.item
+        item = self.format_index_title(view_entry.index,
+                                       license_template_name.key)
+        item += click.style('(' + license_template_name.name + ')',
+                    
