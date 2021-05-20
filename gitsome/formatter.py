@@ -426,4 +426,41 @@ class Formatter(object):
         item = self.format_index_title(view_entry.index,
                                        license_template_name.key)
         item += click.style('(' + license_template_name.name + ')',
-                    
+                            fg=self.config.clr_secondary)
+        return item
+
+    def format_user(self, view_entry):
+        """Format a user.
+
+        :type view_entry: :class:`github3` User
+        :param view_entry: An instance of `github3` User.
+
+        :rtype: str
+        :return: The formattted user.
+        """
+        user = view_entry.item
+        item = self.format_index_title(view_entry.index, user.login)
+        return item
+
+    def format_issues_url_from_issue(self, issue):
+        """Format the issue url based on the given issue.
+
+        :type issue: :class:`github3` Issue
+        :param issue: An instance of `github3` Issue.
+
+        :rtype: str
+        :return: The formattted issues url.
+        """
+        return self.format_user_repo(issue.repository) + '/' + \
+            'issues/' + str(issue.number)
+
+    def format_issues_url_from_thread(self, thread):
+        """Format the issue url based on the given thread.
+
+        :type issue: :class:`github3` Thread
+        :param issue: An instance of `github3` Thread.
+
+        :rtype: str
+        :return: The formattted issues url.
+        """
+        ur
