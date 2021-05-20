@@ -463,4 +463,39 @@ class Formatter(object):
         :rtype: str
         :return: The formattted issues url.
         """
-        ur
+        url_parts = thread.subject['url'].split('/')
+        user = url_parts[4]
+        repo = url_parts[5]
+        issues_uri = 'issues'
+        issue_id = url_parts[7]
+        return '/'.join([user, repo, issues_uri, issue_id])
+
+    def format_index_title(self, index, title):
+        """Format an item's index and title.
+
+        :type index: str
+        :param index: The index for the given item.
+
+        :type title: str
+        :param title: The item's title.
+
+        :rtype: str
+        :return: The formatted index and title.
+        """
+        formatted_index_title = click.style('  ' + (str(index) + '.').ljust(5),
+                                            fg=self.config.clr_view_index)
+        formatted_index_title += click.style(title + ' ',
+                                             fg=self.config.clr_primary)
+        return formatted_index_title
+
+    def format_issue(self, view_entry):
+        """Format an issue.
+
+        :type view_entry: :class:`github3` Issue
+        :param view_entry: An instance of `github3` Issue.
+
+        :rtype: str
+        :return: The formatted issue.
+        """
+        issue = view_entry.item
+        item = self.format_index_title(view_entry.in
