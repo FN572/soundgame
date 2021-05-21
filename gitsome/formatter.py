@@ -498,4 +498,30 @@ class Formatter(object):
         :return: The formatted issue.
         """
         issue = view_entry.item
-        item = self.format_index_title(view_entry.in
+        item = self.format_index_title(view_entry.index, issue.title)
+        item += click.style('@' + str(issue.user) + ' ',
+                            fg=self.config.clr_primary)
+        item += click.style(('(' +
+                             self.format_issues_url_from_issue(issue) +
+                             ')'),
+                            fg=self.config.clr_view_link)
+        item += '\n'
+        indent = '        '
+        if len(item) == 8:
+            item += click.style(('        Score: ' +
+                                 str(item[7]).ljust(10) + ' '),
+                                fg=self.config.clr_quaternary)
+            indent = '  '
+        item += click.style((indent + 'State: ' +
+                             str(issue.state).ljust(10) + ' '),
+                            fg=self.config.clr_secondary)
+        item += click.style(('Comments: ' +
+                             str(issue.comments_count).ljust(5) + ' '),
+                            fg=self.config.clr_tertiary)
+        item += click.style(('Assignee: ' +
+                             str(issue.assignee).ljust(10) + ' '),
+                            fg=self.config.clr_quaternary)
+        return item
+
+    def format_repo(self, view_entry):
+        """Format a 
