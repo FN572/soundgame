@@ -524,4 +524,32 @@ class Formatter(object):
         return item
 
     def format_repo(self, view_entry):
-        """Format a 
+        """Format a repo.
+
+        :type view_entry: :class:`github3` Repository
+        :param view_entry: An instance of `github3` Repository.
+
+        :rtype: str
+        :return: The formatted repo.
+        """
+        repo = view_entry.item
+        item = self.format_index_title(view_entry.index, repo.full_name)
+        language = repo.language if repo.language is not None else 'Unknown'
+        item += click.style('(' + language + ')',
+                            fg=self.config.clr_message)
+        item += '\n'
+        item += click.style(('        ' + 'Stars: ' +
+                             str(repo.stargazers_count).ljust(6) + ' '),
+                            fg=self.config.clr_secondary)
+        item += click.style('Forks: ' + str(repo.forks_count).ljust(6) + ' ',
+                            fg=self.config.clr_tertiary)
+        item += click.style(('Updated: ' +
+                             str(self.pretty_dt(repo.updated_at)) + ' '),
+                            fg=self.config.clr_time)
+        return item
+
+    def format_thread(self, view_entry):
+        """Format a thread.
+
+        :type view_entry: :class:`github3` Thread
+   
