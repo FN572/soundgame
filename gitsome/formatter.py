@@ -552,4 +552,33 @@ class Formatter(object):
         """Format a thread.
 
         :type view_entry: :class:`github3` Thread
-   
+        :param view_entry: An instance of `github3` Thread.
+
+        :rtype: str
+        :return: The formatted thread.
+        """
+        thread = view_entry.item
+        item = self.format_index_title(view_entry.index,
+                                       thread.subject['title'])
+        item += click.style('(' + view_entry.url + ')',
+                            fg=self.config.clr_view_link)
+        item += '\n'
+        item += click.style(('        ' + 'Seen: ' +
+                             str(not thread.unread).ljust(7) + ' '),
+                            fg=self.config.clr_secondary)
+        item += click.style(('Type: ' +
+                             str(thread.subject['type']).ljust(12) + ' '),
+                            fg=self.config.clr_tertiary)
+        item += click.style(('Updated: ' +
+                             str(self.pretty_dt(thread.updated_at)) + ' '),
+                            fg=self.config.clr_time)
+        return item
+
+    def format_trending_entry(self, view_entry):
+        """Formats a trending repo entry.
+
+        :type view_entry: dict
+        :param view_entry: The URITemplates feed.
+
+        :rtype: str
+        :return: The forma
