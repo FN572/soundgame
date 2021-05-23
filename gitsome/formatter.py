@@ -581,4 +581,37 @@ class Formatter(object):
         :param view_entry: The URITemplates feed.
 
         :rtype: str
-        :return: The forma
+        :return: The formattted trending entry.
+        """
+        trending_entry = view_entry.item
+        item_parts = trending_entry.title.split(' ')
+        title = item_parts[0]
+        item = self.format_index_title(view_entry.index, title)
+
+        try:
+            summary_parts = trending_entry.summary.split('\n')
+            summary = summary_parts[0] if len(summary_parts) > 1 else ''
+            summary = self.strip_line_breaks(summary)
+            language = summary_parts[-1]
+        except AttributeError:
+            summary = ''
+            language = ''
+
+        if language == '()':
+            language = '(Unknown)'
+        language = re.sub(r'(\()', r'', language)
+        language = re.sub(r'(\))', r'', language)
+        if summary:
+            item += '\n'
+            summary = click.wrap_text(
+                text=summary,
+                initial_indent='         ',
+                subsequent_indent='         ')
+        item += click.style(summary, self.config.clr_message)
+        item += '\n'
+        item += click.style('         ' + language,
+                            fg=self.config.clr_message)
+        return item
+
+    def format_user_repo(self, user_repo_tuple):
+    
