@@ -614,4 +614,36 @@ class Formatter(object):
         return item
 
     def format_user_repo(self, user_repo_tuple):
-    
+        """Format a repo tuple for pretty print.
+
+        Example:
+            Input:  ('donnemartin', 'gitsome')
+            Output: donnemartin/gitsome
+            Input:  ('repos/donnemartin', 'gitsome')
+            Output: donnemartin/gitsome
+
+        :type user_repo_tuple: tuple
+        :param user_repo_tuple: The user and repo.
+
+        :rtype: str
+        :return: A string of the form user/repo.
+        """
+        result = '/'.join(user_repo_tuple)
+        if result.startswith('repos/'):
+            return result[len('repos/'):]
+        return result
+
+    def strip_line_breaks(self, text):
+        """Strips \r and \n characters.
+
+        These characters seem to cause issues with `click.wrap_text`.
+
+        :type text: str
+        :param text: The text to strip of line breaks.
+
+        :rtype: str
+        :return: The input text without line breaks.
+        """
+        text = re.sub(r'\r', '', text)
+        text = re.sub(r'\n', ' ', text)
+        return text
