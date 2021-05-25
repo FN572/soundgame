@@ -41,4 +41,41 @@ from .utils import TextUtils
 class GitHub(object):
     """Provide integration with the GitHub API.
 
-    :type config: :class:
+    :type config: :class:`config.Config`
+    :param config: An instance of `config.Config`.
+
+    :type formatter: :class:`formatter.Formatter`
+    :param formatter: An instance of `formatter.Formatter`.
+
+    :type img2txt: callable
+    :param img2txt: A callable fom img2txt.
+
+    :type table: :class:`table.Table`
+    :param table: An instance of `table.Table`.
+
+    :type trend_parser: :class:`feedparser`
+    :param trend_parser: An instance of `feedparser`.
+
+    :type web_viewer: :class:`web_viewer.WebViewer`
+    :param web_viewer: An instance of `web_viewer.WebViewer`.
+
+    :type _base_url: str
+    :param _base_url: The base GitHub or GitHub Enterprise url.
+    """
+
+    def __init__(self):
+        self.config = Config()
+        self.formatter = Formatter(self.config)
+        self.img2txt = img2txt.img2txt
+        self.table = Table(self.config)
+        self.web_viewer = WebViewer(self.config)
+        self.trend_parser = feedparser
+        self.text_utils = TextUtils()
+        self._base_url = 'https://github.com/'
+
+    @property
+    def base_url(self):
+        return self.config.enterprise_url or self._base_url
+
+    def add_base_url(self, url):
+        """Ad
