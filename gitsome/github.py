@@ -78,4 +78,34 @@ class GitHub(object):
         return self.config.enterprise_url or self._base_url
 
     def add_base_url(self, url):
-        """Ad
+        """Add the base url if it is not already part of the given url.
+
+        :type url: str
+        :param url: The url.
+
+        :return: The url including the base url.
+        """
+        return self.base_url + url if self.base_url not in url else url
+
+    def authenticate(func):
+        """Decorator that authenticates credentials.
+
+        :type func: callable
+        :param func: A method to execute if authorization passes.
+
+        :return: The return value of `func` if authorization passes, or
+            None if authorization fails.
+        """
+        def auth_wrapper(self, *args, **kwargs):
+            self.config.authenticate()
+            self.config.save_config()
+            if self.config.check_auth():
+                try:
+                    return func(self, *args, **kwargs)
+                except SSLError:
+                    click.secho(('SSL cert verification failed.\n  Try running '
+                                 'gh configure --enterprise\n  and type '
+                                 "'n' when asked whether to verify SSL certs."),
+                                fg=self.config.clr_error)
+                except MissingSchema:
+                    click.secho('Invalid GitHub Enter
