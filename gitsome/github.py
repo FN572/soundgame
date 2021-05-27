@@ -108,4 +108,37 @@ class GitHub(object):
                                  "'n' when asked whether to verify SSL certs."),
                                 fg=self.config.clr_error)
                 except MissingSchema:
-                    click.secho('Invalid GitHub Enter
+                    click.secho('Invalid GitHub Enterprise url',
+                                fg=self.config.clr_error)
+                except AuthenticationFailed:
+                    self.config.print_auth_error()
+        return auth_wrapper
+
+    def avatar(self, url, text_avatar):
+        """Display the user's avatar from the specified url.
+
+        This method requires PIL.
+
+        :type url: str
+        :param url: The user's avatar image.
+
+        :type text_avatar: bool
+        :param text_avatar: Determines whether to view the profile avatar
+            in plain text (True) or in ansi (False).
+            On Windows this value is always set to True due to lack of
+            support of `img2txt` on Windows.
+
+        :rtype: str
+        :return: The avatar.
+        """
+        if platform.system() == 'Windows':
+            text_avatar = True
+        avatar_enabled = self.config.enable_avatar
+        avatar_text = ''
+        if avatar_enabled:
+            avatar = self.config.get_github_config_path(
+                self.config.CONFIG_AVATAR)
+            try:
+                urllib.request.urlretrieve(url, avatar)
+            except urllib.error.URLError:
+     
