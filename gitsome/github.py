@@ -171,4 +171,38 @@ class GitHub(object):
         except ImportError:
             avatar_text = click.style(('To view the avatar in your terminal, '
                                        'install the Python Image Library.\n'),
-                                      fg=self
+                                      fg=self.config.clr_message)
+            return avatar_text
+
+    def configure(self, enterprise):
+        """Configure gitsome.
+
+        Attempts to authenticate the user and to set up the user's news feed.
+
+        If `gitsome` has not yet been configured, calling a `gh` command that
+        requires authentication will automatically invoke the `configure`
+        command.
+
+        :type enterprise: bool
+        :param enterprise: Determines whether to configure GitHub Enterprise.
+        """
+        self.config.authenticate(enterprise=enterprise, overwrite=True)
+        self.config.prompt_news_feed()
+        self.config.show_bash_completions_info()
+        self.config.save_config()
+
+    @authenticate
+    def create_comment(self, user_repo_number, text):
+        """Create a comment on the given issue.
+
+        :type user_repo_number: str
+        :param user_repo_number: The user/repo/issue_number.
+
+        :type text: str
+        :param text: The comment text.
+        """
+        try:
+            user, repo, number = user_repo_number.split('/')
+            int(number)  # Check for int
+        except ValueError:
+            click.secho(('Expected argume
