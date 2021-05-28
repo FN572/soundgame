@@ -141,4 +141,34 @@ class GitHub(object):
             try:
                 urllib.request.urlretrieve(url, avatar)
             except urllib.error.URLError:
-     
+                pass
+            if os.path.exists(avatar):
+                avatar_text = self.img2txt(avatar, ansi=(not text_avatar))
+                avatar_text += '\n'
+                os.remove(avatar)
+        return avatar_text
+
+    def avatar_setup(self, url, text_avatar):
+        """Prepare to display the user's avatar from the specified url.
+
+        This method requires PIL.
+
+        :type url: str
+        :param url: The user's avatar image.
+
+        :type text_avatar: bool
+        :param text_avatar: Determines whether to view the profile avatar
+            in plain text (True) or in ansi (False).
+            On Windows this value is always set to True due to lack of
+            support of `img2txt` on Windows.
+
+        :rtype: str
+        :return: The avatar.
+        """
+        try:
+            import PIL  # NOQA
+            return self.avatar(url, text_avatar)
+        except ImportError:
+            avatar_text = click.style(('To view the avatar in your terminal, '
+                                       'install the Python Image Library.\n'),
+                                      fg=self
