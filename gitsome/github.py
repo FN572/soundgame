@@ -238,3 +238,31 @@ class GitHub(object):
                         fg=self.config.clr_error)
             return
         issue = self.config.api.create_issue(user,
+                                             repo_name,
+                                             issue_title,
+                                             issue_desc)
+        if type(issue) is not null.NullObject:
+            body = self.text_utils.sanitize_if_none(issue.body)
+            click.secho('Created issue: ' + issue.title + '\n' + body,
+                        fg=self.config.clr_message)
+        else:
+            click.secho('Error creating issue.', fg=self.config.clr_error)
+
+    @authenticate
+    def create_repo(self, repo_name, repo_desc='', private=False):
+        """Create a repo.
+
+        :type repo_name: str
+        :param repo_name: The repo name.
+
+        :type repo_desc: str
+        :param repo_desc: The repo description (optional).
+
+        :type private: bool
+        :param private: Determines whether the repo is private.  Default: False.
+        """
+        try:
+            repo = self.config.api.create_repository(repo_name,
+                                                     repo_desc,
+                                                     private=private)
+            desc = self.text_utils.sanitiz
