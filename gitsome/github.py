@@ -205,4 +205,36 @@ class GitHub(object):
             user, repo, number = user_repo_number.split('/')
             int(number)  # Check for int
         except ValueError:
-            click.secho(('Expected argume
+            click.secho(('Expected argument: user/repo/# and option -t '
+                         '"comment".'),
+                        fg=self.config.clr_error)
+            return
+        issue = self.config.api.issue(user, repo, number)
+        issue_comment = issue.create_comment(text)
+        if type(issue_comment) is not null.NullObject:
+            click.secho('Created comment: ' + issue_comment.body,
+                        fg=self.config.clr_message)
+        else:
+            click.secho('Error creating comment',
+                        fg=self.config.clr_error)
+
+    @authenticate
+    def create_issue(self, user_repo, issue_title, issue_desc=''):
+        """Create an issue.
+
+        :type user_repo: str
+        :param user_repo: The user/repo.
+
+        :type issue_title: str
+        :param issue_title: The issue title.
+
+        :type issue_desc: str
+        :param issue_desc: The issue body (optional).
+        """
+        try:
+            user, repo_name = user_repo.split('/')
+        except ValueError:
+            click.secho('Expected argument: user/repo and option -t "title".',
+                        fg=self.config.clr_error)
+            return
+        issue = self.config.api.create_issue(user,
