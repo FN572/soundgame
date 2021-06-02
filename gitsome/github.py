@@ -265,4 +265,32 @@ class GitHub(object):
             repo = self.config.api.create_repository(repo_name,
                                                      repo_desc,
                                                      private=private)
-            desc = self.text_utils.sanitiz
+            desc = self.text_utils.sanitize_if_none(repo.description)
+            click.secho(('Created repo: ' + repo.full_name + '\n' + desc),
+                        fg=self.config.clr_message)
+        except UnprocessableEntity as e:
+            click.secho('Error creating repo: ' + str(e.msg),
+                        fg=self.config.clr_error)
+
+    @authenticate
+    def emails(self):
+        """List all the user's registered emails."""
+        self.table.build_table_setup(self.config.api.emails(),
+                                     self.formatter.format_email,
+                                     limit=sys.maxsize,
+                                     pager=False,
+                                     build_urls=False)
+
+    @authenticate
+    def emojis(self, pager=False):
+        """List all GitHub supported emojis.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.table.build_table_setup(self.config.api.emojis(),
+                                     self.formatter.format_emoji,
+                                     limit=sys.maxsize,
+                                     pager=pager,
+           
