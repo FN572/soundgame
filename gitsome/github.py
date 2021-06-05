@@ -322,4 +322,34 @@ class GitHub(object):
                 self.config.prompt_news_feed()
                 self.config.save_config()
             if self.config.user_feed:
-         
+                items = self.trend_parser.parse(self.config.user_feed)
+                self.table.build_table_setup_feed(
+                    items,
+                    self.formatter.format_feed_entry,
+                    pager)
+        else:
+            if '/' in user_or_repo:
+                user, repo = user_or_repo.split('/')
+                repo = self.config.api.repository(user, repo)
+                items = repo.events()
+            else:
+                public = False if private else True
+                items = self.config.api.user(user_or_repo).events(public=public)
+            self.table.build_table_setup(
+                items,
+                self.formatter.format_event,
+                limit=sys.maxsize,
+                pager=pager,
+                build_urls=False)
+
+    @authenticate
+    def followers(self, user, pager=False):
+        """List all followers and the total follower count.
+
+        :type user: str
+        :param user: The user login (optional).
+            If None, returns the followers of the logged in user.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+          
