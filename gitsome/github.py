@@ -293,4 +293,33 @@ class GitHub(object):
                                      self.formatter.format_emoji,
                                      limit=sys.maxsize,
                                      pager=pager,
-           
+                                     build_urls=False)
+
+    @authenticate
+    def feed(self, user_or_repo='', private=False, pager=False):
+        """List all activity for the given user or repo.
+
+        If `user_or_repo` is not provided, uses the logged in user's news feed
+        seen while visiting https://github.com.  If `user_or_repo` is provided,
+        shows either the public or `[-p/--private]` feed activity of the user
+        or repo.
+
+        :type user_or_repo: str
+        :param user_or_repo: The user or repo to list events for (optional).
+            If no entry, defaults to the logged in user's feed.
+
+        :type private: bool
+        :param private: Determines whether to show the private events (True)
+            or public events (False).
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        click.secho('Listing events...', fg=self.config.clr_message)
+        if user_or_repo == '':
+            if self.config.user_feed is None:
+                self.config.prompt_news_feed()
+                self.config.save_config()
+            if self.config.user_feed:
+         
