@@ -352,4 +352,41 @@ class GitHub(object):
 
         :type pager: bool
         :param pager: Determines whether to show the output in a pager,
-          
+            if available.
+        """
+        if user is None:
+            user = self.config.user_login
+        self.table.build_table_setup_user(
+            self.config.api.followers_of(user),
+            self.formatter.format_user,
+            limit=sys.maxsize,
+            pager=pager)
+
+    @authenticate
+    def following(self, user, pager=False):
+        """List all followed users and the total followed count.
+
+        :type user: str
+        :param user: The user login.
+            If None, returns the followed users of the logged in user.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        if user is None:
+            user = self.config.user_login
+        self.table.build_table_setup_user(
+            self.config.api.followed_by(user),
+            self.formatter.format_user,
+            limit=sys.maxsize,
+            pager=pager)
+
+    @authenticate
+    def gitignore_template(self, language):
+        """Output the gitignore template for the given language.
+
+        :type language: str
+        :param language: The language.
+        """
+        template = self.config.
