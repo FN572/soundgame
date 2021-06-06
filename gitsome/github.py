@@ -389,4 +389,31 @@ class GitHub(object):
         :type language: str
         :param language: The language.
         """
-        template = self.config.
+        template = self.config.api.gitignore_template(language)
+        if template:
+            click.secho(template, fg=self.config.clr_message)
+        else:
+            click.secho(('Invalid case-sensitive template requested, run the '
+                         'following command to see available templates:\n'
+                         '    gh gitignore-templates'),
+                        fg=self.config.clr_error)
+
+    @authenticate
+    def gitignore_templates(self, pager=False):
+        """Output all supported gitignore templates.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.table.build_table_setup(
+            self.config.api.gitignore_templates(),
+            self.formatter.format_gitignore_template_name,
+            limit=sys.maxsize,
+            pager=pager,
+            build_urls=False)
+        click.secho(('  Run the following command to view or download a '
+                     '.gitignore file:\n'
+                     '    View:     gh gitignore Python\n'
+                     '    Download: gh gitignore Python > .gitignore\n'),
+           
