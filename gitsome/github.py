@@ -416,4 +416,39 @@ class GitHub(object):
                      '.gitignore file:\n'
                      '    View:     gh gitignore Python\n'
                      '    Download: gh gitignore Python > .gitignore\n'),
-           
+                    fg=self.config.clr_message)
+
+    @authenticate
+    def issue(self, user_repo_number):
+        """Output detailed information about the given issue.
+
+        :type user_repo_number: str
+        :param user_repo_number: The user/repo/issue_number.
+        """
+        try:
+            user, repo, number = user_repo_number.split('/')
+            int(number)  # Check for int
+        except ValueError:
+            click.secho('Expected argument: user/repo/#.',
+                        fg=self.config.clr_error)
+            return
+        url = (self.base_url + user + '/' + repo + '/' +
+               'issues/' + number)
+        self.web_viewer.view_url(url)
+
+    @authenticate
+    def issues(self, issues_list, limit=1000, pager=False, sort=True):
+        """List all issues.
+
+        :type issues_list: list
+        :param issues_list: A list of `github3` Issues.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+
+        :type sort: bool
+        :param sort: De
