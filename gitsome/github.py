@@ -451,4 +451,34 @@ class GitHub(object):
             if available.
 
         :type sort: bool
-        :param sort: De
+        :param sort: Determines whether to sort the issues by:
+            state, repo, created_at.
+        """
+        view_entries = []
+        for current_issue in issues_list:
+            url = self.formatter.format_issues_url_from_issue(current_issue)
+            view_entries.append(
+                ViewEntry(
+                    current_issue,
+                    url=url,
+                    sort_key_primary=current_issue.state,
+                    sort_key_secondary=current_issue.repository,
+                    sort_key_tertiary=current_issue.created_at))
+        if sort:
+            view_entries = sorted(view_entries, reverse=False)
+        self.table.build_table(view_entries,
+                               limit,
+                               pager,
+                               self.formatter.format_issue)
+
+    @authenticate
+    def issues_setup(self, issue_filter='subscribed', issue_state='open',
+                     limit=1000, pager=False):
+        """Prepare to list all issues matching the filter.
+
+        :type issue_filter: str
+        :param issue_filter: 'assigned', 'created', 'mentioned',
+            'subscribed' (default).
+
+        :type issue_state: str
+        :param i
