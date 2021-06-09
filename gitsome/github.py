@@ -514,4 +514,33 @@ class GitHub(object):
     def licenses(self):
         """Output the gitignore template for the given language."""
         self.table.build_table_setup(
-            self
+            self.config.api.licenses(),
+            self.formatter.format_license_name,
+            limit=sys.maxsize,
+            pager=False,
+            build_urls=False)
+        click.secho(('  Run the following command to view or download a '
+                     'LICENSE file:\n'
+                     '    gh license apache-2.0\n'
+                     '    gh license apache-2.0 > LICENSE\n'),
+                    fg=self.config.clr_message)
+
+    @authenticate
+    def notifications(self, limit=1000, pager=False):
+        """List all notifications.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        view_entries = []
+        for thread in self.config.api.notifications(all=True,
+                                                    participating=False):
+            url = self.formatter.format_issues_url_from_thread(thread)
+            view_entries.append(ViewEntry(thread, url=url))
+        self.table.build_table(view_entries,
+                               limit,
+            
