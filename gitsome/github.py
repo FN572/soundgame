@@ -481,4 +481,37 @@ class GitHub(object):
             'subscribed' (default).
 
         :type issue_state: str
-        :param i
+        :param issue_state: 'all', 'open' (default), 'closed'.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.issues(self.config.api.issues(issue_filter, issue_state),
+                    limit,
+                    pager)
+
+    @authenticate
+    def license(self, license_name):
+        """Output the gitignore template for the given language.
+
+        :type license_name: str
+        :param license_name: The license name.
+        """
+        result = self.config.api.license(license_name)
+        if type(result) is not null.NullObject:
+            click.secho(result.body, fg=self.config.clr_message)
+        else:
+            click.secho(('  Invalid case-sensitive license requested, run the '
+                         'following command to see available licenses:\n'
+                         '    gh licenses'),
+                        fg=self.config.clr_error)
+
+    @authenticate
+    def licenses(self):
+        """Output the gitignore template for the given language."""
+        self.table.build_table_setup(
+            self
