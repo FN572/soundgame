@@ -543,4 +543,36 @@ class GitHub(object):
             view_entries.append(ViewEntry(thread, url=url))
         self.table.build_table(view_entries,
                                limit,
-            
+                               pager,
+                               self.formatter.format_thread)
+
+    @authenticate
+    def octocat(self, say):
+        """Output an Easter egg or the given message from Octocat.
+
+        :type say: str
+        :param say: What Octocat should say.
+                If say is None, octocat speaks an Easter egg.
+        """
+        output = str(self.config.api.octocat(say))
+        output = output.replace('\\n', '\n')
+        click.secho(output, fg=self.config.clr_message)
+
+    @authenticate
+    def pull_requests(self, limit=1000, pager=False):
+        """List all pull requests.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        issues_list = []
+        repositories = self.config.api.repositories()
+        for repository in repositories:
+            repo_pulls = repository.pull_requests()
+            for repo_pull in repo_pulls:
+                url = self.formatter.format_issues_url_from_issue(repo_pull)
+  
