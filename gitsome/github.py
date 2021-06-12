@@ -575,4 +575,34 @@ class GitHub(object):
             repo_pulls = repository.pull_requests()
             for repo_pull in repo_pulls:
                 url = self.formatter.format_issues_url_from_issue(repo_pull)
-  
+                user, repo, issues, number = url.split('/')
+                repo_pull = self.config.api.pull_request(user, repo, number)
+                issues_list.append(repo_pull)
+        self.issues(issues_list, limit, pager)
+
+    @authenticate
+    def rate_limit(self):
+        """Output the rate limit.  Not available for GitHub Enterprise.
+
+        Logged in users can make 5000 requests per hour.
+        See: https://developer.github.com/v3/#rate-limiting
+        """
+        click.secho('Rate limit: ' + str(self.config.api.ratelimit_remaining),
+                    fg=self.config.clr_message)
+
+    @authenticate
+    def repositories(self, repos, limit=1000, pager=False,
+                     repo_filter='', print_output=True, sort=True):
+        """List all repos matching the given filter.
+
+        :type repos: list
+        :param repos: A list of `github3` Repository.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+
+        :type repo_filter: 
