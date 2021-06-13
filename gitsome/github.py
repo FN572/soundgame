@@ -635,4 +635,36 @@ class GitHub(object):
                               sort_key_primary=repo.stargazers_count))
         if sort:
             view_entries = sorted(view_entries, reverse=True)
-        return self.table.bui
+        return self.table.build_table(view_entries,
+                                      limit,
+                                      pager,
+                                      self.formatter.format_repo,
+                                      print_output=print_output)
+
+    @authenticate
+    def repositories_setup(self, repo_filter, limit=1000, pager=False):
+        """Prepare to list all repos matching the given filter.
+
+        :type repo_filter: str
+        :param repo_filter:  The filter for repo names.
+            Only repos matching the filter will be returned.
+            If None, outputs all repos retrieved by the GitHub API.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.repositories(self.config.api.repositories(),
+                          limit,
+                          pager,
+                          repo_filter)
+
+    @authenticate
+    def repository(self, user_repo):
+        """Output detailed information about the given repo.
+
+        :type user_repo: str
+        :param user_repo: The user/repo.
