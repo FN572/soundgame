@@ -605,4 +605,34 @@ class GitHub(object):
         :param pager: Determines whether to show the output in a pager,
             if available.
 
-        :type repo_filter: 
+        :type repo_filter: str
+        :param repo_filter:  The filter for repo names.
+            Only repos matching the filter will be returned.
+            If None, outputs all repos.
+
+        :type print_output: bool
+        :param print_output: Determines whether to print the output
+                (True) or return the output as a string (False).
+
+        :type sort: bool
+        :param sort: Determines whether to sort the issues by:
+            state, repo, created_at.
+
+        :rtype: str
+        :return: The output if print_output is True
+            else, returns None.
+        """
+        view_entries = []
+        for repo in repos:
+            url = repo.clone_url
+            if (repo.full_name is not None and
+                    repo_filter in repo.full_name.lower()) or \
+               (repo.description is not None and
+                    repo_filter in repo.description.lower()):
+                view_entries.append(
+                    ViewEntry(repo,
+                              url=url,
+                              sort_key_primary=repo.stargazers_count))
+        if sort:
+            view_entries = sorted(view_entries, reverse=True)
+        return self.table.bui
