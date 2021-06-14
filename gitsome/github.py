@@ -668,3 +668,36 @@ class GitHub(object):
 
         :type user_repo: str
         :param user_repo: The user/repo.
+        """
+        try:
+            user, repo = user_repo.split('/')
+        except ValueError:
+            click.secho('Expected argument: user/repo.',
+                        fg=self.config.clr_error)
+            return
+        self.web_viewer.view_url(self.base_url + user_repo)
+
+    @authenticate
+    def search_issues(self, query, limit=1000, pager=False):
+        """Search for all issues matching the given query.
+
+        :type query: str
+        :param query: The search query.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        click.secho('Searching for all matching issues on GitHub...',
+                    fg=self.config.clr_message)
+        results = self.config.api.search_issues(query)
+        issues_list = []
+        for result in results:
+            issues_list.append(result.issue)
+        self.issues(issues_list, limit, pager, sort=False)
+
+    @authenticate
+    def search_repositories(self, query, sort, limit=100
