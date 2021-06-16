@@ -700,4 +700,38 @@ class GitHub(object):
         self.issues(issues_list, limit, pager, sort=False)
 
     @authenticate
-    def search_repositories(self, query, sort, limit=100
+    def search_repositories(self, query, sort, limit=1000, pager=False):
+        """Search for all repos matching the given query.
+
+        :type query: str
+        :param query: The search query.
+
+        :type sort: str
+        :param sort: Optional: 'stars', 'forks', 'updated'.
+            If not specified, sorting is done by query best match.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        click.secho('Searching for all matching repos on GitHub...',
+                    fg=self.config.clr_message)
+        results = self.config.api.search_repositories(query, sort)
+        repos = []
+        for result in results:
+            repos.append(result.repository)
+        self.repositories(repos, limit, pager, sort=False)
+
+    @authenticate
+    def starred(self, repo_filter, limit=1000, pager=False):
+        """Output starred repos.
+
+        :type repo_filter: str
+        :param repo_filter:  The filter for repo names.
+            Only repos matching the filter will be returned.
+            If None, outputs all starred repos.
+
+        :type limit: 
