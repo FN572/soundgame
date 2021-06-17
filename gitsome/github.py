@@ -734,4 +734,38 @@ class GitHub(object):
             Only repos matching the filter will be returned.
             If None, outputs all starred repos.
 
-        :type limit: 
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.repositories(self.config.api.starred(),
+                          limit,
+                          pager,
+                          repo_filter.lower())
+
+    def trending(self, language, weekly, monthly,
+                 devs=False, browser=False, pager=False):
+        """List trending repos for the given language.
+
+        :type language: str
+        :param language: The language (optional).
+            If blank, shows 'Overall'.
+
+        :type weekly: bool
+        :param weekly: Determines whether to show the weekly rankings.
+            Daily is the default.
+
+        :type monthly: bool
+        :param monthly: Determines whether to show the monthly rankings.
+            Daily is the default.
+            If both `monthly` and `weekly` are set, `monthly` takes precedence.
+
+        :type devs: bool
+        :param devs: determines whether to display the trending
+                devs or repos.  Only valid with the -b/--browser option.
+
+        :type browser: bool
+        :p
