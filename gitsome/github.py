@@ -798,4 +798,37 @@ class GitHub(object):
                 'Listing {p} trending {l} repos...'.format(l=language,
                                                            p=period),
                 fg=self.config.clr_message)
-            url = ('http://github-trends.ryotarai.info/rss/github_trend
+            url = ('http://github-trends.ryotarai.info/rss/github_trends_' +
+                   language + '_')
+            url += period + '.rss'
+            items = self.trend_parser.parse(url)
+            self.table.build_table_setup_trending(
+                items.entries,
+                self.formatter.format_trending_entry,
+                limit=sys.maxsize,
+                pager=pager)
+
+    @authenticate
+    def user(self, user_id, browser=False, text_avatar=False,
+             limit=1000, pager=False):
+        """List information about the logged in user.
+
+        :type user_id: str
+        :param user_id: The user id/login.
+            If None, returns followers of the logged in user.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+            in a browser, or in the terminal.
+
+        :type text_avatar: bool
+        :param text_avatar: Determines whether to view the profile
+            avatar in plain text instead of ansi (default).
+            On Windows this value is always set to True due to lack of
+            support of `img2txt` on Windows.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the outpu
