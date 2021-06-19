@@ -768,4 +768,34 @@ class GitHub(object):
                 devs or repos.  Only valid with the -b/--browser option.
 
         :type browser: bool
-        :p
+        :param browser: Determines whether to view the profile
+                in a browser, or in the terminal.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        language = language.lower()
+        if language in language_rss_map:
+            language = language_rss_map[language]
+        if monthly:
+            period = 'monthly'
+            url_param = '?since=monthly'
+        elif weekly:
+            period = 'weekly'
+            url_param = '?since=weekly'
+        else:
+            period = 'daily'
+            url_param = ''
+        if browser:
+            webbrowser.open(
+                ('https://github.com/trending' +
+                 ('/developers' if devs else '') +
+                 ('/' + language if language is not 'overall' else '') +
+                 url_param))
+        else:
+            click.secho(
+                'Listing {p} trending {l} repos...'.format(l=language,
+                                                           p=period),
+                fg=self.config.clr_message)
+            url = ('http://github-trends.ryotarai.info/rss/github_trend
