@@ -831,4 +831,29 @@ class GitHub(object):
         :param limit: The number of items to display.
 
         :type pager: bool
-        :param pager: Determines whether to show the outpu
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        if browser:
+            webbrowser.open(self.base_url + user_id)
+        else:
+            user = self.config.api.user(user_id)
+            if type(user) is null.NullObject:
+                click.secho('Invalid user.', fg=self.config.clr_error)
+                return
+            output = ''
+            output += click.style(self.avatar_setup(user.avatar_url,
+                                                    text_avatar))
+            output += click.style(user.login + '\n', fg=self.config.clr_primary)
+            if user.company is not None:
+                output += click.style(user.company + '\n',
+                                      fg=self.config.clr_secondary)
+            if user.location is not None:
+                output += click.style(user.location + '\n',
+                                      fg=self.config.clr_secondary)
+            if user.email is not None:
+                output += click.style(user.email + '\n',
+                                      fg=self.config.clr_secondary)
+            if user.type == 'Organization':
+                output += click.style('Organization\n\n',
+                                      fg=self.config.
