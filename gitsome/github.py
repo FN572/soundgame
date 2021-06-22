@@ -856,4 +856,33 @@ class GitHub(object):
                                       fg=self.config.clr_secondary)
             if user.type == 'Organization':
                 output += click.style('Organization\n\n',
-                                      fg=self.config.
+                                      fg=self.config.clr_tertiary)
+            else:
+                output += click.style(
+                    'Followers: ' + str(user.followers_count) + ' | ',
+                    fg=self.config.clr_tertiary)
+                output += click.style(
+                    'Following: ' + str(user.following_count) + '\n\n',
+                    fg=self.config.clr_tertiary)
+            output += self.repositories(self.config.api.repositories(user_id),
+                                        limit,
+                                        pager,
+                                        print_output=False)
+            if pager:
+                color = None
+                if platform.system() == 'Windows':
+                    color = True
+                click.echo_via_pager(output, color)
+            else:
+                click.secho(output)
+
+    @authenticate
+    def user_me(self, browser, text_avatar, limit=1000, pager=False):
+        """List information about the logged in user.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+                in a browser, or in the terminal.
+
+        :type text_avatar: bool
+        :param text_avatar: Determines w
