@@ -885,4 +885,36 @@ class GitHub(object):
                 in a browser, or in the terminal.
 
         :type text_avatar: bool
-        :param text_avatar: Determines w
+        :param text_avatar: Determines whether to view the profile
+            avatar in plain text.
+            On Windows this value is always set to True due to lack of
+            support of `img2txt` on Windows.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        self.user(self.config.user_login, browser, text_avatar, limit, pager)
+
+    @authenticate
+    def view(self, index, view_in_browser=False):
+        """View the given index in a browser.
+
+        Load urls from ~/.gitsomeconfigurl and stores them in self.config.urls.
+        Open a browser with the url based on the given index.
+
+        :type index: int
+        :param index: Determines the index to view.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+            in a browser, or in the terminal.
+        """
+        self.config.urls = self.config.load_urls(view_in_browser)
+        url = self.config.urls[index-1]
+        click.secho('Viewing ' + url + '...', fg=self.config.clr_message)
+        if view_in_browser:
+            webbrowser.open(self.add_base_ur
