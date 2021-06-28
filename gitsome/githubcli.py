@@ -26,4 +26,41 @@ pass_github = click.make_pass_decorator(GitHub)
 
 
 class GitHubCli(object):
-    """The GitHubCli, builds `click` commands and ru
+    """The GitHubCli, builds `click` commands and runs `GitHub` methods."""
+
+    @click.group()
+    @click.pass_context
+    def cli(ctx):
+        """Main entry point for GitHubCli.
+
+        :type ctx: :class:`click.core.Context`
+        :param ctx: An instance of click.core.Context that stores an instance
+            of `github.GitHub`.
+        """
+        # Create a GitHub object and remember it as the context object.
+        # From this point onwards other commands can refer to it by using the
+        # @pass_github decorator.
+        ctx.obj = GitHub()
+
+    @cli.command()
+    @click.option('-e', '--enterprise', is_flag=True)
+    @pass_github
+    def configure(github, enterprise):
+        """Configure gitsome.
+
+        Attempts to authenticate the user and to set up the user's news feed.
+
+        Usage/Example(s):
+            gh configure
+            gh configure -e
+            gh configure --enterprise
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+        :type enterprise: bool
+        :param enterprise: Determines whether to configure GitHub Enterprise.
+            Default: False.
+        """
+        github.configure(enterprise)
+
+  
