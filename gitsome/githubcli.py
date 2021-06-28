@@ -63,4 +63,41 @@ class GitHubCli(object):
         """
         github.configure(enterprise)
 
-  
+    @cli.command('create-comment')
+    @click.argument('user_repo_number')
+    @click.option('-t', '--text')
+    @pass_github
+    def create_comment(github, user_repo_number, text):
+        """Create a comment on the given issue.
+
+        Usage:
+            gh create-comment [user_repo_number] [-t/--text]
+
+        Example(s):
+            gh create-comment donnemartin/saws/1 -t "hello world"
+            gh create-comment donnemartin/saws/1 --text "hello world"
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user_repo_number: str
+        :param user_repo_number: The user/repo/issue_number.
+
+        :type text: str
+        :param text: The comment text.
+        """
+        github.create_comment(user_repo_number, text)
+
+    @cli.command('create-issue')
+    @click.argument('user_repo')
+    @click.option('-t', '--issue_title')
+    @click.option('-d', '--issue_desc', required=False)
+    @pass_github
+    def create_issue(github, user_repo, issue_title, issue_desc):
+        """Create an issue.
+
+        Usage:
+            gh create-issue [user_repo] [-t/--issue_title] [-d/--issue_desc]
+
+        Example(s):
+      
