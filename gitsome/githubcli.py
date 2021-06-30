@@ -176,4 +176,37 @@ class GitHubCli(object):
             gh emojis | grep octo
 
         :type github: :class:`github.GitHub`
-        :param github: An instance of `github.
+        :param github: An instance of `github.GitHub`.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.emojis(pager)
+
+    @cli.command()
+    @click.argument('user_or_repo', required=False, default='')
+    @click.option('-pr', '--private', is_flag=True, default=False)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def feed(github, user_or_repo, private, pager):
+        """List all activity for the given user or repo.
+
+        If `user_or_repo` is not provided, uses the logged in user's news feed
+        seen while visiting https://github.com.  If `user_or_repo` is provided,
+        shows either the public or `[-pr/--private]` feed activity of the user
+        or repo.
+
+        Usage:
+            gh feed [user_or_repo] [-pr/--private] [-p/--pager]
+
+        Examples:
+            gh feed
+            gh feed | grep foo
+            gh feed donnemartin
+            gh feed donnemartin -pr -p
+            gh feed donnemartin --private --pager
+            gh feed donnemartin/haxor-news -p
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance 
