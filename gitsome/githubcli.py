@@ -134,4 +134,46 @@ class GitHubCli(object):
             gh create-repo repo_name -d "desc"
             gh create-repo repo_name --repo_desc "desc"
             gh create-repo repo_name -pr
-            gh cr
+            gh create-repo repo_name --repo_desc "desc" --private
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type repo_name: str
+        :param repo_name: The repo name.
+
+        :type repo_desc: str
+        :param repo_desc: The repo description (optional).
+
+        :type private: bool
+        :param private: Determines whether the repo is private.  Default: False.
+        """
+        github.create_repo(repo_name, repo_desc, private)
+
+    @cli.command()
+    @pass_github
+    def emails(github):
+        """List all the user's registered emails.
+
+        Usage/Example(s):
+            gh emails
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+        """
+        github.emails()
+
+    @cli.command()
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def emojis(github, pager):
+        """List all GitHub supported emojis.
+
+        Usage:
+            gh emojis [-p/--pager]
+
+        Example(s):
+            gh emojis | grep octo
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.
