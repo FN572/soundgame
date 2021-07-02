@@ -209,4 +209,43 @@ class GitHubCli(object):
             gh feed donnemartin/haxor-news -p
 
         :type github: :class:`github.GitHub`
-        :param github: An instance 
+        :param github: An instance of `github.GitHub`.
+
+        :type user_or_repo: str
+        :param user_or_repo: The user or repo to list events for (optional).
+            If no entry, defaults to the logged in user's feed.
+
+        :type private: bool
+        :param private: Determines whether to show the private events (True)
+            or public events (False).
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.feed(user_or_repo, private, pager)
+
+    @cli.command()
+    @click.argument('user', required=False)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def followers(github, user, pager):
+        """List all followers and the total follower count.
+
+        Usage:
+            gh followers [user] [-p/--pager]
+
+        Example(s):
+            gh followers
+            gh followers -p
+            gh followers octocat --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user: str
+        :param user: The user login (optional).
+            If None, returns the followers of the logged in user.
+
+        :type pager: bool
+        :par
