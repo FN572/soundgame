@@ -248,4 +248,44 @@ class GitHubCli(object):
             If None, returns the followers of the logged in user.
 
         :type pager: bool
-        :par
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.followers(user, pager)
+
+    @cli.command()
+    @click.argument('user', required=False)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def following(github, user, pager):
+        """List all followed users and the total followed count.
+
+        Usage:
+            gh following [user] [-p/--pager]
+
+        Example(s):
+            gh following
+            gh following -p
+            gh following octocat --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user: str
+        :param user: The user login.
+            If None, returns the followed users of the logged in user.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.following(user, pager)
+
+    @cli.command('gitignore-template')
+    @click.argument('language')
+    @pass_github
+    def gitignore_template(github, language):
+        """Output the gitignore template for the given language.
+
+        Usage:
+            gh gitignore
