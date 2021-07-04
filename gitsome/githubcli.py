@@ -288,4 +288,45 @@ class GitHubCli(object):
         """Output the gitignore template for the given language.
 
         Usage:
-            gh gitignore
+            gh gitignore-template [language]
+
+        Example(s):
+            gh gitignore-template Python
+            gh gitignore-template Python > .gitignore
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type language: str
+        :param language: The language.
+        """
+        github.gitignore_template(language)
+
+    @cli.command('gitignore-templates')
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def gitignore_templates(github, pager):
+        """Output all supported gitignore templates.
+
+        Usage:
+            gh gitignore-templates
+
+        Example(s):
+            gh gitignore-templates
+            gh gitignore-templates -p
+            gh gitignore-templates --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.gitignore_templates(pager)
+
+    @cli.command()
+    @click.argument('user_repo_number')
+    @pass_github
+    def issue(github, user_repo_number):
+        """Output detailed information about t
