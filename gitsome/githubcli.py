@@ -329,4 +329,40 @@ class GitHubCli(object):
     @click.argument('user_repo_number')
     @pass_github
     def issue(github, user_repo_number):
-        """Output detailed information about t
+        """Output detailed information about the given issue.
+
+        Usage:
+            gh issue [user_repo_number]
+
+        Example(s):
+            gh issue donnemartin/saws/1
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user_repo_number: str
+        :param user_repo_number: The user/repo/issue_number.
+        """
+        github.issue(user_repo_number)
+
+    @cli.command()
+    @click.option('-f', '--issue_filter', required=False, default='subscribed')
+    @click.option('-s', '--issue_state', required=False, default='open')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def issues(github, issue_filter, issue_state, limit, pager):
+        """List all issues matching the filter.
+
+        Usage:
+            gh issues [-f/--issue_filter] [-s/--issue_state] [-l/--limit] [-p/--pager]  # NOQA
+
+        Example(s):
+            gh issues
+            gh issues -f assigned
+            gh issues ---issue_filter created
+            gh issues -s all -l 20 -p
+            gh issues --issue_state closed --limit 20 --pager
+            gh issues -f created -s all -p
+
+        :type github: :class:`
