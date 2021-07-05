@@ -365,4 +365,43 @@ class GitHubCli(object):
             gh issues --issue_state closed --limit 20 --pager
             gh issues -f created -s all -p
 
-        :type github: :class:`
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type issue_filter: str
+        :param issue_filter: assigned, created, mentioned, subscribed (default).
+
+        :type issue_state: str
+        :param issue_state: all, open (default), closed.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.issues_setup(issue_filter, issue_state, limit, pager)
+
+    @cli.command()
+    @click.argument('license_name')
+    @pass_github
+    def license(github, license_name):
+        """Output the license template for the given license.
+
+        Usage:
+            gh license [license_name]
+
+        Example(s):
+            gh license apache-2.0
+            gh license mit > LICENSE
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type license_name: str
+        :param license_name: The license name.
+        """
+        github.license(license_name)
+
+ 
