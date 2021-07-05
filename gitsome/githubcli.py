@@ -404,4 +404,44 @@ class GitHubCli(object):
         """
         github.license(license_name)
 
+    @cli.command()
+    @pass_github
+    def licenses(github):
+        """Output all supported license templates.
+
+        Usage/Example(s):
+            gh licenses
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+        """
+        github.licenses()
+
+    @cli.command()
+    @click.option('-b', '--browser', is_flag=True)
+    @click.option('-t', '--text_avatar', is_flag=True)
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def me(github, browser, text_avatar, limit, pager):
+        """List information about the logged in user.
+
+        Usage:
+            gh me [-b/--browser] [-t/--text_avatar] [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh me
+            gh me -b
+            gh me --browser
+            gh me -t -l 20 -p
+            gh me --text_avatar --limit 20 --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+            in a browser, or in the terminal.
+
+        :type text_avatar: bool
  
