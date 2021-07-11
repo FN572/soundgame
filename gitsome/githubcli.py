@@ -480,4 +480,44 @@ class GitHubCli(object):
         :param limit: The number of items to display.
 
         :type pager: bool
-        :p
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.notifications(limit, pager)
+
+    @cli.command('octo')
+    @click.argument('say', required=False)
+    @pass_github
+    def octocat(github, say):
+        """Output an Easter egg or the given message from Octocat.
+
+        Usage:
+            gh octo [say]
+
+        Example(s):
+            gh octo
+            gh octo "foo bar"
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type say: str
+        :param say: What Octocat should say.
+                If say is None, octocat speaks an Easter egg.
+        """
+        github.octocat(say)
+
+    @cli.command('pull-request')
+    @click.argument('user_repo_number')
+    @pass_github
+    def pull_request(github, user_repo_number):
+        """Output detailed information about the given pull request.
+
+        Usage:
+            gh pull-request [user_repo_number]
+
+        Example(s):
+            gh pull-request donnemartin/saws/80
+
+        :type github: :class:`github.GitHub`
+        :param github: A
