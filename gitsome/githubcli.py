@@ -520,4 +520,43 @@ class GitHubCli(object):
             gh pull-request donnemartin/saws/80
 
         :type github: :class:`github.GitHub`
-        :param github: A
+        :param github: An instance of `github.GitHub`.
+
+        :type user_repo_number: str
+        :param user_repo_number: The user/repo/pull_number.
+        """
+        github.issue(user_repo_number)
+
+    @cli.command('pull-requests')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def pull_requests(github, limit, pager):
+        """List all pull requests.
+
+        Usage:
+            gh pull-requests [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh pull-requests
+            gh pull-requests -l 20 -p
+            gh pull-requests --limit 20 --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.pull_requests(limit, pager)
+
+    @cli.command('rate-limit')
+    @pass_github
+    def rate_limit(github):
+        """Output the rate limit.  Not available for GitHub Enterprise.
+
+        Logged in users can make 5000 requests p
