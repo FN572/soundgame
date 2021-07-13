@@ -559,4 +559,40 @@ class GitHubCli(object):
     def rate_limit(github):
         """Output the rate limit.  Not available for GitHub Enterprise.
 
-        Logged in users can make 5000 requests p
+        Logged in users can make 5000 requests per hour.
+        See: https://developer.github.com/v3/#rate-limiting
+
+        Usage/Example(s):
+            gh rate-limit
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+        """
+        github.rate_limit()
+
+    @cli.command('repos')
+    @click.argument('repo_filter', required=False, default='')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def repositories(github, repo_filter, limit, pager):
+        """List all repos matching the given filter.
+
+        Usage:
+            gh repos [repo_filter] [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh repos
+            gh repos "data-science"
+            gh repos "data-science" -l 20 -p
+            gh repos "data-science" --limit 20 --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type repo_filter: str
+        :param repo_filter:  The filter for repo names.
+            Only repos matching the filter will be returned.
+            If None, outputs all the logged in user's repos.
+
+        :type limi
