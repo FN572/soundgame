@@ -595,4 +595,45 @@ class GitHubCli(object):
             Only repos matching the filter will be returned.
             If None, outputs all the logged in user's repos.
 
-        :type limi
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.repositories_setup(repo_filter, limit, pager)
+
+    @cli.command('repo')
+    @click.argument('user_repo')
+    @pass_github
+    def repository(github, user_repo):
+        """Output detailed information about the given repo.
+
+        Usage:
+            gh repo [user_repo]
+
+        Example(s):
+            gh repo donnemartin/gitsome
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user_repo: str
+        :param user_repo: The user/repo.
+        """
+        github.repository(user_repo)
+
+    @cli.command('search-issues')
+    @click.argument('query')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def search_issues(github, query, limit, pager):
+        """Search for all issues matching the given query.
+
+        Usage:
+            gh search-issues [query] [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh search-issu
