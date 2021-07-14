@@ -636,4 +636,30 @@ class GitHubCli(object):
             gh search-issues [query] [-l/--limit] [-p/--pager]
 
         Example(s):
-            gh search-issu
+            gh search-issues "foo type:pr author:donnemartin" -l 20 -p
+            gh search-issues "foobarbaz in:title created:>=2015-01-01" --limit 20 --pager  # NOQA
+
+        Additional Example(s):
+            Search issues that have your user name tagged @donnemartin:
+                gh search-issues "is:issue donnemartin is:open" -p
+
+            Search issues that have the most +1s:
+                gh search-issues "is:open is:issue sort:reactions-+1-desc" -p
+
+            Search issues that have the most comments:
+                gh search-issues "is:open is:issue sort:comments-desc" -p
+
+            Search issues with the "help wanted" tag:
+                gh search-issues "is:open is:issue label:\"help wanted\"" -p
+
+            Search all your open private issues:
+                gh search-issues "is:open is:issue is:private" -p
+
+        The query can contain any combination of the following supported
+        qualifers:
+
+        - `type` With this qualifier you can restrict the search to issues
+          or pull request only.
+        - `in` Qualifies which fields are searched. With this qualifier you
+          can restrict the search to just the title, body, comments, or any
+          combinati
