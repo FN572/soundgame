@@ -686,4 +686,35 @@ class GitHubCli(object):
         :param github: An instance of `github.GitHub`.
 
         :type query: str
-        :param query: The 
+        :param query: The search query.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.search_issues(query, limit, pager)
+
+    @cli.command('search-repos')
+    @click.argument('query')
+    @click.option('-s', '--sort', required=False, default='')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def search_repositories(github, query, sort, limit, pager):
+        """Search for all repos matching the given query.
+
+        Usage:
+            gh search-repos [query] [-s/--sort] [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh search-repos "maps language:python" -s stars -l 20 -p
+            gh search-repos "created:>=2015-01-01 stars:>=1000 language:python" --sort stars --limit 20 --pager  # NOQA
+
+        The query can contain any combination of the following supported
+        qualifers:
+
+        - `in` Qualifies which fields are searched. With this qualifier you
+          can restrict the search to just 
