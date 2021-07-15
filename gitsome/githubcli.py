@@ -662,4 +662,28 @@ class GitHubCli(object):
           or pull request only.
         - `in` Qualifies which fields are searched. With this qualifier you
           can restrict the search to just the title, body, comments, or any
-          combinati
+          combination of these.
+        - `author` Finds issues created by a certain user.
+        - `assignee` Finds issues that are assigned to a certain user.
+        - `mentions` Finds issues that mention a certain user.
+        - `commenter` Finds issues that a certain user commented on.
+        - `involves` Finds issues that were either created by a certain user,
+          assigned to that user, mention that user, or were commented on by
+          that user.
+        - `state` Filter issues based on whether they’re open or closed.
+        - `labels` Filters issues based on their labels.
+        - `language` Searches for issues within repositories that match a
+          certain language.
+        - `created` or `updated` Filters issues based on times of creation,
+          or when they were last updated.
+        - `comments` Filters issues based on the quantity of comments.
+        - `user` or `repo` Limits searches to a specific user or
+          repository.
+
+        For more information about these qualifiers, see: http://git.io/d1oELA
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type query: str
+        :param query: The 
