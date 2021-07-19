@@ -744,4 +744,39 @@ class GitHubCli(object):
 
         :type sort: str
         :param sort: Optional: 'stars', 'forks', 'updated'.
-       
+            If not specified, sorting is done by query best match.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.search_repositories(query, sort, limit, pager)
+
+    @cli.command()
+    @click.argument('repo_filter', required=False, default='')
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def starred(github, repo_filter, limit, pager):
+        """Output starred repos.
+
+        Usage:
+            gh starred [repo_filter] [-l/--limit] [-p/--pager]
+
+        Example(s):
+            gh starred
+            gh starred foo -l 20 -p
+            gh starred foo --limit 20 --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type repo_filter: str
+        :param repo_filter:  The filter for repo names.
+            Only repos matching the filter will be returned.
+            If None, outputs all starred repos.
+
+        :type limit: in
