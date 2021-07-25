@@ -812,4 +812,34 @@ class GitHubCli(object):
         :param github: An instance of `github.GitHub`.
 
         :type language: str
-        :pa
+        :param language: The language (optional).
+            If blank, shows 'Overall'.
+
+        :type weekly: bool
+        :param weekly: Determines whether to show the weekly rankings.
+            Daily is the default.
+
+        :type monthly: bool
+        :param monthly: Determines whether to show the monthly rankings.
+            Daily is the default.
+            If both `monthly` and `weekly` are set, `monthly` takes precedence.
+
+        :type devs: bool
+        :param devs: determines whether to display the trending
+                devs or repos.  Only valid with the -b/--browser option.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+                in a browser, or in the terminal.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.trending(language, weekly, monthly, devs, browser, pager)
+
+    @cli.command()
+    @click.argument('user_id', required=True)
+    @click.option('-b', '--browser', is_flag=True)
+    @click.option('-t', '--text_avatar', is_flag=True)
+    @click.option(
