@@ -779,4 +779,37 @@ class GitHubCli(object):
             Only repos matching the filter will be returned.
             If None, outputs all starred repos.
 
-        :type limit: in
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.starred(repo_filter, limit, pager)
+
+    @cli.command()
+    @click.argument('language', required=False, default='Overall')
+    @click.option('-w', '--weekly', is_flag=True)
+    @click.option('-m', '--monthly', is_flag=True)
+    @click.option('-D', '--devs', is_flag=True)
+    @click.option('-b', '--browser', is_flag=True)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def trending(github, language, weekly, monthly, devs, browser, pager):
+        """List trending repos for the given language.
+
+        Usage:
+            gh trending [language] [-w/--weekly] [-m/--monthly] [-D/--devs] [-b/--browser] [-p/--pager]  # NOQA
+
+        Example(s):
+            gh trending
+            gh trending Python -w -p
+            gh trending Python --weekly --devs --browser
+            gh trending --browser
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type language: str
+        :pa
