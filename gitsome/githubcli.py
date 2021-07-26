@@ -842,4 +842,34 @@ class GitHubCli(object):
     @click.argument('user_id', required=True)
     @click.option('-b', '--browser', is_flag=True)
     @click.option('-t', '--text_avatar', is_flag=True)
-    @click.option(
+    @click.option('-l', '--limit', required=False, default=1000)
+    @click.option('-p', '--pager', is_flag=True)
+    @pass_github
+    def user(github, user_id, browser, text_avatar, limit, pager):
+        """List information about the given user.
+
+        Usage:
+            gh user [user_id] [-b/--browser] [-t/--text_avatar] [-l/--limit] [-p/--pager]  # NOQA
+
+        Example(s):
+            gh user octocat
+            gh user octocat -b
+            gh user octocat --browser
+            gh user octocat -t -l 10 -p
+            gh user octocat --text_avatar --limit 10 --pager
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type user_id: str
+        :param user_id: The user id/login.
+            If None, returns followers of the logged in user.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+            in a browser, or in the terminal.
+
+        :type text_avatar: bool
+        :param text_avatar: Determines whether to view the profile
+            avatar in plain text instead of ansi (default).
+            On Windows this value is alway
