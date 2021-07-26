@@ -872,4 +872,47 @@ class GitHubCli(object):
         :type text_avatar: bool
         :param text_avatar: Determines whether to view the profile
             avatar in plain text instead of ansi (default).
-            On Windows this value is alway
+            On Windows this value is always set to True due to lack of
+            support of `img2txt` on Windows.
+
+        :type limit: int
+        :param limit: The number of items to display.
+
+        :type pager: bool
+        :param pager: Determines whether to show the output in a pager,
+            if available.
+        """
+        github.user(user_id, browser, text_avatar, limit, pager)
+
+    @cli.command()
+    @click.argument('index')
+    @click.option('-b', '--browser', is_flag=True)
+    @pass_github
+    def view(github, index, browser):
+        """View the given notification/repo/issue/pull_request/user index.
+
+        This method is meant to be called after one of the following commands
+        which outputs a table of notifications/repos/issues/pull_requests/users:
+
+            gh repos
+            gh search_repos
+            gh starred
+
+            gh issues
+            gh pull_requests
+            gh search_issues
+
+            gh notifications
+            gh trending
+
+            gh user
+            gh me
+
+        Usage:
+            gh view [index] [-b/--browser]
+
+        Example(s):
+            gh repos
+            gh view 1
+
+ 
