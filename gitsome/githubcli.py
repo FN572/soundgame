@@ -915,4 +915,18 @@ class GitHubCli(object):
             gh repos
             gh view 1
 
- 
+            gh starred
+            gh view 1 -b
+            gh view 1 --browser
+
+        :type github: :class:`github.GitHub`
+        :param github: An instance of `github.GitHub`.
+
+        :type index: str
+        :param index: Determines the index to view.
+
+        :type browser: bool
+        :param browser: Determines whether to view the profile
+            in a browser, or in the terminal.
+        """
+        github.view(int(index), browser)
