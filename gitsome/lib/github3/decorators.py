@@ -32,4 +32,43 @@ def requires_auth(func):
         if hasattr(self, 'session') and self.session.has_auth():
             return func(self, *args, **kwargs)
         else:
-            from .exceptions import error
+            from .exceptions import error_for
+            # Mock a 401 response
+            r = generate_fake_error_response(
+                '{"message": "Requires authentication"}'
+            )
+            raise error_for(r)
+    return auth_wrapper
+
+
+def requires_basic_auth(func):
+    """Specific (basic) authentication decorator.
+
+    This is used to note which object methods require username/password
+    authorization and won't work with token based authorization.
+
+    """
+    @wraps(func)
+    def auth_wrapper(self, *args, **kwargs):
+        if hasattr(self, 'session') and self.session.auth:
+            return func(self, *args, **kwargs)
+        else:
+            from .exceptions import error_for
+            # Mock a 401 response
+            r = generate_fake_error_response(
+                '{"message": "Requires username/password authentication"}'
+            )
+            raise error_for(r)
+    return auth_wrapper
+
+
+def requires_app_credentials(func):
+    """Require client_id and client_secret to be associated.
+
+    This is used to note and enforce which methods require a client_id and
+    client_secret to be used.
+
+    """
+    @wraps(func)
+    def auth_wrapper(self, *args, **kwargs):
+        client_id, client_secre
