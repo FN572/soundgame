@@ -45,4 +45,40 @@ class Event(GitHubCore):
         #: Event type http://developer.github.com/v3/activity/events/types/
         self.type = event.get('type')
         handler = _payload_handlers.get(self.type, identity)
-        #: Dictio
+        #: Dictionary with the payload. Payload structure is defined by type_.
+        #  _type: http://developer.github.com/v3/events/types
+        self.payload = handler(event.get('payload'), self)
+        #: Return ``tuple(owner, repository_name)``
+        self.repo = event.get('repo')
+        if self.repo is not None:
+            self.repo = tuple(self.repo['name'].split('/'))
+        #: Indicates whether the Event is public or not.
+        self.public = event.get('public')
+
+    def _repr(self):
+        return '<Event [{0}]>'.format(self.type[:-5])
+
+    @staticmethod
+    def list_types():
+        """List available payload types."""
+        return sorted(_payload_handlers.keys())
+
+
+def _commitcomment(payload, session):
+    from .repos.comment import RepoComment
+    if payload.get('comment'):
+        payload['comment'] = RepoComment(payload['comment'], session)
+    return payload
+
+
+def _follow(payload, session):
+    from .users import User
+    if payload.get('target'):
+        payload['target'] = User(payload['target'], session)
+    return payload
+
+
+def _forkev(payload, session):
+    from .repos import Repository
+    if payload.get('forkee'):
+        payload['forkee'] = Repository(p
