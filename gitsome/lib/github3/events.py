@@ -81,4 +81,47 @@ def _follow(payload, session):
 def _forkev(payload, session):
     from .repos import Repository
     if payload.get('forkee'):
-        payload['forkee'] = Repository(p
+        payload['forkee'] = Repository(payload['forkee'], session)
+    return payload
+
+
+def _gist(payload, session):
+    from .gists import Gist
+    if payload.get('gist'):
+        payload['gist'] = Gist(payload['gist'], session)
+    return payload
+
+
+def _issuecomm(payload, session):
+    from .issues import Issue
+    from .issues.comment import IssueComment
+    if payload.get('issue'):
+        payload['issue'] = Issue(payload['issue'], session)
+    if payload.get('comment'):
+        payload['comment'] = IssueComment(payload['comment'], session)
+    return payload
+
+
+def _issueevent(payload, session):
+    from .issues import Issue
+    if payload.get('issue'):
+        payload['issue'] = Issue(payload['issue'], session)
+    return payload
+
+
+def _member(payload, session):
+    from .users import User
+    if payload.get('member'):
+        payload['member'] = User(payload['member'], session)
+    return payload
+
+
+def _pullreqev(payload, session):
+    from .pulls import PullRequest
+    if payload.get('pull_request'):
+        payload['pull_request'] = PullRequest(payload['pull_request'],
+                                              session)
+    return payload
+
+
+def _pullreqcomm(payload, sess
