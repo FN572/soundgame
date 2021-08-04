@@ -124,4 +124,46 @@ def _pullreqev(payload, session):
     return payload
 
 
-def _pullreqcomm(payload, sess
+def _pullreqcomm(payload, session):
+    from .pulls import PullRequest, ReviewComment
+    # Transform the Pull Request attribute
+    pull = payload.get('pull_request')
+    if pull:
+        payload['pull_request'] = PullRequest(pull, session)
+
+    # Transform the Comment attribute
+    comment = payload.get('comment')
+    if comment:
+        payload['comment'] = ReviewComment(comment, session)
+    return payload
+
+
+def _release(payload, session):
+    from .repos.release import Release
+    release = payload.get('release')
+    if release:
+        payload['release'] = Release(release, session)
+    return payload
+
+
+def _team(payload, session):
+    from .orgs import Team
+    from .repos import Repository
+    from .users import User
+    if payload.get('team'):
+        payload['team'] = Team(payload['team'], session)
+    if payload.get('repo'):
+        payload['repo'] = Repository(payload['repo'], session)
+    if payload.get('sender'):
+        payload['sender'] = User(payload['sender'], session)
+    return payload
+
+
+def identity(x, session):
+    return x
+
+
+_payload_handlers = {
+    'CommitCommentEvent': _commitcomment,
+    'CreateEvent': identity,
+    'DeleteEvent': identi
