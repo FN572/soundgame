@@ -166,4 +166,21 @@ def identity(x, session):
 _payload_handlers = {
     'CommitCommentEvent': _commitcomment,
     'CreateEvent': identity,
-    'DeleteEvent': identi
+    'DeleteEvent': identity,
+    'FollowEvent': _follow,
+    'ForkEvent': _forkev,
+    'ForkApplyEvent': identity,
+    'GistEvent': _gist,
+    'GollumEvent': identity,
+    'IssueCommentEvent': _issuecomm,
+    'IssuesEvent': _issueevent,
+    'MemberEvent': _member,
+    'PublicEvent': identity,
+    'PullRequestEvent': _pullreqev,
+    'PullRequestReviewCommentEvent': _pullreqcomm,
+    'PushEvent': identity,
+    'ReleaseEvent': _release,
+    'StatusEvent': identity,
+    'TeamAddEvent': _team,
+    'WatchEvent': identity,
+}
