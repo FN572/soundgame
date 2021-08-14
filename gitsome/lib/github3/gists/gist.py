@@ -47,3 +47,30 @@ class Gist(GitHubCore):
         self.id = '{0}'.format(data.get('id', ''))
 
         #: Description of the gist
+        self.description = data.get('description', '')
+
+        # e.g. https://api.github.com/gists/1
+        self._api = data.get('url', '')
+
+        #: URL of this gist at Github, e.g., https://gist.github.com/1
+        self.html_url = data.get('html_url')
+        #: Boolean describing if the gist is public or private
+        self.public = data.get('public')
+
+        self._forks = data.get('forks', [])
+
+        #: Git URL to pull this gist, e.g., git://gist.github.com/1.git
+        self.git_pull_url = data.get('git_pull_url', '')
+
+        #: Git URL to push to gist, e.g., git@gist.github.com/1.git
+        self.git_push_url = data.get('git_push_url', '')
+
+        #: datetime object representing when the gist was created.
+        self.created_at = self._strptime(data.get('created_at'))
+
+        #: datetime object representing the last time this gist was updated.
+        self.updated_at = self._strptime(data.get('updated_at'))
+
+        owner = data.get('owner')
+        #: :class:`User <github3.users.User>` object representing the owner of
+     
