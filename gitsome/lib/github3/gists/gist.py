@@ -73,4 +73,43 @@ class Gist(GitHubCore):
 
         owner = data.get('owner')
         #: :class:`User <github3.users.User>` object representing the owner of
-     
+        #: the gist.
+        self.owner = User(owner, self) if owner else None
+
+        self._files = [GistFile(data['files'][f]) for f in data['files']]
+
+        #: History of this gist, list of
+        #: :class:`GistHistory <github3.gists.history.GistHistory>`
+        self.history = [GistHistory(h, self) for h in data.get('history', [])]
+
+        # New urls
+
+        #: Comments URL (not a template)
+        self.comments_url = data.get('comments_url', '')
+
+        #: Commits URL (not a template)
+        self.commits_url = data.get('commits_url', '')
+
+        #: Forks URL (not a template)
+        self.forks_url = data.get('forks_url', '')
+
+        #: Whether the content of this Gist has been truncated or not
+        self.truncated = data.get('truncated')
+
+    def __str__(self):
+        return self.id
+
+    def _repr(self):
+        return '<Gist [{0}]>'.format(self.id)
+
+    @requires_auth
+    def create_comment(self, body):
+        """Create a comment on this gist.
+
+        :param str body: (required), body of the comment
+        :returns: :class:`GistComment <github3.gists.comment.GistComment>`
+
+        """
+        json = None
+        if body:
+            url = self._b
