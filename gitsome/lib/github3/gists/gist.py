@@ -112,4 +112,37 @@ class Gist(GitHubCore):
         """
         json = None
         if body:
-            url = self._b
+            url = self._build_url('comments', base_url=self._api)
+            json = self._json(self._post(url, data={'body': body}), 201)
+        return self._instance_or_null(GistComment, json)
+
+    @requires_auth
+    def delete(self):
+        """Delete this gist.
+
+        :returns: bool -- whether the deletion was successful
+
+        """
+        return self._boolean(self._delete(self._api), 204, 404)
+
+    @requires_auth
+    def edit(self, description='', files={}):
+        """Edit this gist.
+
+        :param str description: (optional), description of the gist
+        :param dict files: (optional), files that make up this gist; the
+            key(s) should be the file name(s) and the values should be another
+            (optional) dictionary with (optional) keys: 'content' and
+            'filename' where the former is the content of the file and the
+            latter is the new name of the file.
+        :returns: bool -- whether the edit was successful
+
+        """
+        data = {}
+        json = None
+        if description:
+            data['description'] = description
+        if files:
+            data['files'] = files
+        if data:
+            json = self._
