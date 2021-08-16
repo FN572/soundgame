@@ -145,4 +145,42 @@ class Gist(GitHubCore):
         if files:
             data['files'] = files
         if data:
-            json = self._
+            json = self._json(self._patch(self._api, data=dumps(data)), 200)
+        if json:
+            self._update_attributes(json)
+            return True
+        return False
+
+    @requires_auth
+    def fork(self):
+        """Fork this gist.
+
+        :returns: :class:`Gist <Gist>` if successful, ``None`` otherwise
+
+        """
+        url = self._build_url('forks', base_url=self._api)
+        json = self._json(self._post(url), 201)
+        return self._instance_or_null(Gist, json)
+
+    @requires_auth
+    def is_starred(self):
+        """Check to see if this gist is starred by the authenticated user.
+
+        :returns: bool -- True if it is starred, False otherwise
+
+        """
+        url = self._build_url('star', base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
+
+    def comments(self, number=-1, etag=None):
+        """Iterate over comments on this gist.
+
+        :param int number: (optional), number of comments to iterate over.
+            Default: -1 will iterate over all comments on the gist
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of
+            :class:`GistComment <github3.gists.comment.GistComment>`
+
+        """
+  
