@@ -218,4 +218,39 @@ class Gist(GitHubCore):
         """
         return iter(self._files)
 
-    def forks(self, number=-1, et
+    def forks(self, number=-1, etag=None):
+        """Iterator of forks of this gist.
+
+        .. versionchanged:: 0.9
+
+            Added params ``number`` and ``etag``.
+
+        :param int number: (optional), number of forks to iterate over.
+            Default: -1 will iterate over all forks of this gist.
+        :param str etag: (optional), ETag from a previous request to this
+            endpoint.
+        :returns: generator of :class:`Gist <Gist>`
+
+        """
+        url = self._build_url('forks', base_url=self._api)
+        return self._iter(int(number), url, Gist, etag=etag)
+
+    @requires_auth
+    def star(self):
+        """Star this gist.
+
+        :returns: bool -- True if successful, False otherwise
+
+        """
+        url = self._build_url('star', base_url=self._api)
+        return self._boolean(self._put(url), 204, 404)
+
+    @requires_auth
+    def unstar(self):
+        """Un-star this gist.
+
+        :returns: bool -- True if successful, False otherwise
+
+        """
+        url = self._build_url('star', base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
