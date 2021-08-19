@@ -49,4 +49,40 @@ class Blob(GitHubCore):
 
 class GitData(GitHubCore):
 
+    """The :class:`GitData <GitData>` object. This isn't directly returned to
+    the user (developer) ever. This is used to prevent duplication of some
+    common items among other Git Data objects.
+
+    """
+
+    def _update_attributes(self, data):
+        #: SHA of the object
+        self.sha = data.get('sha')
+        self._api = data.get('url', '')
+
+
+class Commit(BaseCommit):
+
+    """The :class:`Commit <Commit>` object. This represents a commit made in a
+    repository.
+
+    See also: http://developer.github.com/v3/git/commits/
+
+    """
+
+    def _update_attributes(self, commit):
+        super(Commit, self)._update_attributes(commit)
+        #: dict containing at least the name, email and date the commit was
+        #: created
+        self.author = commit.get('author', {}) or {}
+        # If GH returns nil/None then make sure author is a dict
+        self._author_name = self.author.get('name', '')
+
+        #: dict containing similar information to the author attribute
+        self.committer = commit.get('committer', {}) or {}
+        # blank the data if GH returns no data
+
+        self._commit_name = self.committer.get('name', '')
+
+        #: :class:`Tree <Tree>` the commit belongs to.
   
