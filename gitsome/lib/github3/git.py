@@ -85,4 +85,42 @@ class Commit(BaseCommit):
         self._commit_name = self.committer.get('name', '')
 
         #: :class:`Tree <Tree>` the commit belongs to.
-  
+        self.tree = None
+        if commit.get('tree'):
+            self.tree = Tree(commit.get('tree'), self)
+
+    def _repr(self):
+        return '<Commit [{0}:{1}]>'.format(self._author_name, self.sha)
+
+    def author_as_User(self):
+        """Attempt to return the author attribute as a
+        :class:`User <github3.users.User>`. No guarantees are made about the
+        validity of this object, i.e., having a login or created_at object.
+
+        """
+        return User(self.author, self)
+
+    def committer_as_User(self):
+        """Attempt to return the committer attribute as a
+        :class:`User <github3.users.User>` object. No guarantees are made
+        about the validity of this object.
+
+        """
+        return User(self.committer, self)
+
+
+class Reference(GitHubCore):
+
+    """The :class:`Reference <Reference>` object. This represents a reference
+    created on a repository.
+
+    See also: http://developer.github.com/v3/git/refs/
+
+    """
+
+    def _update_attributes(self, ref):
+        self._api = ref.get('url', '')
+        #: The reference path, e.g., refs/heads/sc/featureA
+        self.ref = ref.get('ref')
+        #: :class:`GitObject <GitObject>` the reference points to
+        self.object = GitObject(ref.get(
