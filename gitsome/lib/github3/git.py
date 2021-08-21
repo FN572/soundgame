@@ -123,4 +123,52 @@ class Reference(GitHubCore):
         #: The reference path, e.g., refs/heads/sc/featureA
         self.ref = ref.get('ref')
         #: :class:`GitObject <GitObject>` the reference points to
-        self.object = GitObject(ref.get(
+        self.object = GitObject(ref.get('object', {}))
+
+    def _repr(self):
+        return '<Reference [{0}]>'.format(self.ref)
+
+    @requires_auth
+    def delete(self):
+        """Delete this reference.
+
+        :returns: bool
+
+        """
+        return self._boolean(self._delete(self._api), 204, 404)
+
+    @requires_auth
+    def update(self, sha, force=False):
+        """Update this reference.
+
+        :param str sha: (required), sha of the reference
+        :param bool force: (optional), force the update or not
+        :returns: bool
+
+        """
+        data = {'sha': sha, 'force': force}
+        json = self._json(self._patch(self._api, data=dumps(data)), 200)
+        if json:
+            self._update_attributes(json)
+            return True
+        return False
+
+
+class GitObject(GitData):
+
+    """The :class:`GitObject <GitObject>` object."""
+
+    def _update_attributes(self, obj):
+        super(GitObject, self)._update_attributes(obj)
+        #: The type of object.
+        self.type = obj.get('type')
+
+    def _repr(self):
+        return '<Git Object [{0}]>'.format(self.sha)
+
+
+class Tag(GitData):
+
+    """The :class:`Tag <Tag>` object.
+
+    See also: http://developer.githu
