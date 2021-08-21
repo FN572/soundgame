@@ -171,4 +171,48 @@ class Tag(GitData):
 
     """The :class:`Tag <Tag>` object.
 
-    See also: http://developer.githu
+    See also: http://developer.github.com/v3/git/tags/
+
+    """
+
+    def _update_attributes(self, tag):
+        super(Tag, self)._update_attributes(tag)
+        #: String of the tag
+        self.tag = tag.get('tag')
+        #: Commit message for the tag
+        self.message = tag.get('message')
+        #: dict containing the name and email of the person
+        self.tagger = tag.get('tagger')
+        #: :class:`GitObject <GitObject>` for the tag
+        self.object = GitObject(tag.get('object', {}))
+
+    def _repr(self):
+        return '<Tag [{0}]>'.format(self.tag)
+
+
+class Tree(GitData):
+
+    """The :class:`Tree <Tree>` object.
+
+    See also: http://developer.github.com/v3/git/trees/
+
+    """
+
+    def _update_attributes(self, tree):
+        super(Tree, self)._update_attributes(tree)
+        #: list of :class:`Hash <Hash>` objects
+        self.tree = [Hash(t) for t in tree.get('tree', [])]
+
+    def _repr(self):
+        return '<Tree [{0}]>'.format(self.sha)
+
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+
+    def __ne__(self, other):
+        return self.as_dict() != other.as_dict()
+
+    def recurse(self):
+        """Recurse into the tree.
+
+        :returns: :c
