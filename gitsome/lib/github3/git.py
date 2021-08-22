@@ -215,4 +215,34 @@ class Tree(GitData):
     def recurse(self):
         """Recurse into the tree.
 
-        :returns: :c
+        :returns: :class:`Tree <Tree>`
+        """
+        json = self._json(self._get(self._api, params={'recursive': '1'}),
+                          200)
+        return self._instance_or_null(Tree, json)
+
+
+class Hash(GitHubCore):
+
+    """The :class:`Hash <Hash>` object.
+
+    See also: http://developer.github.com/v3/git/trees/#create-a-tree
+
+    """
+
+    def _update_attributes(self, info):
+        #: Path to file
+        self.path = info.get('path')
+        #: File mode
+        self.mode = info.get('mode')
+        #: Type of hash, e.g., blob
+        self.type = info.get('type')
+        #: Size of hash
+        self.size = info.get('size')
+        #: SHA of the hash
+        self.sha = info.get('sha')
+        #: URL of this object in the GitHub API
+        self.url = info.get('url')
+
+    def _repr(self):
+        return '<Hash [{0}]>'.format(self.sha)
