@@ -39,4 +39,17 @@ class IssueComment(BaseComment):
         return '<Issue Comment [{0}]>'.format(self.user.login)
 
 
-def
+def issue_comment_params(sort, direction, since):
+    params = {}
+
+    if sort in ('created', 'updated'):
+        params['sort'] = sort
+
+    if direction in ('asc', 'desc'):
+        params['direction'] = direction
+
+    since = timestamp_parameter(since)
+    if since:
+        params['since'] = since
+
+    return params
