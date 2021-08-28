@@ -27,4 +27,38 @@ class IssueEvent(GitHubCore):
         #   ('closed', 'reopened', 'subscribed', 'merged', 'referenced',
         #    'mentioned', 'assigned')
         #: The type of event, e.g., closed
-        self.event = event.get
+        self.event = event.get('event')
+        #: SHA of the commit.
+        self.commit_id = event.get('commit_id')
+        self._api = event.get('url', '')
+
+        #: :class:`Issue <github3.issues.Issue>` where this comment was made.
+        self.issue = event.get('issue')
+        if self.issue:
+            from .issue import Issue
+            self.issue = Issue(self.issue, self)
+
+        #: :class:`User <github3.users.User>` who caused this event.
+        self.actor = event.get('actor')
+        if self.actor:
+            self.actor = User(self.actor, self)
+
+        #: :class:`User <github3.users.User>` that generated the event.
+        self.actor = event.get('actor')
+        if self.actor:
+            self.actor = User(self.actor, self)
+
+        #: Number of comments
+        self.comments = event.get('comments', 0)
+
+        #: datetime object representing when the event was created.
+        self.created_at = self._strptime(event.get('created_at'))
+
+        #: Dictionary of links for the pull request
+        self.pull_request = event.get('pull_request', {})
+
+        #: Dictionary containing label details
+        self.label = event.get('label', {})
+
+        #: The integer ID of the event
+    
