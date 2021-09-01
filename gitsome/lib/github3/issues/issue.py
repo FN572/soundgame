@@ -55,4 +55,30 @@ class Issue(GitHubCore):
         #: datetime object representing when the issue was closed.
         self.closed_at = self._strptime(issue.get('closed_at'))
 
-        #: Numbe
+        #: Number of comments on this issue.
+        self.comments_count = issue.get('comments')
+        #: Comments url (not a template)
+        self.comments_url = issue.get('comments_url')
+        #: datetime object representing when the issue was created.
+        self.created_at = self._strptime(issue.get('created_at'))
+        #: Events url (not a template)
+        self.events_url = issue.get('events_url')
+        #: URL to view the issue at GitHub.
+        self.html_url = issue.get('html_url')
+        #: Unique ID for the issue.
+        self.id = issue.get('id')
+        #: Returns the list of :class:`Label <github3.issues.label.Label>`\ s
+        #: on this issue.
+        self.original_labels = [
+            Label(l, self) for l in issue.get('labels')
+        ]
+        labels_url = issue.get('labels_url')
+        #: Labels URL Template. Expand with ``name``
+        self.labels_urlt = URITemplate(labels_url) if labels_url else None
+        #: Locked status
+        self.locked = issue.get('locked')
+        #: :class:`Milestone <github3.issues.milestone.Milestone>` this
+        #: issue was assigned to.
+        self.milestone = None
+        if issue.get('milestone'):
+            self.milestone
