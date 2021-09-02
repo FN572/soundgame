@@ -81,4 +81,28 @@ class Issue(GitHubCore):
         #: issue was assigned to.
         self.milestone = None
         if issue.get('milestone'):
-            self.milestone
+            self.milestone = Milestone(issue.get('milestone'), self)
+        #: Issue number (e.g. #15)
+        self.number = issue.get('number')
+        #: Dictionary URLs for the pull request (if they exist)
+        self.pull_request_urls = issue.get('pull_request', {})
+        m = match('https?://[\w\d\-\.\:]+/(\S+)/(\S+)/(?:issues|pull)/\d+',
+                  self.html_url)
+        #: Returns ('owner', 'repository') this issue was filed on.
+        self.repository = m.groups()
+        #: State of the issue, e.g., open, closed
+        self.state = issue.get('state')
+        #: Title of the issue.
+        self.title = issue.get('title')
+        #: datetime object representing the last time the issue was updated.
+        self.updated_at = self._strptime(issue.get('updated_at'))
+        #: :class:`User <github3.users.User>` who opened the issue.
+        self.user = User(issue.get('user'), self)
+
+        closed_by = issue.get('closed_by')
+        #: :class:`User <github3.users.User>` who closed the issue.
+        self.closed_by = User(closed_by, self) if closed_by else None
+
+    def _repr(self):
+        return '<Issue [{r[0]}/{r[1]} #{n}]>'.format(r=self.repository,
+                     
