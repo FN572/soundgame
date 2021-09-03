@@ -105,4 +105,38 @@ class Issue(GitHubCore):
 
     def _repr(self):
         return '<Issue [{r[0]}/{r[1]} #{n}]>'.format(r=self.repository,
-                     
+                                                     n=self.number)
+
+    @requires_auth
+    def add_labels(self, *args):
+        """Add labels to this issue.
+
+        :param str args: (required), names of the labels you wish to add
+        :returns: list of :class:`Label`\ s
+        """
+        url = self._build_url('labels', base_url=self._api)
+        json = self._json(self._post(url, data=args), 200)
+        return [Label(l, self) for l in json] if json else []
+
+    @requires_auth
+    def assign(self, username):
+        """Assigns user ``username`` to this issue. This is a short cut for
+        ``issue.edit``.
+
+        :param str username: username of the person to assign this issue to
+        :returns: bool
+        """
+        if not username:
+            return False
+        number = self.milestone.number if self.milestone else None
+        labels = [str(l) for l in self.original_labels]
+        return self.edit(self.title, self.body, username, self.state, number,
+                         labels)
+
+    @requires_auth
+    def close(self):
+        """Close this issue.
+
+        :returns: bool
+        """
+        assignee = self.assignee.login if self.assign
