@@ -218,4 +218,39 @@ class Issue(GitHubCore):
         json = None
         data = {'title': title, 'body': body, 'assignee': assignee,
                 'state': state, 'milestone': milestone, 'labels': labels}
-        self._remov
+        self._remove_none(data)
+        if data:
+            if 'milestone' in data and data['milestone'] == 0:
+                data['milestone'] = None
+            json = self._json(self._patch(self._api, data=dumps(data)), 200)
+        if json:
+            self._update_attributes(json)
+            return True
+        return False
+
+    def events(self, number=-1):
+        """Iterate over events associated with this issue only.
+
+        :param int number: (optional), number of events to return. Default: -1
+            returns all events available.
+        :returns: generator of
+            :class:`IssueEvent <github3.issues.event.IssueEvent>`\ s
+        """
+        url = self._build_url('events', base_url=self._api)
+        return self._iter(int(number), url, IssueEvent)
+
+    def is_closed(self):
+        """Checks if the issue is closed.
+
+        :returns: bool
+        """
+        if self.closed_at or (self.state == 'closed'):
+            return True
+        return False
+
+    def labels(self, number=-1, etag=None):
+        """Iterate over the labels associated with this issue.
+
+        :param int number: (optional), number of labels to return. Default: -1
+            returns all labels applied to this issue.
+        :param str etag: (optio
