@@ -191,3 +191,31 @@ class Issue(GitHubCore):
         :returns: :class:`IssueComment <github3.issues.comment.IssueComment>`
         """
         json = None
+        if body:
+            url = self._build_url('comments', base_url=self._api)
+            json = self._json(self._post(url, data={'body': body}),
+                              201)
+        return self._instance_or_null(IssueComment, json)
+
+    @requires_auth
+    def edit(self, title=None, body=None, assignee=None, state=None,
+             milestone=None, labels=None):
+        """Edit this issue.
+
+        :param str title: Title of the issue
+        :param str body: markdown formatted body (description) of the issue
+        :param str assignee: login name of user the issue should be assigned
+            to
+        :param str state: accepted values: ('open', 'closed')
+        :param int milestone: the NUMBER (not title) of the milestone to
+            assign this to [1]_, or 0 to remove the milestone
+        :param list labels: list of labels to apply this to
+        :returns: bool
+
+        .. [1] Milestone numbering starts at 1, i.e. the first milestone you
+               create is 1, the second is 2, etc.
+        """
+        json = None
+        data = {'title': title, 'body': body, 'assignee': assignee,
+                'state': state, 'milestone': milestone, 'labels': labels}
+        self._remov
