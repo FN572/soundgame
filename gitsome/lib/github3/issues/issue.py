@@ -253,4 +253,38 @@ class Issue(GitHubCore):
 
         :param int number: (optional), number of labels to return. Default: -1
             returns all labels applied to this issue.
-        :param str etag: (optio
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Label <github3.issues.label.Label>`\ s
+        """
+        url = self._build_url('labels', base_url=self._api)
+        return self._iter(int(number), url, Label, etag=etag)
+
+    @requires_auth
+    def lock(self):
+        """Lock an issue.
+
+        :returns: bool
+        """
+        headers = Issue.LOCKING_PREVIEW_HEADERS
+
+        url = self._build_url('lock', base_url=self._api)
+        return self._boolean(self._put(url, headers=headers), 204, 404)
+
+    def pull_request(self):
+        """Retrieve the pull request associated with this issue.
+
+        :returns: :class:`~github3.pulls.PullRequest`
+        """
+        from .. import pulls
+        json = None
+        pull_request_url = self.pull_request_urls.get('url')
+        if pull_request_url:
+            json = self._json(self._get(pull_request_url), 200)
+        return self._instance_or_null(pulls.PullRequest, json)
+
+    @requires_auth
+    def remove_label(self, name):
+        """Removes label ``name`` from this issue.
+
+        :param str name: (required), name of the label to r
