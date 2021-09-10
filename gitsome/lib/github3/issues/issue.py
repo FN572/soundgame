@@ -322,4 +322,18 @@ class Issue(GitHubCore):
         :returns: bool
         """
         assignee = self.assignee.login if self.assignee else ''
-        number = self.mi
+        number = self.milestone.number if self.milestone else None
+        labels = [str(l) for l in self.original_labels]
+        return self.edit(self.title, self.body, assignee, 'open',
+                         number, labels)
+
+    @requires_auth
+    def unlock(self):
+        """Unlock an issue.
+
+        :returns: bool
+        """
+        headers = Issue.LOCKING_PREVIEW_HEADERS
+
+        url = self._build_url('lock', base_url=self._api)
+        return self._boolean(self._delete(url, headers=headers), 204, 404)
