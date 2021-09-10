@@ -287,4 +287,39 @@ class Issue(GitHubCore):
     def remove_label(self, name):
         """Removes label ``name`` from this issue.
 
-        :param str name: (required), name of the label to r
+        :param str name: (required), name of the label to remove
+        :returns: list of :class:`Label`
+        """
+        url = self._build_url('labels', name, base_url=self._api)
+        json = self._json(self._delete(url), 200, 404)
+        labels = [Label(label, self) for label in json] if json else []
+        return labels
+
+    @requires_auth
+    def remove_all_labels(self):
+        """Remove all labels from this issue.
+
+        :returns: an empty list if successful
+        """
+        # Can either send DELETE or [] to remove all labels
+        return self.replace_labels([])
+
+    @requires_auth
+    def replace_labels(self, labels):
+        """Replace all labels on this issue with ``labels``.
+
+        :param list labels: label names
+        :returns: list of :class:`Label`
+        """
+        url = self._build_url('labels', base_url=self._api)
+        json = self._json(self._put(url, data=dumps(labels)), 200)
+        return [Label(l, self) for l in json] if json else []
+
+    @requires_auth
+    def reopen(self):
+        """Re-open a closed issue.
+
+        :returns: bool
+        """
+        assignee = self.assignee.login if self.assignee else ''
+        number = self.mi
