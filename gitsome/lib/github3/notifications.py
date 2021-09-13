@@ -33,4 +33,30 @@ class Thread(GitHubCore):
     """
     def _update_attributes(self, notif):
         self._api = notif.get('url')
-        #: Comm
+        #: Comment responsible for the notification
+        self.comment = notif.get('comment', {})
+        #: Thread information
+        self.thread = notif.get('thread', {})
+
+        from .repos import Repository
+        #: Repository the comment was made on
+        self.repository = Repository(notif.get('repository', {}), self)
+        #: When the thread was last updated
+        self.updated_at = self._strptime(notif.get('updated_at'))
+        #: Id of the thread
+        self.id = notif.get('id')
+        #: Dictionary of urls for the thread
+        self.urls = notif.get('urls')
+        #: datetime object representing the last time the user read the thread
+        self.last_read_at = self._strptime(notif.get('last_read_at'))
+        #: The reason you're receiving the notification
+        self.reason = notif.get('reason')
+        #: Subject of the Notification, e.g., which issue/pull/diff is this in
+        #: relation to. This is a dictionary
+        self.subject = notif.get('subject')
+        self.unread = notif.get('unread')
+
+    def _repr(self):
+        return '<Thread [{0}]>'.format(self.subject.get('title'))
+
+    def delete_subscription(self):
