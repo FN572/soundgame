@@ -92,4 +92,37 @@ class Thread(GitHubCore):
         json = self._json(self._put(url, data=dumps(sub)), 200)
         return self._instance_or_null(Subscription, json)
 
-    def subscripti
+    def subscription(self):
+        """Checks the status of the user's subscription to this thread.
+
+        :returns: :class:`Subscription <Subscription>`
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Subscription, json)
+
+
+class Subscription(GitHubCore):
+
+    """This object wraps thread and repository subscription information.
+
+    See also:
+    developer.github.com/v3/activity/notifications/#get-a-thread-subscription
+
+    """
+
+    def _update_attributes(self, sub):
+        self._api = sub.get('url')
+        #: reason user is subscribed to this thread/repository
+        self.reason = sub.get('reason')
+        #: datetime representation of when the subscription was created
+        self.created_at = self._strptime(sub.get('created_at'))
+        #: API url of the thread if it exists
+        self.thread_url = sub.get('thread_url')
+        #: API url of the repository if it exists
+        self.repository_url = sub.get('repository_url')
+        self.ignored = sub.get('ignored', False)
+        self.subscribed = sub.get('subscribed', False)
+
+    def _repr(self):
+        return '<Subscri
