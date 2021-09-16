@@ -60,3 +60,36 @@ class Thread(GitHubCore):
         return '<Thread [{0}]>'.format(self.subject.get('title'))
 
     def delete_subscription(self):
+        """Delete subscription for this thread.
+
+        :returns: bool
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
+
+    def is_unread(self):
+        """Tells you if the thread is unread or not."""
+        return self.unread
+
+    def mark(self):
+        """Mark the thread as read.
+
+        :returns: bool
+        """
+        return self._boolean(self._patch(self._api), 205, 404)
+
+    def set_subscription(self, subscribed, ignored):
+        """Set the user's subscription for this thread
+
+        :param bool subscribed: (required), determines if notifications should
+            be received from this thread.
+        :param bool ignored: (required), determines if notifications should be
+            ignored from this thread.
+        :returns: :class:`Subscription <Subscription>`
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        sub = {'subscribed': subscribed, 'ignored': ignored}
+        json = self._json(self._put(url, data=dumps(sub)), 200)
+        return self._instance_or_null(Subscription, json)
+
+    def subscripti
