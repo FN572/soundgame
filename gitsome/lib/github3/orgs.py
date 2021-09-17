@@ -390,3 +390,229 @@ class Organization(BaseAccount):
         """Create a new team and return it.
 
         This only works if the authenticated user owns this organization.
+
+        :param str name: (required), name to be given to the team
+        :param list repo_names: (optional) repositories, e.g.
+            ['github/dotfiles']
+        :param str permission: (optional), options:
+
+            - ``pull`` -- (default) members can not push or administer
+                repositories accessible by this team
+            - ``push`` -- members can push and pull but not administer
+                repositories accessible by this team
+            - ``admin`` -- members can push, pull and administer
+                repositories accessible by this team
+
+        :returns: :class:`Team <Team>`
+        """
+        data = {'name': name, 'repo_names': repo_names,
+                'permission': permission}
+        url = self._build_url('teams', base_url=self._api)
+        json = self._json(self._post(url, data), 201)
+        return self._instance_or_null(Team, json)
+
+    @requires_auth
+    def edit(self, billing_email=None, company=None, email=None, location=None,
+             name=None):
+        """Edit this organization.
+
+        :param str billing_email: (optional) Billing email address (private)
+        :param str company: (optional)
+        :param str email: (optional) Public email address
+        :param str location: (optional)
+        :param str name: (optional)
+        :returns: bool
+        """
+        json = None
+        data = {'billing_email': billing_email, 'company': company,
+                'email': email, 'location': location, 'name': name}
+        self._remove_none(data)
+
+        if data:
+            json = self._json(self._patch(self._api, data=dumps(data)), 200)
+
+        if json:
+            self._update_attributes(json)
+            return True
+        return False
+
+    def is_member(self, username):
+        """Check if the user named ``username`` is a member.
+
+        :param str username: name of the user you'd like to check
+        :returns: bool
+        """
+        url = self._build_url('members', username, base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
+
+    def is_public_member(self, username):
+        """Check if the user named ``username`` is a public member.
+
+        :param str username: name of the user you'd like to check
+        :returns: bool
+        """
+        url = self._build_url('public_members', username, base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
+
+    def events(self, number=-1, etag=None):
+        r"""Iterate over events for this org.
+
+        :param int number: (optional), number of events to return. Default: -1
+            iterates over all events available.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Event <github3.events.Event>`\ s
+        """
+        url = self._build_url('events', base_url=self._api)
+        return self._iter(int(number), url, Event, etag=etag)
+
+    def members(self, filter=None, role=None, number=-1, etag=None):
+        r"""Iterate over members of this organization.
+
+        :param str filter: (optional), filter members returned by this method.
+            Can be one of: ``"2fa_disabled"``, ``"all",``. Default: ``"all"``.
+            Filtering by ``"2fa_disabled"`` is only available for organization
+            owners with private repositories.
+        :param str role: (optional), filter members returned by their role.
+            Can be one of: ``"all"``, ``"admin"``, ``"member"``. Default:
+            ``"all"``.
+        :param int number: (optional), number of members to return. Default:
+            -1 will return all available.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`User <github3.users.User>`\ s
+        """
+        headers = {}
+        params = {}
+        if filter in self.members_filters:
+            params['filter'] = filter
+        if role in self.members_roles:
+            params['role'] = role
+            headers['Accept'] = 'application/vnd.github.ironman-preview+json'
+        url = self._build_url('members', base_url=self._api)
+        return self._iter(int(number), url, User, params=params, etag=etag,
+                          headers=headers)
+
+    def public_members(self, number=-1, etag=None):
+        r"""Iterate over public members of this organization.
+
+        :param int number: (optional), number of members to return. Default:
+            -1 will return all available.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`User <github3.users.User>`\ s
+        """
+        url = self._build_url('public_members', base_url=self._api)
+        return self._iter(int(number), url, User, etag=etag)
+
+    def repositories(self, type='', number=-1, etag=None):
+        r"""Iterate over repos for this organization.
+
+        :param str type: (optional), accepted values:
+            ('all', 'public', 'member', 'private', 'forks', 'sources'), API
+            default: 'all'
+        :param int number: (optional), number of members to return. Default:
+            -1 will return all available.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Repository <github3.repos.Repository>`
+        """
+        url = self._build_url('repos', base_url=self._api)
+        params = {}
+        if type in ('all', 'public', 'member', 'private', 'forks', 'sources'):
+            params['type'] = type
+        return self._iter(int(number), url, Repository, params, etag)
+
+    @requires_auth
+    def teams(self, number=-1, etag=None):
+        r"""Iterate over teams that are part of this organization.
+
+        :param int number: (optional), number of teams to return. Default: -1
+            returns all available teams.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Team <Team>`\ s
+        """
+        url = self._build_url('teams', base_url=self._api)
+        return self._iter(int(number), url, Team, etag=etag)
+
+    @requires_auth
+    def publicize_member(self, username):
+        """Make ``username``'s membership in this organization public.
+
+        :param str username: the name of the user whose membership you wish to
+            publicize
+        :returns: bool
+        """
+        url = self._build_url('public_members', username, base_url=self._api)
+        return self._boolean(self._put(url), 204, 404)
+
+    @requires_auth
+    def remove_member(self, username):
+        """Remove the user named ``username`` from this organization.
+
+        :param str username: name of the user to remove from the org
+        :returns: bool
+        """
+        url = self._build_url('members', username, base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
+
+    @requires_auth
+    def remove_repository(self, repository, team_id):
+        """Remove ``repository`` from the team with ``team_id``.
+
+        :param str repository: (required), form: 'user/repo'
+        :param int team_id: (required)
+        :returns: bool
+        """
+        if int(team_id) > 0:
+            url = self._build_url('teams', str(team_id), 'repos',
+                                  str(repository))
+            return self._boolean(self._delete(url), 204, 404)
+        return False
+
+    @requires_auth
+    def team(self, team_id):
+        """Return the team specified by ``team_id``.
+
+        :param int team_id: (required), unique id for the team
+        :returns: :class:`Team <Team>`
+        """
+        json = None
+        if int(team_id) > 0:
+            url = self._build_url('teams', str(team_id))
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Team, json)
+
+
+class Membership(GitHubCore):
+
+    """The wrapper for information about Team and Organization memberships."""
+
+    def _repr(self):
+        return '<Membership [{0}]>'.format(self.organization)
+
+    def _update_attributes(self, membership):
+        self._api = membership.get('url')
+        self.organization = Organization(membership.get('organization', {}),
+                                         self)
+        self.state = membership.get('state', '')
+        self.organization_url = membership.get('organization_url')
+        self.active = self.state.lower() == 'active'
+        self.pending = self.state.lower() == 'pending'
+
+    @requires_auth
+    def edit(self, state):
+        """Edit the user's membership.
+
+        :param str state: (required), the state the membership should be in.
+            Only accepts ``"active"``.
+        :returns: whether the edit was successful or not
+        :rtype: bool
+        """
+        if state and state.lower() == 'active':
+            data = dumps({'state': state.lower()})
+            json = self._json(self._patch(self._api, data=data))
+            self._update_attributes(json)
+            return True
+        return False
