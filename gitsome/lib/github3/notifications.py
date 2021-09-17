@@ -125,4 +125,25 @@ class Subscription(GitHubCore):
         self.subscribed = sub.get('subscribed', False)
 
     def _repr(self):
-        return '<Subscri
+        return '<Subscription [{0}]>'.format(self.subscribed)
+
+    def delete(self):
+        return self._boolean(self._delete(self._api), 204, 404)
+
+    def is_ignored(self):
+        return self.ignored
+
+    def is_subscribed(self):
+        return self.subscribed
+
+    def set(self, subscribed, ignored):
+        """Set the user's subscription for this subscription
+
+        :param bool subscribed: (required), determines if notifications should
+            be received from this thread.
+        :param bool ignored: (required), determines if notifications should be
+            ignored from this thread.
+        """
+        sub = {'subscribed': subscribed, 'ignored': ignored}
+        json = self._json(self._put(self._api, data=dumps(sub)), 200)
+        self._update_attributes(json)
