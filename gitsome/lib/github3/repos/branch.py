@@ -39,4 +39,32 @@ class Branch(GitHubCore):
         return '<Repository Branch [{0}]>'.format(self.name)
 
     def latest_sha(self, differs_from=''):
-        """Check if SHA-1 is the same as re
+        """Check if SHA-1 is the same as remote branch
+
+        See: https://git.io/vaqIw
+
+        :param str differs_from: (optional), sha to compare against
+        :returns: string of the SHA or None
+        """
+        # If-None-Match returns 200 instead of 304 value does not have quotes
+        headers = {
+            'Accept': 'application/vnd.github.chitauri-preview+sha',
+            'If-None-Match': '"{0}"'.format(differs_from)
+        }
+        base = self._api.split('/branches', 1)[0]
+        url = self._build_url('commits', self.name, base_url=base)
+        resp = self._get(url, headers=headers)
+        if self._boolean(resp, 200, 304):
+            return resp.content
+        return None
+
+    def protect(self, enforcement=None, status_checks=None):
+        """Enable force push protection and configure status check enforcement.
+
+        See: http://git.io/v4Gvu
+
+        :param str enforcement: (optional), Specifies the enforcement level of
+            the status checks. Must be one of 'off', 'non_admins', or
+            'everyone'. Use `None` or omit to use the already associated value.
+        :param list status_checks: (optional), An list of strings naming
+            status checks that m
