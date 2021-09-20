@@ -67,4 +67,26 @@ class Branch(GitHubCore):
             the status checks. Must be one of 'off', 'non_admins', or
             'everyone'. Use `None` or omit to use the already associated value.
         :param list status_checks: (optional), An list of strings naming
-            status checks that m
+            status checks that must pass before merging. Use `None` or omit to
+            use the already associated value.
+        """
+        previous_values = self.protection['required_status_checks']
+        if enforcement is None:
+            enforcement = previous_values['enforcement_level']
+        if status_checks is None:
+            status_checks = previous_values['contexts']
+
+        edit = {'protection': {'enabled': True, 'required_status_checks': {
+            'enforcement_level': enforcement, 'contexts': status_checks}}}
+        json = self._json(self._patch(self._api, data=dumps(edit),
+                                      headers=self.PREVIEW_HEADERS), 200)
+        self._update_attributes(json)
+        return True
+
+    def unprotect(self):
+        """Disable force push protection on this branch."""
+        edit = {'protection': {'enabled': False}}
+        json = self._json(self._patch(self._api, data=dumps(edit),
+                                      headers=self.PREVIEW_HEADERS), 200)
+        self._update_attributes(json)
+        return True
