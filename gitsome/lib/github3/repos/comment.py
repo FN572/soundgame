@@ -40,4 +40,30 @@ class RepoComment(BaseComment):
         self.path = comment.get('path')
         #: The position in the diff where the comment was made.
         self.position = comment.get('position')
-        #: datetime object r
+        #: datetime object representing when the comment was updated.
+        self.updated_at = self._strptime(comment.get('updated_at'))
+        #: Login of the user who left the comment.
+        self.user = None
+        if comment.get('user'):
+            self.user = User(comment.get('user'), self)
+
+    def _repr(self):
+        return '<Repository Comment [{0}/{1}]>'.format(
+            self.commit_id[:7], self.user.login or ''
+        )
+
+    @requires_auth
+    def update(self, body):
+        """Update this comment.
+
+        :param str body: (required)
+        :returns: bool
+        """
+        json = None
+        if body:
+            json = self._json(self._post(self._api, data={'body': body}), 200)
+
+        if json:
+            self._update_attributes(json)
+            return True
+        return False
