@@ -43,4 +43,35 @@ class Comparison(GitHubCore):
         self.patch_url = compare.get('patch_url')
         #: :class:`RepoCommit <github3.repos.commit.RepoCommit>` object
         #: representing the base of comparison.
-        self.base_commit = RepoCommit
+        self.base_commit = RepoCommit(compare.get('base_commit'), None)
+        #: Behind or ahead.
+        self.status = compare.get('status')
+        #: Number of commits ahead by.
+        self.ahead_by = compare.get('ahead_by')
+        #: Number of commits behind by.
+        self.behind_by = compare.get('behind_by')
+        #: Number of commits difference in the comparison.
+        self.total_commits = compare.get('total_commits')
+        #: List of :class:`RepoCommit <github3.repos.commit.RepoCommit>`
+        #: objects.
+        self.commits = [RepoCommit(com) for com in compare.get('commits')]
+        #: List of dicts describing the files modified.
+        self.files = compare.get('files', [])
+
+        self._uniq = self.commits
+
+    def _repr(self):
+        return '<Comparison of {0} commits>'.format(self.total_commits)
+
+    def diff(self):
+        """Retrieve the diff for this comparison.
+
+        :returns: the diff as a bytes object
+        :rtype: bytes
+        """
+        resp = self._get(self._api,
+                         headers={'Accept': 'application/vnd.github.diff'})
+        return resp.content if self._boolean(resp, 200, 404) else b''
+
+    def patch(self):
+        """Retrieve the patch forma
