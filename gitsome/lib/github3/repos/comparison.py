@@ -74,4 +74,11 @@ class Comparison(GitHubCore):
         return resp.content if self._boolean(resp, 200, 404) else b''
 
     def patch(self):
-        """Retrieve the patch forma
+        """Retrieve the patch formatted diff for this commit.
+
+        :returns: the patch as a bytes object
+        :rtype: bytes
+        """
+        resp = self._get(self._api,
+                         headers={'Accept': 'application/vnd.github.patch'})
+        return resp.content if self._boolean(resp, 200, 404) else b''
