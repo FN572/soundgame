@@ -41,4 +41,29 @@ class Release(GitHubCore):
         #: Name given to the release
         self.name = release.get('name')
         #: Boolean whether release is a prerelease
-        s
+        self.prerelease = release.get('prerelease')
+        #: Date the release was published
+        self.published_at = self._strptime(release.get('published_at'))
+        #: Name of the tag
+        self.tag_name = release.get('tag_name')
+        #: URL to download a tarball of the release
+        self.tarball_url = release.get('tarball_url')
+        #: "Commit" that this release targets
+        self.target_commitish = release.get('target_commitish')
+        upload_url = release.get('upload_url')
+        #: URITemplate to upload an asset with
+        self.upload_urlt = URITemplate(upload_url) if upload_url else None
+        #: URL to download a zipball of the release
+        self.zipball_url = release.get('zipball_url')
+
+    def _repr(self):
+        return '<Release [{0}]>'.format(self.name)
+
+    def archive(self, format, path=''):
+        """Get the tarball or zipball archive for this release.
+
+        :param str format: (required), accepted values: ('tarball',
+            'zipball')
+        :param path: (optional), path where the file should be saved
+            to, default is the filename provided in the headers and will be
+            written in the
