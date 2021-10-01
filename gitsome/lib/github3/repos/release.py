@@ -66,4 +66,33 @@ class Release(GitHubCore):
             'zipball')
         :param path: (optional), path where the file should be saved
             to, default is the filename provided in the headers and will be
-            written in the
+            written in the current directory.
+            it can take a file-like object as well
+        :type path: str, file
+        :returns: bool -- True if successful, False otherwise
+
+        """
+        resp = None
+        if format in ('tarball', 'zipball'):
+            repo_url = self._api[:self._api.rfind('/releases')]
+            url = self._build_url(format, self.tag_name, base_url=repo_url)
+            resp = self._get(url, allow_redirects=True, stream=True)
+
+        if resp and self._boolean(resp, 200, 404):
+            utils.stream_response_to_file(resp, path)
+            return True
+        return False
+
+    def asset(self, asset_id):
+        """Retrieve the asset from this release with ``asset_id``.
+
+        :param int asset_id: ID of the Asset to retrieve
+        :returns: :class:`~github3.repos.release.Asset`
+        """
+        json = None
+        if int(asset_id) > 0:
+            i = self._api.rfind('/')
+            url = self._build_url('assets', str(asset_id),
+                                  base_url=self._api[:i])
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Asse
