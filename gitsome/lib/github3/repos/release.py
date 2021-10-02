@@ -95,4 +95,36 @@ class Release(GitHubCore):
             url = self._build_url('assets', str(asset_id),
                                   base_url=self._api[:i])
             json = self._json(self._get(url), 200)
-        return self._instance_or_null(Asse
+        return self._instance_or_null(Asset, json)
+
+    def assets(self, number=-1, etag=None):
+        """Iterate over the assets available for this release.
+
+        :param int number: (optional), Number of assets to return
+        :param str etag: (optional), last ETag header sent
+        :returns: generator of :class:`Asset <Asset>` objects
+        """
+        url = self._build_url('assets', base_url=self._api)
+        return self._iter(number, url, Asset, etag=etag)
+
+    @requires_auth
+    def delete(self):
+        """Users with push access to the repository can delete a release.
+
+        :returns: True if successful; False if not successful
+        """
+        url = self._api
+        return self._boolean(
+            self._delete(url, headers=Release.CUSTOM_HEADERS),
+            204,
+            404
+        )
+
+    @requires_auth
+    def edit(self, tag_name=None, target_commitish=None, name=None, body=None,
+             draft=None, prerelease=None):
+        """Users with push access to the repository can edit a release.
+
+        If the edit is successful, this object will update itself.
+
+        :param str tag_name: (optional), Name of the t
