@@ -160,4 +160,35 @@ class Release(GitHubCore):
         return successful
 
     @requires_auth
-    def upload_asset
+    def upload_asset(self, content_type, name, asset, label=None):
+        """Upload an asset to this release.
+
+        All parameters are required.
+
+        :param str content_type: The content type of the asset. Wikipedia has
+            a list of common media types
+        :param str name: The name of the file
+        :param asset: The file or bytes object to upload.
+        :param label: (optional), An alternate short description of the asset.
+        :returns: :class:`Asset <Asset>`
+        """
+        headers = {'Content-Type': content_type}
+        params = {'name': name, 'label': label}
+        self._remove_none(params)
+        url = self.upload_urlt.expand(params)
+        r = self._post(url, data=asset, json=False, headers=headers)
+        if r.status_code in (201, 202):
+            return Asset(r.json(), self)
+        raise error_for(r)
+
+
+class Asset(GitHubCore):
+
+    def _update_attributes(self, asset):
+        self._api = asset.get('url')
+        #: Content-Type provided when the asset was created
+        self.content_type = asset.get('content_type')
+        #: Date the asset was created
+        self.created_at = self._strptime(asset.get('created_at'))
+        #: Number of times the asset was downloaded
+        self.do
