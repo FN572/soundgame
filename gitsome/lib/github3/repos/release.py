@@ -191,4 +191,32 @@ class Asset(GitHubCore):
         #: Date the asset was created
         self.created_at = self._strptime(asset.get('created_at'))
         #: Number of times the asset was downloaded
-        self.do
+        self.download_count = asset.get('download_count')
+        #: URL to download the asset.
+        #: Request headers must include ``Accept: application/octet-stream``.
+        self.download_url = self._api
+        # User friendly download URL
+        self.browser_download_url = asset.get('browser_download_url')
+        #: GitHub id of the asset
+        self.id = asset.get('id')
+        #: Short description of the asset
+        self.label = asset.get('label')
+        #: Name of the asset
+        self.name = asset.get('name')
+        #: Size of the asset
+        self.size = asset.get('size')
+        #: State of the asset, e.g., "uploaded"
+        self.state = asset.get('state')
+        #: Date the asset was updated
+        self.updated_at = self._strptime(asset.get('updated_at'))
+
+    def _repr(self):
+        return '<Asset [{0}]>'.format(self.name)
+
+    def download(self, path=''):
+        """Download the data for this asset.
+
+        :param path: (optional), path where the file should be saved
+            to, default is the filename provided in the headers and will be
+            written in the current directory.
+            it can take a fil
