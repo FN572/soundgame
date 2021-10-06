@@ -219,4 +219,38 @@ class Asset(GitHubCore):
         :param path: (optional), path where the file should be saved
             to, default is the filename provided in the headers and will be
             written in the current directory.
-            it can take a fil
+            it can take a file-like object as well
+        :type path: str, file
+        :returns: name of the file, if successful otherwise ``None``
+        :rtype: str
+        """
+        headers = {
+            'Accept': 'application/octet-stream'
+            }
+        resp = self._get(self._api, allow_redirects=False, stream=True,
+                         headers=headers)
+        if resp.status_code == 302:
+            # Amazon S3 will reject the redirected request unless we omit
+            # certain request headers
+            headers.update({
+                'Content-Type': None,
+                })
+
+            with self.session.no_auth():
+                resp = self._get(resp.headers['location'], stream=True,
+                                 headers=headers)
+
+        if self._boolean(resp, 200, 404):
+            return utils.stream_response_to_file(resp, path)
+        return None
+
+    @requires_auth
+    def delete(self):
+        """Delete this asset if the user has push access.
+
+        :returns: True if successful; False if not successful
+        :rtype: boolean
+        """
+        url = self._api
+        return self._boolean(
+            self._delete(ur
