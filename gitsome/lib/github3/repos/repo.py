@@ -56,3 +56,35 @@ class Repository(GitHubCore):
         r1.id == r2.id
         r1.id != r2.id
 
+    See also: http://developer.github.com/v3/repos/
+
+    """
+
+    STAR_HEADERS = {
+        'Accept': 'application/vnd.github.v3.star+json'
+    }
+
+    def _update_attributes(self, repo):
+        #: URL used to clone via HTTPS.
+        self.clone_url = repo.get('clone_url', '')
+        #: ``datetime`` object representing when the Repository was created.
+        self.created_at = self._strptime(repo.get('created_at'))
+        #: Description of the repository.
+        self.description = repo.get('description', '')
+
+        #: The number of forks of this repository.
+        self.forks_count = repo.get('forks_count')
+        #: The number of forks of this repository. For backward compatibility
+        self.fork_count = self.forks_count
+
+        #: Is this repository a fork?
+        self.fork = repo.get('fork')
+
+        #: Full name as login/name
+        self.full_name = repo.get('full_name', '')
+
+        # Clone url using git, e.g. git://github.com/sigmavirus24/github3.py
+        #: Plain git url for an anonymous clone.
+        self.git_url = repo.get('git_url', '')
+        #: Whether or not this repository has downloads enabled
+        self.ha
