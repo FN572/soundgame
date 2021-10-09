@@ -116,4 +116,36 @@ class Repository(GitHubCore):
         #: Mirror property.
         self.mirror_url = repo.get('mirror_url', '')
 
-        # Repository name, 
+        # Repository name, e.g. github3.py
+        #: Name of the repository.
+        self.name = repo.get('name', '')
+
+        #: Number of open issues on the repository. DEPRECATED
+        self.open_issues = repo.get('open_issues', 0)
+
+        #: Number of open issues on the repository
+        self.open_issues_count = repo.get('open_issues_count')
+
+        # Repository owner's name
+        #: :class:`User <github3.users.User>` object representing the
+        #: repository owner.
+        self.owner = User(repo.get('owner', {}), self)
+
+        #: Is this repository private?
+        self.private = repo.get('private')
+
+        #: Permissions for this repository
+        self.permissions = repo.get('permissions')
+
+        #: ``datetime`` object representing the last time commits were pushed
+        #: to the repository.
+        self.pushed_at = self._strptime(repo.get('pushed_at'))
+        #: Size of the repository.
+        self.size = repo.get('size', 0)
+
+        # The number of stargazers
+        #: Number of users who starred the repository
+        self.stargazers_count = repo.get('stargazers_count', 0)
+
+        #: ``datetime`` object representing when the repository was starred
+      
