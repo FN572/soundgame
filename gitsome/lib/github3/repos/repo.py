@@ -87,4 +87,33 @@ class Repository(GitHubCore):
         #: Plain git url for an anonymous clone.
         self.git_url = repo.get('git_url', '')
         #: Whether or not this repository has downloads enabled
-        self.ha
+        self.has_downloads = repo.get('has_downloads')
+        #: Whether or not this repository has an issue tracker
+        self.has_issues = repo.get('has_issues')
+        #: Whether or not this repository has the wiki enabled
+        self.has_wiki = repo.get('has_wiki')
+
+        # e.g. https://sigmavirus24.github.com/github3.py
+        #: URL of the home page for the project.
+        self.homepage = repo.get('homepage', '')
+
+        #: URL of the pure diff of the pull request
+        self.diff_url = repo.get('diff_url', '')
+
+        #: URL of the pure patch of the pull request
+        self.patch_url = repo.get('patch_url', '')
+
+        #: API URL of the issue representation of this Pull Request
+        self.issue_url = repo.get('issue_url', '')
+
+        # e.g. https://github.com/sigmavirus24/github3.py
+        #: URL of the project at GitHub.
+        self.html_url = repo.get('html_url', '')
+        #: Unique id of the repository.
+        self.id = repo.get('id', 0)
+        #: Language property.
+        self.language = repo.get('language', '')
+        #: Mirror property.
+        self.mirror_url = repo.get('mirror_url', '')
+
+        # Repository name, 
