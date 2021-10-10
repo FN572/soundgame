@@ -148,4 +148,36 @@ class Repository(GitHubCore):
         self.stargazers_count = repo.get('stargazers_count', 0)
 
         #: ``datetime`` object representing when the repository was starred
-      
+        self.starred_at = self._strptime(repo.get('starred_at'))
+
+        # SSH url e.g. git@github.com/sigmavirus24/github3.py
+        #: URL to clone the repository via SSH.
+        self.ssh_url = repo.get('ssh_url', '')
+        #: If it exists, url to clone the repository via SVN.
+        self.svn_url = repo.get('svn_url', '')
+        #: ``datetime`` object representing the last time the repository was
+        #: updated.
+        self.updated_at = self._strptime(repo.get('updated_at'))
+        self._api = repo.get('url', '')
+
+        # The number of watchers
+        #: Number of users watching the repository.
+        self.watchers = repo.get('watchers', 0)
+
+        #: Parent of this fork, if it exists :class:`Repository`
+        self.source = repo.get('source')
+        if self.source:
+            self.source = Repository(self.source, self)
+
+        #: Parent of this fork, if it exists :class:`Repository`
+        self.parent = repo.get('parent')
+        if self.parent:
+            self.parent = Repository(self.parent, self)
+
+        #: default branch for the repository
+        self.default_branch = repo.get('default_branch', '')
+
+        #: master (default) branch for the repository
+        self.master_branch = repo.get('master_branch', '')
+
+       
