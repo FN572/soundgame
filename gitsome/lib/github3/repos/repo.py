@@ -180,4 +180,38 @@ class Repository(GitHubCore):
         #: master (default) branch for the repository
         self.master_branch = repo.get('master_branch', '')
 
-       
+        #: Teams url (not a template)
+        self.teams_url = repo.get('teams_url', '')
+
+        #: Hooks url (not a template)
+        self.hooks_url = repo.get('hooks_url', '')
+
+        #: Events url (not a template)
+        self.events_url = repo.get('events_url', '')
+
+        #: Tags url (not a template)
+        self.tags_url = repo.get('tags_url', '')
+
+        #: Languages url (not a template)
+        self.languages_url = repo.get('languages_url', '')
+
+        #: Stargazers url (not a template)
+        self.stargazers_url = repo.get('stargazers_url', '')
+
+        #: Contributors url (not a template)
+        self.contributors_url = repo.get('contributors_url', '')
+
+        #: Subscribers url (not a template)
+        self.subscribers_url = repo.get('subscribers_url', '')
+
+        #: Subscription url (not a template)
+        self.subscription_url = repo.get('subscription_url', '')
+
+        #: Merges url (not a template)
+        self.merges_url = repo.get('merges_url', '')
+
+        #: Downloads url (not a template)
+        self.download_url = repo.get('downloads_url', '')
+
+        # Template URLS
+        ie_url_t = repo.get('issue_event
