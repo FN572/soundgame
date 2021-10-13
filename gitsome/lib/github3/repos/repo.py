@@ -214,4 +214,30 @@ class Repository(GitHubCore):
         self.download_url = repo.get('downloads_url', '')
 
         # Template URLS
-        ie_url_t = repo.get('issue_event
+        ie_url_t = repo.get('issue_events_url')
+        #: Issue events URL Template. Expand with ``number``
+        self.issue_events_urlt = URITemplate(ie_url_t) if ie_url_t else None
+
+        assignees = repo.get('assignees_url')
+        #: Assignees URL Template. Expand with ``user``
+        self.assignees_urlt = URITemplate(assignees) if assignees else None
+
+        branches = repo.get('branches_url')
+        #: Branches URL Template. Expand with ``branch``
+        self.branches_urlt = URITemplate(branches) if branches else None
+
+        blobs = repo.get('blobs_url')
+        #: Blobs URL Template. Expand with ``sha``
+        self.blobs_urlt = URITemplate(blobs) if blobs else None
+
+        git_tags = repo.get('git_tags_url')
+        #: Git tags URL Template. Expand with ``sha``
+        self.git_tags_urlt = URITemplate(git_tags) if git_tags else None
+
+        git_refs = repo.get('git_refs_url')
+        #: Git refs URL Template. Expand with ``sha``
+        self.git_refs_urlt = URITemplate(git_refs) if git_refs else None
+
+        trees = repo.get('trees_url')
+        #: Trres URL Template. Expand with ``sha``
+        self.trees_urlt = URITemplate(trees) if tre
