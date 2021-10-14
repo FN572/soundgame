@@ -240,4 +240,32 @@ class Repository(GitHubCore):
 
         trees = repo.get('trees_url')
         #: Trres URL Template. Expand with ``sha``
-        self.trees_urlt = URITemplate(trees) if tre
+        self.trees_urlt = URITemplate(trees) if trees else None
+
+        statuses = repo.get('statuses_url')
+        #: Statuses URL Template. Expand with ``sha``
+        self.statuses_urlt = URITemplate(statuses) if statuses else None
+
+        commits = repo.get('commits_url')
+        #: Commits URL Template. Expand with ``sha``
+        self.commits_urlt = URITemplate(commits) if commits else None
+
+        commits = repo.get('git_commits_url')
+        #: Git commits URL Template. Expand with ``sha``
+        self.git_commits_urlt = URITemplate(commits) if commits else None
+
+        comments = repo.get('comments_url')
+        #: Comments URL Template. Expand with ``number``
+        self.comments_urlt = URITemplate(comments) if comments else None
+
+        comments = repo.get('review_comments_url')
+        #: Pull Request Review Comments URL
+        self.review_comments_url = URITemplate(comments) if comments else None
+
+        comments = repo.get('review_comment_url')
+        #: Pull Request Review Comments URL Template. Expand with ``number``
+        self.review_comment_urlt = URITemplate(comments) if comments else None
+
+        comments = repo.get('issue_comment_url')
+        #: Issue comment URL Template. Expand with ``number``
+        self.iss
