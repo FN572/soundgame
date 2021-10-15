@@ -296,4 +296,36 @@ class Repository(GitHubCore):
 
         notif = repo.get('notifications_url')
         #: Notifications URL Template. Expand with ``since``, ``all``,
-        #: ``pa
+        #: ``participating``
+        self.notifications_urlt = URITemplate(notif) if notif else None
+
+        labels = repo.get('labels_url')
+        #: Labels URL Template. Expand with ``name``
+        self.labels_urlt = URITemplate(labels) if labels else None
+
+    def _repr(self):
+        return '<Repository [{0}]>'.format(self)
+
+    def __str__(self):
+        return self.full_name
+
+    def _create_pull(self, data):
+        self._remove_none(data)
+        json = None
+        if data:
+            url = self._build_url('pulls', base_url=self._api)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(PullRequest, json)
+
+    @requires_auth
+    def add_collaborator(self, username):
+        """Add ``username`` as a collaborator to a repository.
+
+        :param username: (required), username of the user
+        :type username: str or :class:`User <github3.users.User>`
+        :returns: bool -- True if successful, False otherwise
+        """
+        if not username:
+            return False
+        url = self._build_url('collaborators', str(username),
+                           
