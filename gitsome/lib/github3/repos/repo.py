@@ -268,4 +268,32 @@ class Repository(GitHubCore):
 
         comments = repo.get('issue_comment_url')
         #: Issue comment URL Template. Expand with ``number``
-        self.iss
+        self.issue_comment_urlt = URITemplate(comments) if comments else None
+
+        contents = repo.get('contents_url')
+        #: Contents URL Template. Expand with ``path``
+        self.contents_urlt = URITemplate(contents) if contents else None
+
+        compare = repo.get('compare_url')
+        #: Comparison URL Template. Expand with ``base`` and ``head``
+        self.compare_urlt = URITemplate(compare) if compare else None
+
+        archive = repo.get('archive_url')
+        #: Archive URL Template. Expand with ``archive_format`` and ``ref``
+        self.archive_urlt = URITemplate(archive) if archive else None
+
+        issues = repo.get('issues_url')
+        #: Issues URL Template. Expand with ``number``
+        self.issues_urlt = URITemplate(issues) if issues else None
+
+        pulls = repo.get('pulls_url')
+        #: Pull Requests URL Template. Expand with ``number``
+        self.pulls_urlt = URITemplate(pulls) if issues else None
+
+        miles = repo.get('milestones_url')
+        #: Milestones URL Template. Expand with ``number``
+        self.milestones_urlt = URITemplate(miles) if miles else None
+
+        notif = repo.get('notifications_url')
+        #: Notifications URL Template. Expand with ``since``, ``all``,
+        #: ``pa
