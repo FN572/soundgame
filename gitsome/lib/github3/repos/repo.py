@@ -360,4 +360,31 @@ class Repository(GitHubCore):
     def asset(self, id):
         """Return a single asset.
 
-        :par
+        :param int id: (required), id of the asset
+        :returns: :class:`Asset <github3.repos.release.Asset>`
+        """
+        data = None
+        if int(id) > 0:
+            url = self._build_url('releases', 'assets', str(id),
+                                  base_url=self._api)
+            data = self._json(self._get(url, headers=Release.CUSTOM_HEADERS),
+                              200)
+        return self._instance_or_null(Asset, data)
+
+    def assignees(self, number=-1, etag=None):
+        r"""Iterate over all assignees to which an issue may be assigned.
+
+        :param int number: (optional), number of assignees to return. Default:
+            -1 returns all available assignees
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`User <github3.users.User>`\ s
+        """
+        url = self._build_url('assignees', base_url=self._api)
+        return self._iter(int(number), url, User, etag=etag)
+
+    def blob(self, sha):
+        """Get the blob indicated by ``sha``.
+
+        :param str sha: (required), sha of the blob
+        :returns: :class:`Blob <gith
