@@ -387,4 +387,33 @@ class Repository(GitHubCore):
         """Get the blob indicated by ``sha``.
 
         :param str sha: (required), sha of the blob
-        :returns: :class:`Blob <gith
+        :returns: :class:`Blob <github3.git.Blob>` if successful, otherwise
+            None
+        """
+        url = self._build_url('git', 'blobs', sha, base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Blob, json)
+
+    def branch(self, name):
+        """Get the branch ``name`` of this repository.
+
+        :param str name: (required), branch name
+        :type name: str
+        :returns: :class:`Branch <github3.repos.branch.Branch>`
+        """
+        json = None
+        if name:
+            url = self._build_url('branches', name, base_url=self._api)
+            json = self._json(self._get(url, headers=Branch.PREVIEW_HEADERS),
+                              200)
+        return self._instance_or_null(Branch, json)
+
+    def branches(self, number=-1, protected=False, etag=None):
+        r"""Iterate over the branches in this repository.
+
+        :param int number: (optional), number of branches to return. Default:
+            -1 returns all branches
+        :param bool protected: (optional), True lists only protected branches.
+            Default: False
+        :param str etag: (optional), ETag from a previous request to the same
+      
