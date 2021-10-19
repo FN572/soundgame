@@ -416,4 +416,29 @@ class Repository(GitHubCore):
         :param bool protected: (optional), True lists only protected branches.
             Default: False
         :param str etag: (optional), ETag from a previous request to the same
-      
+            endpoint
+        :returns: generator of
+            :class:`Branch <github3.repos.branch.Branch>`\ es
+        """
+        url = self._build_url('branches', base_url=self._api)
+        params = {'protected': '1'} if protected else None
+        return self._iter(int(number), url, Branch, params, etag=etag,
+                          headers=Branch.PREVIEW_HEADERS)
+
+    def code_frequency(self, number=-1, etag=None):
+        """Iterate over the code frequency per week.
+
+        Returns a weekly aggregate of the number of additions and deletions
+        pushed to this repository.
+
+        :param int number: (optional), number of weeks to return. Default: -1
+            returns all weeks
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of lists ``[seconds_from_epoch, additions,
+            deletions]``
+
+        .. note:: All statistics methods may return a 202. On those occasions,
+                  you will not receive any objects. You should store your
+                  iterator and check the new ``last_status`` attribute. If it
+                  is a 202 you should wait before re-requ
