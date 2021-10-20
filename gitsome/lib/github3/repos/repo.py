@@ -470,3 +470,33 @@ class Repository(GitHubCore):
             endpoint
         :returns: generator of
             :class:`RepoComment <github3.repos.comment.RepoComment>`\ s
+        """
+        url = self._build_url('comments', base_url=self._api)
+        return self._iter(int(number), url, RepoComment, etag=etag)
+
+    def commit(self, sha):
+        """Get a single (repo) commit.
+
+        See :func:`git_commit` for the Git Data Commit.
+
+        :param str sha: (required), sha of the commit
+        :returns: :class:`RepoCommit <github3.repos.commit.RepoCommit>` if
+            successful, otherwise None
+        """
+        url = self._build_url('commits', sha, base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(RepoCommit, json)
+
+    def commit_activity(self, number=-1, etag=None):
+        """Iterate over last year of commit activity by week.
+
+        See: http://developer.github.com/v3/repos/statistics/
+
+        .. note:: All statistics methods may return a 202. On those occasions,
+                  you will not receive any objects. You should store your
+                  iterator and check the new ``last_status`` attribute. If it
+                  is a 202 you should wait before re-requesting.
+
+        .. versionadded:: 0.7
+
+        :param int number: (optional), number of weeks to return. 
