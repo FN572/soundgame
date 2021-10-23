@@ -499,4 +499,32 @@ class Repository(GitHubCore):
 
         .. versionadded:: 0.7
 
-        :param int number: (optional), number of weeks to return. 
+        :param int number: (optional), number of weeks to return. Default -1
+            will return all of the weeks.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of dictionaries
+        """
+        url = self._build_url('stats', 'commit_activity', base_url=self._api)
+        return self._iter(int(number), url, dict, etag=etag)
+
+    def commit_comment(self, comment_id):
+        """Get a single commit comment.
+
+        :param int comment_id: (required), id of the comment used by GitHub
+        :returns: :class:`RepoComment <github3.repos.comment.RepoComment>` if
+            successful, otherwise None
+        """
+        url = self._build_url('comments', str(comment_id), base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(RepoComment, json)
+
+    def commits(self, sha=None, path=None, author=None, number=-1, etag=None,
+                since=None, until=None):
+        r"""Iterate over commits in this repository.
+
+        :param str sha: (optional), sha or branch to start listing commits
+            from
+        :param str path: (optional), commits containing this path will be
+            listed
+        :param st
