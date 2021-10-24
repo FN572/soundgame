@@ -551,4 +551,32 @@ class Repository(GitHubCore):
 
         self._remove_none(params)
         url = self._build_url('commits', base_url=self._api)
-        return self._iter(int(number), url, RepoCommi
+        return self._iter(int(number), url, RepoCommit, params, etag)
+
+    def compare_commits(self, base, head):
+        """Compare two commits.
+
+        :param str base: (required), base for the comparison
+        :param str head: (required), compare this against base
+        :returns: :class:`Comparison <github3.repos.comparison.Comparison>` if
+            successful, else None
+        """
+        url = self._build_url('compare', base + '...' + head,
+                              base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Comparison, json)
+
+    def contributor_statistics(self, number=-1, etag=None):
+        """Iterate over the contributors list.
+
+        See also: http://developer.github.com/v3/repos/statistics/
+
+        .. note:: All statistics methods may return a 202. On those occasions,
+                  you will not receive any objects. You should store your
+                  iterator and check the new ``last_status`` attribute. If it
+                  is a 202 you should wait before re-requesting.
+
+        .. versionadded:: 0.7
+
+        :param int number: (optional), number of weeks to return. Default -1
+            will return all of the 
