@@ -579,4 +579,32 @@ class Repository(GitHubCore):
         .. versionadded:: 0.7
 
         :param int number: (optional), number of weeks to return. Default -1
-            will return all of the 
+            will return all of the weeks.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of
+            :class:`ContributorStats <github3.repos.stats.ContributorStats>`
+        """
+        url = self._build_url('stats', 'contributors', base_url=self._api)
+        return self._iter(int(number), url, ContributorStats, etag=etag)
+
+    def contributors(self, anon=False, number=-1, etag=None):
+        r"""Iterate over the contributors to this repository.
+
+        :param bool anon: (optional), True lists anonymous contributors as
+            well
+        :param int number: (optional), number of contributors to return.
+            Default: -1 returns all contributors
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`User <github3.users.User>`\ s
+        """
+        url = self._build_url('contributors', base_url=self._api)
+        params = {}
+        if anon:
+            params = {'anon': 'true'}
+        return self._iter(int(number), url, User, params, etag)
+
+    @requires_auth
+    def create_blob(self, content, encoding):
+        """Create a blob with ``content`
