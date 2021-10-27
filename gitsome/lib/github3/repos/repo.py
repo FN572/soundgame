@@ -661,4 +661,28 @@ class Repository(GitHubCore):
             array.
         :param dict author: (optional), if omitted, GitHub will
             use the authenticated user's credentials and the current
-            time. Form
+            time. Format: {'name': 'Committer Name', 'email':
+            'name@example.com', 'date': 'YYYY-MM-DDTHH:MM:SS+HH:00'}
+        :param dict committer: (optional), if ommitted, GitHub will use the
+            author parameters. Should be the same format as the author
+            parameter.
+        :returns: :class:`Commit <github3.git.Commit>` if successful, else
+            None
+        """
+        json = None
+        if message and tree and isinstance(parents, list):
+            url = self._build_url('git', 'commits', base_url=self._api)
+            data = {'message': message, 'tree': tree, 'parents': parents,
+                    'author': author, 'committer': committer}
+            self._remove_none(data)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(Commit, json)
+
+    @requires_auth
+    def create_deployment(self, ref, force=False, payload='',
+                          auto_merge=False, description='', environment=None):
+        """Create a deployment.
+
+        :param str ref: (required), The ref to deploy. This can be a branch,
+            tag, or sha.
+    
