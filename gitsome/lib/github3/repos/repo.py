@@ -635,3 +635,30 @@ class Repository(GitHubCore):
             default: 1
         :returns: :class:`RepoComment <github3.repos.comment.RepoComment>` if
             successful, otherwise None
+
+        """
+        json = None
+        if body and sha and (line and int(line) > 0):
+            data = {'body': body, 'line': line, 'path': path,
+                    'position': position}
+            self._remove_none(data)
+            url = self._build_url('commits', sha, 'comments',
+                                  base_url=self._api)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(RepoComment, json)
+
+    @requires_auth
+    def create_commit(self, message, tree, parents, author=None,
+                      committer=None):
+        """Create a commit on this repository.
+
+        :param str message: (required), commit message
+        :param str tree: (required), SHA of the tree object this
+            commit points to
+        :param list parents: (required), SHAs of the commits that were parents
+            of this commit. If empty, the commit will be written as the root
+            commit.  Even if there is only one parent, this should be an
+            array.
+        :param dict author: (optional), if omitted, GitHub will
+            use the authenticated user's credentials and the current
+            time. Form
