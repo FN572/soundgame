@@ -812,3 +812,35 @@ class Repository(GitHubCore):
         issue = {'title': title, 'body': body, 'assignee': assignee,
                  'milestone': milestone, 'labels': labels}
         self._remove_none(issue)
+        json = None
+
+        if issue:
+            url = self._build_url('issues', base_url=self._api)
+            json = self._json(self._post(url, data=issue), 201)
+
+        return self._instance_or_null(Issue, json)
+
+    @requires_auth
+    def create_key(self, title, key, read_only=False):
+        """Create a deploy key.
+
+        :param str title: (required), title of key
+        :param str key: (required), key text
+        :param bool read_only: (optional), restrict key access to read-only,
+            default is False
+        :returns: :class:`Key <github3.users.Key>` if successful, else None
+        """
+        json = None
+        if title and key:
+            data = {'title': title, 'key': key, 'read_only': read_only}
+            url = self._build_url('keys', base_url=self._api)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(Key, json)
+
+    @requires_auth
+    def create_label(self, name, color):
+        """Create a label for this repository.
+
+        :param str name: (required), name to give to the label
+        :param str color: (required), value of the color to assign to the
+            label, e.g., 
