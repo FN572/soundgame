@@ -756,4 +756,32 @@ class Repository(GitHubCore):
             the fork under
         :returns: :class:`Repository <Repository>` if successful, else None
         """
-        url = self._build_url
+        url = self._build_url('forks', base_url=self._api)
+        if organization:
+            resp = self._post(url, data={'organization': organization})
+        else:
+            resp = self._post(url)
+
+        json = self._json(resp, 202)
+        return self._instance_or_null(Repository, json)
+
+    @requires_auth
+    def create_hook(self, name, config, events=['push'], active=True):
+        """Create a hook on this repository.
+
+        :param str name: (required), name of the hook
+        :param dict config: (required), key-value pairs which act as settings
+            for this hook
+        :param list events: (optional), events the hook is triggered for
+        :param bool active: (optional), whether the hook is actually
+            triggered
+        :returns: :class:`Hook <github3.repos.hook.Hook>` if successful,
+            otherwise None
+        """
+        json = None
+        if name and config and isinstance(config, dict):
+            url = self._build_url('hooks', base_url=self._api)
+            data = {'name': name, 'config': config, 'events': events,
+                    'active': active}
+            json = self._json(self._post(url, data=data), 201)
+        return Hook(json, 
