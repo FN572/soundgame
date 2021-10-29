@@ -730,4 +730,30 @@ class Repository(GitHubCore):
             'commit': :class:`Commit <github3.git.Commit>`}
 
         """
-        if content and not isinstance(content, byt
+        if content and not isinstance(content, bytes):
+            raise ValueError(  # (No coverage)
+                'content must be a bytes object')  # (No coverage)
+
+        json = None
+        if path and message and content:
+            url = self._build_url('contents', path, base_url=self._api)
+            content = b64encode(content).decode('utf-8')
+            data = {'message': message, 'content': content, 'branch': branch,
+                    'committer': validate_commmitter(committer),
+                    'author': validate_commmitter(author)}
+            self._remove_none(data)
+            json = self._json(self._put(url, data=dumps(data)), 201)
+            if json and 'content' in json and 'commit' in json:
+                json['content'] = Contents(json['content'], self)
+                json['commit'] = Commit(json['commit'], self)
+        return json
+
+    @requires_auth
+    def create_fork(self, organization=None):
+        """Create a fork of this repository.
+
+        :param str organization: (required), login for organization to create
+            the fork under
+        :returns: :class:`Repository <Repository>` if successful, else None
+        """
+        url = self._build_url
