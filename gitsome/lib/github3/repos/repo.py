@@ -1056,3 +1056,34 @@ class Repository(GitHubCore):
 
         :returns: bool -- True if successful, False otherwise
         """
+        if int(key_id) <= 0:
+            return False
+        url = self._build_url('keys', str(key_id), base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
+
+    @requires_auth
+    def delete_subscription(self):
+        """Delete the user's subscription to this repository.
+
+        :returns: bool
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
+
+    def deployment(self, id):
+        """Retrieve the deployment identified by ``id``.
+
+        :param int id: (required), id for deployments.
+        :returns: :class:`~github3.repos.deployment.Deployment`
+        """
+        json = None
+        if int(id) > 0:
+            url = self._build_url('deployments', str(id), base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Deployment, json)
+
+    def deployments(self, number=-1, etag=None):
+        r"""Iterate over deployments for this repository.
+
+        :param int number: (optional), number of deployments to return.
+            Default: -1, returns
