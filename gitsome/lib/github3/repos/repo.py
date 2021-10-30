@@ -1026,4 +1026,33 @@ class Repository(GitHubCore):
     def create_tree(self, tree, base_tree=None):
         """Create a tree on this repository.
 
-        :param list tree: (re
+        :param list tree: (required), specifies the tree structure.
+            Format: [{'path': 'path/file', 'mode':
+            'filemode', 'type': 'blob or tree', 'sha': '44bfc6d...'}]
+        :param str base_tree: (optional), SHA1 of the tree you want
+            to update with new data
+        :returns: :class:`Tree <github3.git.Tree>` if successful, else None
+        """
+        json = None
+        if tree and isinstance(tree, list):
+            data = {'tree': tree}
+            if base_tree:
+                data['base_tree'] = base_tree
+            url = self._build_url('git', 'trees', base_url=self._api)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(Tree, json)
+
+    @requires_auth
+    def delete(self):
+        """Delete this repository.
+
+        :returns: bool -- True if successful, False otherwise
+        """
+        return self._boolean(self._delete(self._api), 204, 404)
+
+    @requires_auth
+    def delete_key(self, key_id):
+        """Delete the key with the specified id from your deploy keys list.
+
+        :returns: bool -- True if successful, False otherwise
+        """
