@@ -843,4 +843,28 @@ class Repository(GitHubCore):
 
         :param str name: (required), name to give to the label
         :param str color: (required), value of the color to assign to the
-            label, e.g., 
+            label, e.g., '#fafafa' or 'fafafa' (the latter is what is sent)
+        :returns: :class:`Label <github3.issues.label.Label>` if successful,
+            else None
+        """
+        json = None
+        if name and color:
+            data = {'name': name, 'color': color.strip('#')}
+            url = self._build_url('labels', base_url=self._api)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(Label, json)
+
+    @requires_auth
+    def create_milestone(self, title, state=None, description=None,
+                         due_on=None):
+        """Create a milestone for this repository.
+
+        :param str title: (required), title of the milestone
+        :param str state: (optional), state of the milestone, accepted
+            values: ('open', 'closed'), default: 'open'
+        :param str description: (optional), description of the milestone
+        :param str due_on: (optional), ISO 8601 formatted due date
+        :returns: :class:`Milestone <github3.issues.milestone.Milestone>` if
+            successful, otherwise None
+        """
+        url = self._build_url('milestones', base_url=self.
