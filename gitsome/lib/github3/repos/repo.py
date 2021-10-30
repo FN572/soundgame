@@ -1086,4 +1086,36 @@ class Repository(GitHubCore):
         r"""Iterate over deployments for this repository.
 
         :param int number: (optional), number of deployments to return.
-            Default: -1, returns
+            Default: -1, returns all available deployments
+        :param str etag: (optional), ETag from a previous request for all
+            deployments
+        :returns: generator of
+            :class:`Deployment <github3.repos.deployment.Deployment>`\ s
+        """
+        url = self._build_url('deployments', base_url=self._api)
+        i = self._iter(int(number), url, Deployment, etag=etag)
+        return i
+
+    def directory_contents(self, directory_path, ref=None, return_as=list):
+        """Get the contents of each file in ``directory_path``.
+
+        If the path provided is actually a directory, you will receive a
+        list back of the form::
+
+            [('filename.md', Contents(...)),
+             ('github.py', Contents(...)),
+             # ...
+             ('fiz.py', Contents(...))]
+
+        You can either then transform it into a dictionary::
+
+            contents = dict(repo.directory_contents('path/to/dir/'))
+
+        Or you can use the ``return_as`` parameter to have it return a
+        dictionary for you::
+
+            contents = repo.directory_contents('path/to/dir/', return_as=dict)
+
+        :param str path: (required), path to file, e.g.
+            github3/repos/repo.py
+     
