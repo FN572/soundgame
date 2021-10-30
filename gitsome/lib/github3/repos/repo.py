@@ -973,4 +973,32 @@ class Repository(GitHubCore):
         """
         json = None
         if sha and state:
-            data = {'state'
+            data = {'state': state, 'target_url': target_url,
+                    'description': description, 'context': context}
+            url = self._build_url('statuses', sha, base_url=self._api)
+            self._remove_none(data)
+            json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(Status, json)
+
+    @requires_auth
+    def create_tag(self, tag, message, sha, obj_type, tagger,
+                   lightweight=False):
+        """Create a tag in this repository.
+
+        By default, this method creates an annotated tag. If you wish to
+        create a lightweight tag instead, pass ``lightweight=True``.
+
+        If you are creating an annotated tag, this method makes **2 calls** to
+        the API:
+
+        1. Creates the tag object
+        2. Creates the reference for the tag
+
+        This behaviour is required by the GitHub API.
+
+        :param str tag: (required), name of the tag
+        :param str message: (required), tag message
+        :param str sha: (required), SHA of the git object this is tagging
+        :param str obj_type: (required), type of object being tagged, e.g.,
+            'commit', 'tree', 'blob'
+        :param dict tagger: (requir
