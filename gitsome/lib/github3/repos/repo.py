@@ -948,4 +948,29 @@ class Repository(GitHubCore):
                 'draft': draft,
                 'prerelease': prerelease
                 }
-        self._remove_non
+        self._remove_none(data)
+
+        url = self._build_url('releases', base_url=self._api)
+        json = self._json(self._post(
+            url, data=data, headers=Release.CUSTOM_HEADERS
+            ), 201)
+        return self._instance_or_null(Release, json)
+
+    @requires_auth
+    def create_status(self, sha, state, target_url=None, description=None,
+                      context='default'):
+        """Create a status object on a commit.
+
+        :param str sha: (required), SHA of the commit to create the status on
+        :param str state: (required), state of the test; only the following
+            are accepted: 'pending', 'success', 'error', 'failure'
+        :param str target_url: (optional), URL to associate with this status.
+        :param str description: (optional), short description of the status
+        :param str context: (optional), A string label to differentiate this
+            status from the status of other systems
+        :returns: the status created if successful
+        :rtype: :class:`~github3.repos.status.Status`
+        """
+        json = None
+        if sha and state:
+            data = {'state'
