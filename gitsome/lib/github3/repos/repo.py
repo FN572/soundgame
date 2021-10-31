@@ -1185,4 +1185,28 @@ class Repository(GitHubCore):
     def file_contents(self, path, ref=None):
         """Get the contents of the file pointed to by ``path``.
 
-        
+        :param str path: (required), path to file, e.g.
+            github3/repos/repo.py
+        :param str ref: (optional), the string name of a commit/branch/tag.
+            Default: master
+        :returns: the contents of the file requested
+        :rtype: :class:`~github3.repos.contents.Contents`
+        """
+        url = self._build_url('contents', path, base_url=self._api)
+        json = self._json(self._get(url, params={'ref': ref}), 200)
+        return self._instance_or_null(Contents, json)
+
+    def forks(self, sort='', number=-1, etag=None):
+        """Iterate over forks of this repository.
+
+        :param str sort: (optional), accepted values:
+            ('newest', 'oldest', 'watchers'), API default: 'newest'
+        :param int number: (optional), number of forks to return. Default: -1
+            returns all forks
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Repository <Repository>`
+        """
+        url = self._build_url('forks', base_url=self._api)
+        params = {}
+        if sort in ('newest', 'oldest', 'watche
