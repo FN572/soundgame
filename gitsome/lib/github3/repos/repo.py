@@ -1325,4 +1325,39 @@ class Repository(GitHubCore):
         :param boolean closed: (optional) Status of issue is Closed if True
         :param list labels: (optional) List of labels containing string names
         :param list comments: (optional) List of dictionaries which contain
-            create
+            created_at and body attributes
+        :returns: :class:`ImportedIssue <github3.repos.
+            issue_import.ImportedIssue>`
+        """
+
+        issue = {
+            'issue': {
+                'title': title,
+                'body': body,
+                'created_at': created_at,
+                'assignee': assignee,
+                'milestone': milestone,
+                'closed': closed,
+                'labels': labels,
+            },
+            'comments': comments
+        }
+
+        self._remove_none(issue)
+        self._remove_none(issue['issue'])
+        url = self._build_url('import/issues', base_url=self._api)
+
+        data = self._post(url, data=issue,
+                          headers=ImportedIssue.IMPORT_CUSTOM_HEADERS)
+
+        json = self._json(data, 200)
+        return self._instance_or_null(ImportedIssue, json)
+
+    def is_assignee(self, username):
+        """Check if the user can be assigned an issue on this repository.
+
+        :param username: name of the user to check
+        :type username: str or :class:`User <github3.users.User>`
+        :returns: :class:`bool`
+        """
+        if 
