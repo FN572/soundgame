@@ -1156,4 +1156,33 @@ class Repository(GitHubCore):
         :param str default_branch: (optional), If not ``None``, change the
             default branch for this repository. API default: ``None`` - leave
             value unchanged.
-        :returns: bool -- True if success
+        :returns: bool -- True if successful, False otherwise
+        """
+        edit = {'name': name, 'description': description, 'homepage': homepage,
+                'private': private, 'has_issues': has_issues,
+                'has_wiki': has_wiki, 'has_downloads': has_downloads,
+                'default_branch': default_branch}
+        self._remove_none(edit)
+        json = None
+        if edit:
+            json = self._json(self._patch(self._api, data=dumps(edit)), 200)
+            self._update_attributes(json)
+            return True
+        return False
+
+    def events(self, number=-1, etag=None):
+        r"""Iterate over events on this repository.
+
+        :param int number: (optional), number of events to return. Default: -1
+            returns all available events
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Event <github3.events.Event>`\ s
+        """
+        url = self._build_url('events', base_url=self._api)
+        return self._iter(int(number), url, Event, etag=etag)
+
+    def file_contents(self, path, ref=None):
+        """Get the contents of the file pointed to by ``path``.
+
+        
