@@ -1300,4 +1300,29 @@ class Repository(GitHubCore):
         """
 
         data = {
-    
+            'since': timestamp_parameter(since)
+        }
+
+        self._remove_none(data)
+        url = self._build_url('import/issues', base_url=self._api)
+
+        return self._iter(int(number), url, ImportedIssue, etag=etag,
+                          params=data,
+                          headers=ImportedIssue.IMPORT_CUSTOM_HEADERS)
+
+    @requires_auth
+    def import_issue(self, title, body, created_at, assignee=None,
+                     milestone=None, closed=None, labels=None, comments=None):
+        """Import an issue into the repository.
+
+        See also: https://gist.github.com/jonmagic/5282384165e0f86ef105
+
+        :param string title: (required) Title of issue
+        :param string body: (required) Body of issue
+        :param timestamp created_at: (required) Creation timestamp
+        :param string assignee: (optional) Username to assign issue to
+        :param int milestone: (optional) Milestone ID
+        :param boolean closed: (optional) Status of issue is Closed if True
+        :param list labels: (optional) List of labels containing string names
+        :param list comments: (optional) List of dictionaries which contain
+            create
