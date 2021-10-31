@@ -1274,3 +1274,30 @@ class Repository(GitHubCore):
         :param int imported_issue_id: (required) id of imported issue
         :returns: :class:`Imported Issue <github3.repos.
             issue_import.ImportedIssue>`
+        """
+        url = self._build_url('import/issues', imported_issue_id,
+                              base_url=self._api)
+        data = self._get(url, headers=ImportedIssue.IMPORT_CUSTOM_HEADERS)
+        json = self._json(data, 200)
+        return self._instance_or_null(ImportedIssue, json)
+
+    @requires_auth
+    def imported_issues(self, number=-1, since=None, etag=None):
+        """Retrieve the collection of imported issues via the API.
+
+        See also: https://gist.github.com/jonmagic/5282384165e0f86ef105
+
+        :param int number: (optional), number of imported issues to return.
+            Default: -1 returns all branches
+        :param since: (optional), Only imported issues after this date will
+            be returned. This can be a ``datetime`` instance, ISO8601
+            formatted date string, or a string formatted like so:
+            ``2016-02-04`` i.e. ``%Y-%m-%d``
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`ImportedIssue <github3.repos.
+            issue_import.ImportedIssue>`
+        """
+
+        data = {
+    
