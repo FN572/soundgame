@@ -1209,4 +1209,39 @@ class Repository(GitHubCore):
         """
         url = self._build_url('forks', base_url=self._api)
         params = {}
-        if sort in ('newest', 'oldest', 'watche
+        if sort in ('newest', 'oldest', 'watchers'):
+            params = {'sort': sort}
+        return self._iter(int(number), url, Repository, params, etag)
+
+    def git_commit(self, sha):
+        """Get a single (git) commit.
+
+        :param str sha: (required), sha of the commit
+        :returns: :class:`Commit <github3.git.Commit>` if successful,
+            otherwise None
+        """
+        json = {}
+        if sha:
+            url = self._build_url('git', 'commits', sha, base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Commit, json)
+
+    @requires_auth
+    def hook(self, hook_id):
+        """Get a single hook.
+
+        :param int hook_id: (required), id of the hook
+        :returns: :class:`Hook <github3.repos.hook.Hook>` if successful,
+            otherwise None
+        """
+        json = None
+        if int(hook_id) > 0:
+            url = self._build_url('hooks', str(hook_id), base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Hook, json)
+
+    @requires_auth
+    def hooks(self, number=-1, etag=None):
+        r"""Iterate over hooks registered on this repository.
+
+        :param int numbe
