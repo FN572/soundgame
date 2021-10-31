@@ -1118,4 +1118,25 @@ class Repository(GitHubCore):
 
         :param str path: (required), path to file, e.g.
             github3/repos/repo.py
-     
+        :param str ref: (optional), the string name of a commit/branch/tag.
+            Default: master
+        :param return_as: (optional), how to return the directory's contents.
+            Default: :class:`list`
+        :returns: list of tuples of the filename and the Contents returned
+        :rtype: list((str, :class:`~github3.repos.contents.Contents`))
+        """
+        url = self._build_url('contents', directory_path, base_url=self._api)
+        json = self._json(self._get(url, params={'ref': ref}), 200) or []
+        return return_as((j.get('name'), Contents(j, self)) for j in json)
+
+    @requires_auth
+    def edit(self, name, description=None, homepage=None, private=None,
+             has_issues=None, has_wiki=None, has_downloads=None,
+             default_branch=None):
+        """Edit this repository.
+
+        :param str name: (required), name of the repository
+        :param str description: (optional), If not ``None``, change the
+            description for this repository. API default: ``None`` - leave
+            value unchanged.
+        :param str homepage: (optional), If not ``None``, change the homepa
