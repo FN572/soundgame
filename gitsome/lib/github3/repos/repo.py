@@ -1360,4 +1360,33 @@ class Repository(GitHubCore):
         :type username: str or :class:`User <github3.users.User>`
         :returns: :class:`bool`
         """
-        if 
+        if not username:
+            return False
+        url = self._build_url('assignees', str(username), base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
+
+    @requires_auth
+    def is_collaborator(self, username):
+        """Check to see if ``username`` is a collaborator on this repository.
+
+        :param username: (required), login for the user
+        :type username: str or :class:`User <github3.users.User>`
+        :returns: bool -- True if successful, False otherwise
+        """
+        if not username:
+            return False
+        url = self._build_url('collaborators', str(username),
+                              base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
+
+    def issue(self, number):
+        """Get the issue specified by ``number``.
+
+        :param int number: (required), number of the issue on this repository
+        :returns: :class:`Issue <github3.issues.issue.Issue>` if successful,
+            otherwise None
+        """
+        json = None
+        if int(number) > 0:
+            url = self._build_url('issues', str(number), base_url=self._api)
+           
