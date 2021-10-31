@@ -1244,4 +1244,33 @@ class Repository(GitHubCore):
     def hooks(self, number=-1, etag=None):
         r"""Iterate over hooks registered on this repository.
 
-        :param int numbe
+        :param int number: (optional), number of hoks to return. Default: -1
+            returns all hooks
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Hook <github3.repos.hook.Hook>`\ s
+        """
+        url = self._build_url('hooks', base_url=self._api)
+        return self._iter(int(number), url, Hook, etag=etag)
+
+    @requires_auth
+    def ignore(self):
+        """Ignore notifications from this repository for the user.
+
+        .. versionadded:: 1.0
+
+        This replaces ``Repository#set_subscription``.
+
+        :returns: :class:`Subscription <github3.notifications.Subscription>`
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        json = self._json(self._put(url, data=dumps({'ignored': True})), 200)
+        return self._instance_or_null(Subscription, json)
+
+    @requires_auth
+    def imported_issue(self, imported_issue_id):
+        """Retrieve imported issue specified by imported issue id.
+
+        :param int imported_issue_id: (required) id of imported issue
+        :returns: :class:`Imported Issue <github3.repos.
+            issue_import.ImportedIssue>`
