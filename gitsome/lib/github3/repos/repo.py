@@ -1438,4 +1438,37 @@ class Repository(GitHubCore):
         url = self._build_url('issues', base_url=self._api)
 
         params = repo_issue_params(milestone, state, assignee, mentioned,
-                                   labels, s
+                                   labels, sort, direction, since)
+
+        return self._iter(int(number), url, Issue, params, etag)
+
+    @requires_auth
+    def key(self, id_num):
+        """Get the specified deploy key.
+
+        :param int id_num: (required), id of the key
+        :returns: :class:`Key <github3.users.Key>` if successful, else None
+        """
+        json = None
+        if int(id_num) > 0:
+            url = self._build_url('keys', str(id_num), base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return Key(json, self) if json else None
+
+    @requires_auth
+    def keys(self, number=-1, etag=None):
+        r"""Iterate over deploy keys on this repository.
+
+        :param int number: (optional), number of keys to return. Default: -1
+            returns all available keys
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Key <github3.users.Key>`\ s
+        """
+        url = self._build_url('keys', base_url=self._api)
+        return self._iter(int(number), url, Key, etag=etag)
+
+    def label(self, name):
+        """Get the label specified by ``name``.
+
+        :param str
