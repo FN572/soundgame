@@ -1416,4 +1416,26 @@ class Repository(GitHubCore):
             and 'closed'.
 
         :param int milestone: (optional), 'none', or '*'
-        :param str s
+        :param str state: (optional), accepted values: ('all', 'open',
+            'closed')
+        :param str assignee: (optional), 'none', '*', or login name
+        :param str mentioned: (optional), user's login name
+        :param str labels: (optional), comma-separated list of labels, e.g.
+            'bug,ui,@high'
+        :param sort: (optional), accepted values:
+            ('created', 'updated', 'comments', 'created')
+        :param str direction: (optional), accepted values: ('asc', 'desc')
+        :param since: (optional), Only issues after this date will
+            be returned. This can be a ``datetime`` or an ``ISO8601`` formatted
+            date string, e.g., 2012-05-20T23:10:27Z
+        :type since: datetime or string
+        :param int number: (optional), Number of issues to return.
+            By default all issues are returned
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Issue <github3.issues.issue.Issue>`\ s
+        """
+        url = self._build_url('issues', base_url=self._api)
+
+        params = repo_issue_params(milestone, state, assignee, mentioned,
+                                   labels, s
