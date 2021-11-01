@@ -1558,4 +1558,29 @@ class Repository(GitHubCore):
 
         :param str base: (required), where you're merging into
         :param str head: (required), where you're merging from
-        :param str messag
+        :param str message: (optional), message to be used for the commit
+        :returns: :class:`RepoCommit <github3.repos.commit.RepoCommit>`
+        """
+        url = self._build_url('merges', base_url=self._api)
+        data = {'base': base, 'head': head}
+        if message:
+            data['commit_message'] = message
+        json = self._json(self._post(url, data=data), 201)
+        return self._instance_or_null(RepoCommit, json)
+
+    def milestone(self, number):
+        """Get the milestone indicated by ``number``.
+
+        :param int number: (required), unique id number of the milestone
+        :returns: :class:`Milestone <github3.issues.milestone.Milestone>`
+        """
+        json = None
+        if int(number) > 0:
+            url = self._build_url('milestones', str(number),
+                                  base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Milestone, json)
+
+    def milestones(self, state=None, sort=None, direction=None, number=-1,
+                   etag=None):
+        r"""Iterate over the milestones on this reposito
