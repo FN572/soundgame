@@ -1389,4 +1389,31 @@ class Repository(GitHubCore):
         json = None
         if int(number) > 0:
             url = self._build_url('issues', str(number), base_url=self._api)
-           
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Issue, json)
+
+    def issue_events(self, number=-1, etag=None):
+        r"""Iterate over issue events on this repository.
+
+        :param int number: (optional), number of events to return. Default: -1
+            returns all available events
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of
+            :class:`IssueEvent <github3.issues.event.IssueEvent>`\ s
+        """
+        url = self._build_url('issues', 'events', base_url=self._api)
+        return self._iter(int(number), url, IssueEvent, etag=etag)
+
+    def issues(self, milestone=None, state=None, assignee=None, mentioned=None,
+               labels=None, sort=None, direction=None, since=None, number=-1,
+               etag=None):
+        r"""Iterate over issues on this repo based upon parameters passed.
+
+        .. versionchanged:: 0.9.0
+
+            The ``state`` parameter now accepts 'all' in addition to 'open'
+            and 'closed'.
+
+        :param int milestone: (optional), 'none', or '*'
+        :param str s
