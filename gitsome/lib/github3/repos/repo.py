@@ -1471,4 +1471,31 @@ class Repository(GitHubCore):
     def label(self, name):
         """Get the label specified by ``name``.
 
-        :param str
+        :param str name: (required), name of the label
+        :returns: :class:`Label <github3.issues.label.Label>` if successful,
+            else None
+        """
+        json = None
+        if name:
+            url = self._build_url('labels', name, base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Label, json)
+
+    def labels(self, number=-1, etag=None):
+        r"""Iterate over labels on this repository.
+
+        :param int number: (optional), number of labels to return. Default: -1
+            returns all available labels
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Label <github3.issues.label.Label>`\ s
+        """
+        url = self._build_url('labels', base_url=self._api)
+        return self._iter(int(number), url, Label, etag=etag)
+
+    def languages(self, number=-1, etag=None):
+        """Iterate over the programming languages used in the repository.
+
+        :param int number: (optional), number of languages to return. Default:
+            -1 returns all used languages
+        :param str etag: (optional), ETa
