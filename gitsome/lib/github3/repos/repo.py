@@ -1531,4 +1531,31 @@ class Repository(GitHubCore):
 
         :returns: :class:`License <github3.licenses.License>`
         """
-      
+        url = self._build_url('license', base_url=self._api)
+        json = self._json(self._get(url, headers=License.CUSTOM_HEADERS), 200)
+        return self._instance_or_null(License, json)
+
+    @requires_auth
+    def mark_notifications(self, last_read=''):
+        """Mark all notifications in this repository as read.
+
+        :param str last_read: (optional), Describes the last point that
+            notifications were checked. Anything updated since this time will
+            not be updated. Default: Now. Expected in ISO 8601 format:
+            ``YYYY-MM-DDTHH:MM:SSZ``. Example: "2012-10-09T23:39:01Z".
+        :returns: bool
+        """
+        url = self._build_url('notifications', base_url=self._api)
+        mark = {'read': True}
+        if last_read:
+            mark['last_read_at'] = last_read
+        return self._boolean(self._put(url, data=dumps(mark)),
+                             205, 404)
+
+    @requires_auth
+    def merge(self, base, head, message=''):
+        """Perform a merge from ``head`` into ``base``.
+
+        :param str base: (required), where you're merging into
+        :param str head: (required), where you're merging from
+        :param str messag
