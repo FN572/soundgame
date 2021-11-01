@@ -1498,4 +1498,37 @@ class Repository(GitHubCore):
 
         :param int number: (optional), number of languages to return. Default:
             -1 returns all used languages
-        :param str etag: (optional), ETa
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of tuples
+        """
+        url = self._build_url('languages', base_url=self._api)
+        return self._iter(int(number), url, tuple, etag=etag)
+
+    @requires_auth
+    def latest_pages_build(self):
+        """Get the build information for the most recent Pages build.
+
+        :returns: :class:`PagesBuild <github3.repos.pages.PagesBuild>`
+        """
+        url = self._build_url('pages', 'builds', 'latest', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(PagesBuild, json)
+
+    def latest_release(self):
+        """Get the latest release.
+
+        Draft releases and prereleases are not returned by this endpoint.
+
+        :returns: :class:`Release <github3.repos.release.Release>`
+        """
+        url = self._build_url('releases', 'latest', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Release, json)
+
+    def license(self):
+        """Get the contents of a license for the repo
+
+        :returns: :class:`License <github3.licenses.License>`
+        """
+      
