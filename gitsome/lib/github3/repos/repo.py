@@ -1606,4 +1606,30 @@ class Repository(GitHubCore):
         for (k, v) in list(params.items()):
             if not (v and (v in accepted[k])):  # e.g., '' or None
                 del params[k]
-        if n
+        if not params:
+            params = None
+        return self._iter(int(number), url, Milestone, params, etag)
+
+    def network_events(self, number=-1, etag=None):
+        r"""Iterate over events on a network of repositories.
+
+        :param int number: (optional), number of events to return. Default: -1
+            returns all available events
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Event <github3.events.Event>`\ s
+        """
+        base = self._api.replace('repos', 'networks', 1)
+        url = self._build_url('events', base_url=base)
+        return self._iter(int(number), url, Event, etag)
+
+    @requires_auth
+    def notifications(self, all=False, participating=False, since=None,
+                      number=-1, etag=None):
+        r"""Iterate over the notifications for this repository.
+
+        :param bool all: (optional), show all notifications, including ones
+            marked as read
+        :param bool participating: (optional), show only the notifications the
+            user is participating in directly
+        :param since: (optional), filters out any 
