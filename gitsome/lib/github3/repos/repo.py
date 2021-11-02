@@ -1712,4 +1712,37 @@ class Repository(GitHubCore):
             :class:`PullRequest <github3.pulls.PullRequest>`\ s
         """
         url = self._build_url('pulls', base_url=self._api)
-      
+        params = {}
+
+        if state:
+            state = state.lower()
+            if state in ('all', 'open', 'closed'):
+                params['state'] = state
+
+        params.update(head=head, base=base, sort=sort, direction=direction)
+        self._remove_none(params)
+        return self._iter(int(number), url, PullRequest, params, etag)
+
+    def readme(self):
+        """Get the README for this repository.
+
+        :returns: :class:`Contents <github3.repos.contents.Contents>`
+        """
+        url = self._build_url('readme', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Contents, json)
+
+    def ref(self, ref):
+        """Get a reference pointed to by ``ref``.
+
+        The most common will be branches and tags. For a branch, you must
+        specify 'heads/branchname' and for a tag, 'tags/tagname'. Essentially,
+        the system should return any reference you provide it in the namespace,
+        including notes and stashes (provided they exist on the server).
+
+        :param str ref: (required)
+        :returns: :class:`Reference <github3.git.Reference>`
+        """
+        json = None
+        if ref:
+            url = s
