@@ -1660,4 +1660,34 @@ class Repository(GitHubCore):
         return self._instance_or_null(PagesInfo, json)
 
     @requires_auth
-    def pages_builds(self
+    def pages_builds(self, number=-1, etag=None):
+        """Iterate over pages builds of this repository.
+
+        :returns: generator of :class:`PagesBuild
+            <github3.repos.pages.PagesBuild>`
+        """
+        url = self._build_url('pages', 'builds', base_url=self._api)
+        return self._iter(int(number), url, PagesBuild, etag=etag)
+
+    def pull_request(self, number):
+        """Get the pull request indicated by ``number``.
+
+        :param int number: (required), number of the pull request.
+        :returns: :class:`PullRequest <github3.pulls.PullRequest>`
+        """
+        json = None
+        if int(number) > 0:
+            url = self._build_url('pulls', str(number), base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(PullRequest, json)
+
+    def pull_requests(self, state=None, head=None, base=None, sort='created',
+                      direction='desc', number=-1, etag=None):
+        r"""List pull requests on repository.
+
+        .. versionchanged:: 0.9.0
+
+            - The ``state`` parameter now accepts 'all' in addition to 'open'
+              and 'closed'.
+
+            - The ``sort`` param
