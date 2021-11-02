@@ -1632,4 +1632,32 @@ class Repository(GitHubCore):
             marked as read
         :param bool participating: (optional), show only the notifications the
             user is participating in directly
-        :param since: (optional), filters out any 
+        :param since: (optional), filters out any notifications updated
+            before the given time. This can be a `datetime` or an `ISO8601`
+            formatted date string, e.g., 2012-05-20T23:10:27Z
+        :type since: datetime or string
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Thread <github3.notifications.Thread>`
+        """
+        url = self._build_url('notifications', base_url=self._api)
+        params = {
+            'all': str(all).lower(),
+            'participating': str(participating).lower(),
+            'since': timestamp_parameter(since)
+        }
+        self._remove_none(params)
+        return self._iter(int(number), url, Thread, params, etag)
+
+    @requires_auth
+    def pages(self):
+        """Get information about this repository's pages site.
+
+        :returns: :class:`PagesInfo <github3.repos.pages.PagesInfo>`
+        """
+        url = self._build_url('pages', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(PagesInfo, json)
+
+    @requires_auth
+    def pages_builds(self
