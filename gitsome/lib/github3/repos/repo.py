@@ -1831,4 +1831,36 @@ class Repository(GitHubCore):
             endpoint
         :returns: generator of :class:`User <github3.users.User>`\ s
         """
-        url = self._build_url('stargazers', base
+        url = self._build_url('stargazers', base_url=self._api)
+        return self._iter(int(number), url, User, etag=etag)
+
+    def statuses(self, sha, number=-1, etag=None):
+        r"""Iterate over the statuses for a specific SHA.
+
+        .. warning::
+
+            Deprecated in v1.0. Also deprecated upstream
+            https://developer.github.com/v3/repos/statuses/
+
+        :param str sha: SHA of the commit to list the statuses of
+        :param int number: (optional), return up to number statuses. Default:
+            -1 returns all available statuses.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Status <github3.repos.status.Status>`
+        """
+        url = ''
+        if sha:
+            url = self._build_url('statuses', sha, base_url=self._api)
+        return self._iter(int(number), url, Status, etag=etag)
+
+    @requires_auth
+    def subscribe(self):
+        """Subscribe the user to this repository's notifications.
+
+        .. versionadded:: 1.0
+
+        This replaces ``Repository#set_subscription``
+
+        :param bool subscribed: (required), determines if notifications should
+            be received fr
