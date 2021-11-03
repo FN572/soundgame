@@ -1774,4 +1774,32 @@ class Repository(GitHubCore):
         """
         json = None
         if int(id) > 0:
-         
+            url = self._build_url('releases', str(id), base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Release, json)
+
+    def release_from_tag(self, tag_name):
+        """Get a release by tag name.
+
+        release_from_tag() returns a release with specified tag
+        while release() returns a release with specified release id
+
+        :param str tag_name: (required) name of tag
+        :returns: :class:`Release <github3.repos.release.Release>`
+        """
+        url = self._build_url('releases', 'tags', tag_name,
+                              base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Release, json)
+
+    def releases(self, number=-1, etag=None):
+        r"""Iterate over releases for this repository.
+
+        :param int number: (optional), number of refs to return. Default: -1
+            returns all available refs
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of
+            :class:`Release <github3.repos.release.Release>`\ s
+        """
+      
