@@ -1889,4 +1889,37 @@ class Repository(GitHubCore):
     def subscription(self):
         """Return subscription for this Repository.
 
-        :returns: :class:`Subscription <github3.notificati
+        :returns: :class:`Subscription <github3.notifications.Subscription>`
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        json = self._json(self._get(url), 200)
+        return self._instance_or_null(Subscription, json)
+
+    def tag(self, sha):
+        """Get an annotated tag.
+
+        http://learn.github.com/p/tagging.html
+
+        :param str sha: (required), sha of the object for this tag
+        :returns: :class:`Tag <github3.git.Tag>`
+        """
+        json = None
+        if sha:
+            url = self._build_url('git', 'tags', sha, base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Tag, json)
+
+    def tags(self, number=-1, etag=None):
+        r"""Iterate over tags on this repository.
+
+        :param int number: (optional), return up to at most number tags.
+            Default: -1 returns all available tags.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`RepoTag <github3.repos.tag.RepoTag>`\ s
+        """
+        url = self._build_url('tags', base_url=self._api)
+        return self._iter(int(number), url, RepoTag, etag=etag)
+
+    @requires_auth
+   
