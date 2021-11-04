@@ -1863,4 +1863,30 @@ class Repository(GitHubCore):
         This replaces ``Repository#set_subscription``
 
         :param bool subscribed: (required), determines if notifications should
-            be received fr
+            be received from this repository.
+        :param bool ignored: (required), determines if notifications should be
+            ignored from this repository.
+        :returns: :class:`Subscription <github3.notifications.Subscription>`
+        """
+        url = self._build_url('subscription', base_url=self._api)
+        json = self._json(self._put(url, data=dumps({'subcribed': True})),
+                          200)
+        return self._instance_or_null(Subscription, json)
+
+    def subscribers(self, number=-1, etag=None):
+        r"""Iterate over users subscribed to this repository.
+
+        :param int number: (optional), number of subscribers to return.
+            Default: -1 returns all subscribers available
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`User <github3.users.User>`
+        """
+        url = self._build_url('subscribers', base_url=self._api)
+        return self._iter(int(number), url, User, etag=etag)
+
+    @requires_auth
+    def subscription(self):
+        """Return subscription for this Repository.
+
+        :returns: :class:`Subscription <github3.notificati
