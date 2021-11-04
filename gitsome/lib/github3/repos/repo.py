@@ -1952,4 +1952,38 @@ class Repository(GitHubCore):
 
         .. note:: All statistics methods may return a 202. If github3.py
             receives a 202 in this case, it will return an emtpy dictionary.
-            You should give the API a moment to comp
+            You should give the API a moment to compose the data and then re
+            -request it via this method.
+
+        ..versionadded:: 0.7
+
+        The dictionary returned has two entries: ``all`` and ``owner``. Each
+        has a fifty-two element long list of commit counts. (Note: ``all``
+        includes the owner.) ``d['all'][0]`` will be the oldest week,
+        ``d['all'][51]`` will be the most recent.
+
+        :returns: dict
+        """
+        url = self._build_url('stats', 'participation', base_url=self._api)
+        resp = self._get(url)
+        if resp and resp.status_code == 202:
+            return {}
+        json = self._json(resp, 200)
+        if json and json.get('ETag'):
+            del json['ETag']
+        if json and json.get('Last-Modified'):
+            del json['Last-Modified']
+        return json
+
+
+def repo_issue_params(milestone=None,
+                      state=None,
+                      assignee=None,
+                      mentioned=None,
+                      labels=None,
+                      sort=None,
+                      direction=None,
+                      since=None,
+                      number=-1,
+                      etag=None):
+    """Validate and filter 
