@@ -1922,4 +1922,34 @@ class Repository(GitHubCore):
         return self._iter(int(number), url, RepoTag, etag=etag)
 
     @requires_auth
-   
+    def teams(self, number=-1, etag=None):
+        r"""Iterate over teams with access to this repository.
+
+        :param int number: (optional), return up to number Teams. Default: -1
+            returns all Teams.
+        :param str etag: (optional), ETag from a previous request to the same
+            endpoint
+        :returns: generator of :class:`Team <github3.orgs.Team>`\ s
+        """
+        from ..orgs import Team
+        url = self._build_url('teams', base_url=self._api)
+        return self._iter(int(number), url, Team, etag=etag)
+
+    def tree(self, sha):
+        """Get a tree.
+
+        :param str sha: (required), sha of the object for this tree
+        :returns: :class:`Tree <github3.git.Tree>`
+        """
+        json = None
+        if sha:
+            url = self._build_url('git', 'trees', sha, base_url=self._api)
+            json = self._json(self._get(url), 200)
+        return self._instance_or_null(Tree, json)
+
+    def weekly_commit_count(self):
+        """Retrieve the total commit counts.
+
+        .. note:: All statistics methods may return a 202. If github3.py
+            receives a 202 in this case, it will return an emtpy dictionary.
+            You should give the API a moment to comp
