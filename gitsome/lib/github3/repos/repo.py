@@ -1986,4 +1986,13 @@ def repo_issue_params(milestone=None,
                       since=None,
                       number=-1,
                       etag=None):
-    """Validate and filter 
+    """Validate and filter issue method parameters in one place."""
+    params = {'assignee': assignee, 'mentioned': mentioned}
+    if milestone in ('*', 'none') or isinstance(milestone, int):
+        params['milestone'] = milestone
+    Repository._remove_none(params)
+    params.update(
+        issue_params(None, state, labels, sort, direction,
+                     since)
+    )
+    return params
