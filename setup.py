@@ -77,3 +77,31 @@ def main():
         author='Donne Martin',
         maintainer='Donne Martin',
         author_email='donne.martin@gmail.com',
+        url='https://github.com/donnemartin/gitsome',
+        platforms='Cross Platform',
+        classifiers=[
+            'Intended Audience :: Developers',
+            'Intended Audience :: System Administrators',
+            'License :: OSI Approved :: Apache Software License',
+            'Natural Language :: English',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Topic :: Software Development',
+            'Topic :: Software Development :: Libraries :: Python Modules',
+        ],
+        packages=find_packages(),
+        scripts=['scripts/xonsh',
+                 'scripts/xonsh.bat',
+                 'scripts/gitsome',
+                 'scripts/gitsome.bat'],
+        cmdclass={'install': xinstall, 'sdist': xsdist},
+        )
+    if HAVE_SETUPTOOLS:
+        skw['setup_requires'] = ['ply']
+        skw['install_requires'] = [
+            'ply>=3.4,<4.0',
+            'prompt_toolkit>=2.0.0,<2.1.0',
+            'requests>=2.8.1,<3.0.0',
+            'colorama>=0.3.3,<1.0.0'
