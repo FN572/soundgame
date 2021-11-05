@@ -1,0 +1,4 @@
+
+#!/usr/bin/env python -u
+from xonsh.main import main
+main()
