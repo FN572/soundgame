@@ -32,4 +32,48 @@ def clean_tables():
 def build_tables():
     print('Building lexer and parser tables.')
     sys.path.insert(0, os.path.dirname(__file__))
-    
+    from xonsh.parser import Parser
+    Parser(lexer_table='lexer_table', yacc_table='parser_table',
+           outputdir='xonsh')
+    sys.path.pop(0)
+
+
+class xinstall(install):
+    def run(self):
+        clean_tables()
+        build_tables()
+        install.run(self)
+
+
+class xsdist(sdist):
+    def make_release_tree(self, basedir, files):
+        clean_tables()
+        build_tables()
+        sdist.make_release_tree(self, basedir, files)
+
+
+if HAVE_SETUPTOOLS:
+    class xdevelop(develop):
+        def run(self):
+            clean_tables()
+            build_tables()
+            develop.run(self)
+
+
+def main():
+    if sys.version_info < (3, 5):
+        print('gitsome requires at least Python 3.5.')
+        sys.exit(1)
+    try:
+        if '--name' not in sys.argv:
+            print(logo)
+    except UnicodeEncodeError:
+        pass
+    skw = dict(
+        name='gitsome',
+        description='A Supercharged Git/Shell Autocompleter with GitHub Integration.',  # NOQA
+        license='Apache License 2.0',
+        version=VERSION,
+        author='Donne Martin',
+        maintainer='Donne Martin',
+        author_email='donne.martin@gmail.com',
