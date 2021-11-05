@@ -2,18 +2,18 @@
 from __future__ import unicode_literals
 
 from ..models import GitHubCore
-from ..repos import Repository
+from ..users import User
 
 
-class RepositorySearchResult(GitHubCore):
+class UserSearchResult(GitHubCore):
     def _update_attributes(self, data):
         result = data.copy()
-        #: Score of the result
+        #: Score of this search result
         self.score = result.pop('score')
         #: Text matches
         self.text_matches = result.pop('text_matches', [])
-        #: Repository object
-        self.repository = Repository(result, self)
+        #: User object matching the search
+        self.user = User(result, self)
 
     def _repr(self):
-        return '<RepositorySearchResult [{0}]>'.format(self.repository)
+        return '<UserSearchResult [{0}]>'.format(self.user)
