@@ -114,3 +114,42 @@ class GitHubIterator(models.GitHubCore, collections.Iterator):
         if conditional:
             self.headers['If-None-Match'] = self.etag
         self.etag = None
+        self.__i__ = self.__iter__()
+        return self
+
+    def next(self):
+        return self.__next__()
+
+
+class SearchIterator(GitHubIterator):
+
+    """This is a special-cased class for returning iterable search results.
+
+    It inherits from :class:`GitHubIterator <github3.structs.GitHubIterator>`.
+    All members and methods documented here are unique to instances of this
+    class. For other members and methods, check its parent class.
+
+    """
+
+    def __init__(self, count, url, cls, session, params=None, etag=None,
+                 headers=None):
+        super(SearchIterator, self).__init__(count, url, cls, session, params,
+                                             etag, headers)
+        #: Total count returned by GitHub
+        self.total_count = 0
+        #: Items array returned in the last request
+        self.items = []
+
+    def _repr(self):
+        return '<SearchIterator [{0}, {1}?{2}]>'.format(self.count, self.path,
+                                                        urlencode(self.params))
+
+    def _get_json(self, response):
+        json = self._json(response, 200)
+        # I'm not sure if another page will retain the total_count attribute,
+        # so if it's not in the response, just set it back to what it used to
+        # be
+        self.total_count = json.get('total_count', self.total_count)
+        self.items = json.get('items', [])
+        # If we return None then it will short-circuit the while loop.
+        return json.get('items')
