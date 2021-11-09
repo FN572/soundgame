@@ -44,4 +44,29 @@ class GitHubCliTest(unittest.TestCase):
     @mock.patch('gitsome.githubcli.GitHub.create_comment')
     def test_create_comment(self, mock_gh_call):
         result = self.runner.invoke(self.github_cli.cli,
-                      
+                                    ['create-comment', 'u/r/n',
+                                     '--text', 'foo'])
+        mock_gh_call.assert_called_with('u/r/n', 'foo')
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.create_issue')
+    def test_create_issue(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['create-issue', 'u/r',
+                                     '--issue_title', 'foo',
+                                     '--issue_desc', 'bar'])
+        mock_gh_call.assert_called_with('u/r', 'foo', 'bar')
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.create_repo')
+    def test_create_repo(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['create-repo', 'r',
+                                     '--repo_desc', 'foo',
+                                     '--private'])
+        mock_gh_call.assert_called_with('r', 'foo', True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.emails')
+    def test_emails(self, mock_gh_call):
+        result = self.runner.invo
