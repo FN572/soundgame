@@ -1,3 +1,5 @@
+
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright 2015 Donne Martin. All Rights Reserved.
@@ -16,6 +18,14 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
+from compat import unittest
 
-def pretty_date_time(date_time):
-    return "just now"
+from test_completer import CompleterTest  # NOQA
+from test_config import ConfigTest  # NOQA
+from test_github import GitHubTest  # NOQA
+from test_github_cli import GitHubCliTest  # NOQA
+from test_web_viewer import WebViewerTest  # NOQA
+
+
+if __name__ == '__main__':
+    unittest.main()
