@@ -69,4 +69,33 @@ class GitHubCliTest(unittest.TestCase):
 
     @mock.patch('gitsome.githubcli.GitHub.emails')
     def test_emails(self, mock_gh_call):
-        result = self.runner.invo
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['emails'])
+        mock_gh_call.assert_called_with()
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.emojis')
+    def test_emojis(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['emojis',
+                                     '--pager'])
+        mock_gh_call.assert_called_with(True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.feed')
+    def test_feed(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['feed', 'u',
+                                     '--private', '--pager'])
+        mock_gh_call.assert_called_with('u', True, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.followers')
+    def test_followers(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['followers', 'u',
+                                     '--pager'])
+        mock_gh_call.assert_called_with('u', True)
+        assert result.exit_code == 0
+
+    @moc
