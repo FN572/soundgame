@@ -149,4 +149,29 @@ class GitHubCliTest(unittest.TestCase):
     @mock.patch('gitsome.githubcli.GitHub.licenses')
     def test_licenses(self, mock_gh_call):
         result = self.runner.invoke(self.github_cli.cli,
-                
+                                    ['licenses'])
+        mock_gh_call.assert_called_with()
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.user_me')
+    def test_me(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['me',
+                                     '--browser', '--text_avatar',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with(True, True, 10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.notifications')
+    def test_notifications(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['notifications',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with(10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.octocat')
+    def test_octocat(self, mock_gh_call):
+        result = self.ru
