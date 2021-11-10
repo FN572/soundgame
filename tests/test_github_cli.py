@@ -98,4 +98,29 @@ class GitHubCliTest(unittest.TestCase):
         mock_gh_call.assert_called_with('u', True)
         assert result.exit_code == 0
 
-    @moc
+    @mock.patch('gitsome.githubcli.GitHub.following')
+    def test_following(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['following', 'u',
+                                     '--pager'])
+        mock_gh_call.assert_called_with('u', True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.gitignore_template')
+    def test_gitignore_template(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['gitignore-template', 'l'])
+        mock_gh_call.assert_called_with('l')
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.gitignore_templates')
+    def test_gitignore_templates(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['gitignore-templates',
+                                     '--pager'])
+        mock_gh_call.assert_called_with(True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.issue')
+    def test_issue(self, mock_gh_call):
+        result = self.runner
