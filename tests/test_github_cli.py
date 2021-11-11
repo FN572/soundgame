@@ -202,4 +202,29 @@ class GitHubCliTest(unittest.TestCase):
         mock_gh_call.assert_called_with()
         assert result.exit_code == 0
 
-    @mock.patch('gitsome.gith
+    @mock.patch('gitsome.githubcli.GitHub.repository')
+    def test_repository(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['repo', 'u/r'])
+        mock_gh_call.assert_called_with('u/r')
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.repositories_setup')
+    def test_repositories(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['repos', 'foo',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with('foo', 10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.search_issues')
+    def test_search_issues(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['search-issues', 'foo',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with('foo', 10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.search_repo
