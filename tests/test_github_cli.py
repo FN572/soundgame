@@ -227,4 +227,29 @@ class GitHubCliTest(unittest.TestCase):
         mock_gh_call.assert_called_with('foo', 10, True)
         assert result.exit_code == 0
 
-    @mock.patch('gitsome.githubcli.GitHub.search_repo
+    @mock.patch('gitsome.githubcli.GitHub.search_repositories')
+    def test_search_repositories(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['search-repos', 'foo',
+                                     '--sort', 'stars',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with('foo', 'stars', 10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.starred')
+    def test_starred(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['starred', 'foo',
+                                     '--limit', 10,
+                                     '--pager'])
+        mock_gh_call.assert_called_with('foo', 10, True)
+        assert result.exit_code == 0
+
+    @mock.patch('gitsome.githubcli.GitHub.trending')
+    def test_trending(self, mock_gh_call):
+        result = self.runner.invoke(self.github_cli.cli,
+                                    ['trending', 'l',
+                                     '--pager'])
+        mock_gh_call.assert_called_with('l', False, False, False, False, True)
+        result = self.run
