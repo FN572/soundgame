@@ -560,3 +560,537 @@ def _colorful_style():
         "RED": "38;5;124",
         "WHITE": "38;5;145",
         "YELLOW": "38;5;130",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _emacs_style():
+    style = {
+        "BLACK": "38;5;28",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;26",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;26",
+        "INTENSE_CYAN": "38;5;145",
+        "INTENSE_GREEN": "38;5;34",
+        "INTENSE_PURPLE": "38;5;129",
+        "INTENSE_RED": "38;5;167",
+        "INTENSE_WHITE": "38;5;145",
+        "INTENSE_YELLOW": "38;5;145",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;130",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _friendly_style():
+    style = {
+        "BLACK": "38;5;22",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;31",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;74",
+        "INTENSE_CYAN": "38;5;74",
+        "INTENSE_GREEN": "38;5;71",
+        "INTENSE_PURPLE": "38;5;134",
+        "INTENSE_RED": "38;5;167",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;145",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;166",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _fruity_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;32",
+        "CYAN": "38;5;32",
+        "GREEN": "38;5;28",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;33",
+        "INTENSE_CYAN": "38;5;33",
+        "INTENSE_GREEN": "38;5;102",
+        "INTENSE_PURPLE": "38;5;198",
+        "INTENSE_RED": "38;5;202",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;187",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;198",
+        "RED": "38;5;09",
+        "WHITE": "38;5;187",
+        "YELLOW": "38;5;202",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _igor_style():
+    style = {
+        "BLACK": "38;5;34",
+        "BLUE": "38;5;21",
+        "CYAN": "38;5;30",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;30",
+        "INTENSE_BLUE": "38;5;21",
+        "INTENSE_CYAN": "38;5;30",
+        "INTENSE_GREEN": "38;5;34",
+        "INTENSE_PURPLE": "38;5;163",
+        "INTENSE_RED": "38;5;166",
+        "INTENSE_WHITE": "38;5;163",
+        "INTENSE_YELLOW": "38;5;166",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;163",
+        "RED": "38;5;166",
+        "WHITE": "38;5;163",
+        "YELLOW": "38;5;166",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _lovelace_style():
+    style = {
+        "BLACK": "38;5;59",
+        "BLUE": "38;5;25",
+        "CYAN": "38;5;29",
+        "GREEN": "38;5;65",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;25",
+        "INTENSE_CYAN": "38;5;102",
+        "INTENSE_GREEN": "38;5;29",
+        "INTENSE_PURPLE": "38;5;133",
+        "INTENSE_RED": "38;5;131",
+        "INTENSE_WHITE": "38;5;102",
+        "INTENSE_YELLOW": "38;5;136",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;133",
+        "RED": "38;5;124",
+        "WHITE": "38;5;102",
+        "YELLOW": "38;5;130",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _manni_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;30",
+        "GREEN": "38;5;40",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;105",
+        "INTENSE_CYAN": "38;5;45",
+        "INTENSE_GREEN": "38;5;113",
+        "INTENSE_PURPLE": "38;5;165",
+        "INTENSE_RED": "38;5;202",
+        "INTENSE_WHITE": "38;5;224",
+        "INTENSE_YELLOW": "38;5;221",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;165",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;166",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _murphy_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;31",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;63",
+        "INTENSE_CYAN": "38;5;86",
+        "INTENSE_GREEN": "38;5;86",
+        "INTENSE_PURPLE": "38;5;213",
+        "INTENSE_RED": "38;5;209",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;222",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;166",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _native_style():
+    style = {
+        "BLACK": "38;5;52",
+        "BLUE": "38;5;67",
+        "CYAN": "38;5;31",
+        "GREEN": "38;5;64",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;68",
+        "INTENSE_CYAN": "38;5;87",
+        "INTENSE_GREEN": "38;5;70",
+        "INTENSE_PURPLE": "38;5;188",
+        "INTENSE_RED": "38;5;160",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;214",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;59",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;124",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _paraiso_dark_style():
+    style = {
+        "BLACK": "38;5;95",
+        "BLUE": "38;5;97",
+        "CYAN": "38;5;39",
+        "GREEN": "38;5;72",
+        "INTENSE_BLACK": "38;5;95",
+        "INTENSE_BLUE": "38;5;97",
+        "INTENSE_CYAN": "38;5;79",
+        "INTENSE_GREEN": "38;5;72",
+        "INTENSE_PURPLE": "38;5;188",
+        "INTENSE_RED": "38;5;203",
+        "INTENSE_WHITE": "38;5;188",
+        "INTENSE_YELLOW": "38;5;220",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;97",
+        "RED": "38;5;203",
+        "WHITE": "38;5;79",
+        "YELLOW": "38;5;214",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _paraiso_light_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;16",
+        "CYAN": "38;5;39",
+        "GREEN": "38;5;72",
+        "INTENSE_BLACK": "38;5;16",
+        "INTENSE_BLUE": "38;5;97",
+        "INTENSE_CYAN": "38;5;79",
+        "INTENSE_GREEN": "38;5;72",
+        "INTENSE_PURPLE": "38;5;97",
+        "INTENSE_RED": "38;5;203",
+        "INTENSE_WHITE": "38;5;79",
+        "INTENSE_YELLOW": "38;5;220",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;97",
+        "RED": "38;5;16",
+        "WHITE": "38;5;102",
+        "YELLOW": "38;5;214",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _pastie_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;20",
+        "CYAN": "38;5;25",
+        "GREEN": "38;5;28",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;61",
+        "INTENSE_CYAN": "38;5;194",
+        "INTENSE_GREEN": "38;5;34",
+        "INTENSE_PURPLE": "38;5;188",
+        "INTENSE_RED": "38;5;172",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;188",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;125",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;130",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _perldoc_style():
+    style = {
+        "BLACK": "38;5;18",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;31",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;134",
+        "INTENSE_CYAN": "38;5;145",
+        "INTENSE_GREEN": "38;5;28",
+        "INTENSE_PURPLE": "38;5;134",
+        "INTENSE_RED": "38;5;167",
+        "INTENSE_WHITE": "38;5;188",
+        "INTENSE_YELLOW": "38;5;188",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;166",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _rrt_style():
+    style = {
+        "BLACK": "38;5;09",
+        "BLUE": "38;5;117",
+        "CYAN": "38;5;117",
+        "GREEN": "38;5;46",
+        "INTENSE_BLACK": "38;5;117",
+        "INTENSE_BLUE": "38;5;117",
+        "INTENSE_CYAN": "38;5;122",
+        "INTENSE_GREEN": "38;5;46",
+        "INTENSE_PURPLE": "38;5;213",
+        "INTENSE_RED": "38;5;09",
+        "INTENSE_WHITE": "38;5;188",
+        "INTENSE_YELLOW": "38;5;222",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;213",
+        "RED": "38;5;09",
+        "WHITE": "38;5;117",
+        "YELLOW": "38;5;09",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _tango_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;20",
+        "CYAN": "38;5;61",
+        "GREEN": "38;5;34",
+        "INTENSE_BLACK": "38;5;24",
+        "INTENSE_BLUE": "38;5;62",
+        "INTENSE_CYAN": "38;5;15",
+        "INTENSE_GREEN": "38;5;64",
+        "INTENSE_PURPLE": "38;5;15",
+        "INTENSE_RED": "38;5;09",
+        "INTENSE_WHITE": "38;5;15",
+        "INTENSE_YELLOW": "38;5;178",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;15",
+        "YELLOW": "38;5;94",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _trac_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;30",
+        "GREEN": "38;5;100",
+        "INTENSE_BLACK": "38;5;59",
+        "INTENSE_BLUE": "38;5;60",
+        "INTENSE_CYAN": "38;5;194",
+        "INTENSE_GREEN": "38;5;102",
+        "INTENSE_PURPLE": "38;5;188",
+        "INTENSE_RED": "38;5;137",
+        "INTENSE_WHITE": "38;5;224",
+        "INTENSE_YELLOW": "38;5;188",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;90",
+        "RED": "38;5;124",
+        "WHITE": "38;5;145",
+        "YELLOW": "38;5;100",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _vim_style():
+    style = {
+        "BLACK": "38;5;18",
+        "BLUE": "38;5;18",
+        "CYAN": "38;5;44",
+        "GREEN": "38;5;40",
+        "INTENSE_BLACK": "38;5;60",
+        "INTENSE_BLUE": "38;5;68",
+        "INTENSE_CYAN": "38;5;44",
+        "INTENSE_GREEN": "38;5;40",
+        "INTENSE_PURPLE": "38;5;164",
+        "INTENSE_RED": "38;5;09",
+        "INTENSE_WHITE": "38;5;188",
+        "INTENSE_YELLOW": "38;5;184",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;164",
+        "RED": "38;5;160",
+        "WHITE": "38;5;188",
+        "YELLOW": "38;5;160",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _vs_style():
+    style = {
+        "BLACK": "38;5;28",
+        "BLUE": "38;5;21",
+        "CYAN": "38;5;31",
+        "GREEN": "38;5;28",
+        "INTENSE_BLACK": "38;5;31",
+        "INTENSE_BLUE": "38;5;31",
+        "INTENSE_CYAN": "38;5;31",
+        "INTENSE_GREEN": "38;5;31",
+        "INTENSE_PURPLE": "38;5;31",
+        "INTENSE_RED": "38;5;09",
+        "INTENSE_WHITE": "38;5;31",
+        "INTENSE_YELLOW": "38;5;31",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;124",
+        "RED": "38;5;124",
+        "WHITE": "38;5;31",
+        "YELLOW": "38;5;124",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+def _xcode_style():
+    style = {
+        "BLACK": "38;5;16",
+        "BLUE": "38;5;20",
+        "CYAN": "38;5;60",
+        "GREEN": "38;5;28",
+        "INTENSE_BLACK": "38;5;60",
+        "INTENSE_BLUE": "38;5;20",
+        "INTENSE_CYAN": "38;5;60",
+        "INTENSE_GREEN": "38;5;60",
+        "INTENSE_PURPLE": "38;5;126",
+        "INTENSE_RED": "38;5;160",
+        "INTENSE_WHITE": "38;5;60",
+        "INTENSE_YELLOW": "38;5;94",
+        "NO_COLOR": "0",
+        "PURPLE": "38;5;126",
+        "RED": "38;5;160",
+        "WHITE": "38;5;60",
+        "YELLOW": "38;5;94",
+    }
+    _ansi_expand_style(style)
+    return style
+
+
+ANSI_STYLES = LazyDict(
+    {
+        "algol": _algol_style,
+        "algol_nu": _algol_nu_style,
+        "autumn": _autumn_style,
+        "borland": _borland_style,
+        "bw": _bw_style,
+        "colorful": _colorful_style,
+        "default": _default_style,
+        "emacs": _emacs_style,
+        "friendly": _friendly_style,
+        "fruity": _fruity_style,
+        "igor": _igor_style,
+        "lovelace": _lovelace_style,
+        "manni": _manni_style,
+        "monokai": _monokai_style,
+        "murphy": _murphy_style,
+        "native": _native_style,
+        "paraiso-dark": _paraiso_dark_style,
+        "paraiso-light": _paraiso_light_style,
+        "pastie": _pastie_style,
+        "perldoc": _perldoc_style,
+        "rrt": _rrt_style,
+        "tango": _tango_style,
+        "trac": _trac_style,
+        "vim": _vim_style,
+        "vs": _vs_style,
+        "xcode": _xcode_style,
+    },
+    globals(),
+    "ANSI_STYLES",
+)
+
+del (
+    _algol_style,
+    _algol_nu_style,
+    _autumn_style,
+    _borland_style,
+    _bw_style,
+    _colorful_style,
+    _default_style,
+    _emacs_style,
+    _friendly_style,
+    _fruity_style,
+    _igor_style,
+    _lovelace_style,
+    _manni_style,
+    _monokai_style,
+    _murphy_style,
+    _native_style,
+    _paraiso_dark_style,
+    _paraiso_light_style,
+    _pastie_style,
+    _perldoc_style,
+    _rrt_style,
+    _tango_style,
+    _trac_style,
+    _vim_style,
+    _vs_style,
+    _xcode_style,
+)
+
+
+#
+# Dynamically generated styles
+#
+def make_ansi_style(palette):
+    """Makes an ANSI color style from a color palette"""
+    style = {"NO_COLOR": "0"}
+    for name, t in BASE_XONSH_COLORS.items():
+        closest = find_closest_color(t, palette)
+        if len(closest) == 3:
+            closest = "".join([a * 2 for a in closest])
+        short = rgb2short(closest)[0]
+        style[name] = "38;5;" + short
+        style["BOLD_" + name] = "1;38;5;" + short
+        style["UNDERLINE_" + name] = "4;38;5;" + short
+        style["BOLD_UNDERLINE_" + name] = "1;4;38;5;" + short
+        style["BACKGROUND_" + name] = "48;5;" + short
+    return style
+
+
+def ansi_style_by_name(name):
+    """Gets or makes an ANSI color style by name. If the styles does not
+    exist, it will look for a style using the pygments name.
+    """
+    if name in ANSI_STYLES:
+        return ANSI_STYLES[name]
+    elif not HAS_PYGMENTS:
+        raise KeyError("could not find style {0!r}".format(name))
+    from xonsh.pygments_cache import get_style_by_name
+
+    pstyle = get_style_by_name(name)
+    palette = make_palette(pstyle.styles.values())
+    astyle = make_ansi_style(palette)
+    ANSI_STYLES[name] = astyle
+    return astyle
