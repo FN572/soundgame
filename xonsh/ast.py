@@ -116,4 +116,52 @@ if PYTHON_VERSION_INFO >= (3, 5, 0):
     # pylint: disable=no-name-in-module
     from ast import MatMult, AsyncFunctionDef, AsyncWith, AsyncFor, Await
 else:
-    MatMult = Asy
+    MatMult = AsyncFunctionDef = AsyncWith = AsyncFor = Await = None
+
+if PYTHON_VERSION_INFO >= (3, 6, 0):
+    # pylint: disable=unused-import
+    # pylint: disable=no-name-in-module
+    from ast import JoinedStr, FormattedValue, AnnAssign
+else:
+    JoinedStr = FormattedValue = AnnAssign = None
+
+STATEMENTS = (
+    FunctionDef,
+    ClassDef,
+    Return,
+    Delete,
+    Assign,
+    AugAssign,
+    For,
+    While,
+    If,
+    With,
+    Raise,
+    Try,
+    Assert,
+    Import,
+    ImportFrom,
+    Global,
+    Nonlocal,
+    Expr,
+    Pass,
+    Break,
+    Continue,
+)
+if PYTHON_VERSION_INFO >= (3, 6, 0):
+    STATEMENTS += (AnnAssign,)
+
+
+def leftmostname(node):
+    """Attempts to find the first name in the tree."""
+    if isinstance(node, Name):
+        rtn = node.id
+    elif isinstance(node, (BinOp, Compare)):
+        rtn = leftmostname(node.left)
+    elif isinstance(node, (Attribute, Subscript, Starred, Expr)):
+        rtn = leftmostname(node.value)
+    elif isinstance(node, Call):
+        rtn = leftmostname(node.func)
+    elif isinstance(node, UnaryOp):
+        rtn = leftmostname(node.operand)
+    elif isinstance(node, BoolOp):
