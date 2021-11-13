@@ -46,4 +46,74 @@ from ast import (
     Set,
     Dict,
     AST,
-    N
+    NameConstant,
+    Name,
+    GeneratorExp,
+    Store,
+    comprehension,
+    ListComp,
+    SetComp,
+    DictComp,
+    Assign,
+    AugAssign,
+    BitXor,
+    BitAnd,
+    BitOr,
+    LShift,
+    RShift,
+    Assert,
+    Delete,
+    Del,
+    Pass,
+    Raise,
+    Import,
+    alias,
+    ImportFrom,
+    Continue,
+    Break,
+    Yield,
+    YieldFrom,
+    Return,
+    IfExp,
+    Lambda,
+    arguments,
+    arg,
+    Call,
+    keyword,
+    Attribute,
+    Global,
+    Nonlocal,
+    If,
+    While,
+    For,
+    withitem,
+    With,
+    Try,
+    ExceptHandler,
+    FunctionDef,
+    ClassDef,
+    Starred,
+    NodeTransformer,
+    Interactive,
+    Expression,
+    Index,
+    literal_eval,
+    dump,
+    walk,
+    increment_lineno,
+)
+from ast import Ellipsis as EllipsisNode
+
+# pylint: enable=unused-import
+import textwrap
+import itertools
+
+from xonsh.tools import subproc_toks, find_next_break, get_logical_line
+from xonsh.platform import PYTHON_VERSION_INFO
+
+if PYTHON_VERSION_INFO >= (3, 5, 0):
+    # pylint: disable=unused-import
+    # pylint: disable=no-name-in-module
+    from ast import MatMult, AsyncFunctionDef, AsyncWith, AsyncFor, Await
+else:
+    MatMult = Asy
