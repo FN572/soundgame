@@ -286,4 +286,37 @@ def xonsh_call(name, args, lineno=None, col=None):
     Functions names may contain attribute access, e.g. __xonsh__.env.
     """
     return Call(
-        func
+        func=load_attribute_chain(name, lineno=lineno, col=col),
+        args=args,
+        keywords=[],
+        starargs=None,
+        kwargs=None,
+        lineno=lineno,
+        col_offset=col,
+    )
+
+
+def isdescendable(node):
+    """Determines whether or not a node is worth visiting. Currently only
+    UnaryOp and BoolOp nodes are visited.
+    """
+    return isinstance(node, (UnaryOp, BoolOp))
+
+
+def isexpression(node, ctx=None, *args, **kwargs):
+    """Determines whether a node (or code string) is an expression, and
+    does not contain any statements. The execution context (ctx) and
+    other args and kwargs are passed down to the parser, as needed.
+    """
+    # parse string to AST
+    if isinstance(node, str):
+        node = node if node.endswith("\n") else node + "\n"
+        ctx = builtins.__xonsh__.ctx if ctx is None else ctx
+        node = builtins.__xonsh__.execer.parse(node, ctx, *args, **kwargs)
+    # determin if expresission-like enough
+    if isinstance(node, (Expr, Expression)):
+        isexpr = True
+    elif isinstance(node, Module) and len(node.body) == 1:
+        isexpr = isinstance(node.body[0], (Expr, Expression))
+    else:
+        
