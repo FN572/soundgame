@@ -248,3 +248,42 @@ def get_id_ctx(node):
 
 
 def gather_load_store_names(node):
+    """Returns the names present in the node's tree in a set of load nodes and
+    a set of store nodes.
+    """
+    load = set()
+    store = set()
+    for nid, ctx in map(get_id_ctx, walk(node)):
+        if nid is None:
+            continue
+        elif isinstance(ctx, Load):
+            load.add(nid)
+        else:
+            store.add(nid)
+    return (load, store)
+
+
+def has_elts(x):
+    """Tests if x is an AST node with elements."""
+    return isinstance(x, AST) and hasattr(x, "elts")
+
+
+def load_attribute_chain(name, lineno=None, col=None):
+    """Creates an AST that loads variable name that may (or may not)
+    have attribute chains. For example, "a.b.c"
+    """
+    names = name.split(".")
+    node = Name(id=names.pop(0), ctx=Load(), lineno=lineno, col_offset=col)
+    for attr in names:
+        node = Attribute(
+            value=node, attr=attr, ctx=Load(), lineno=lineno, col_offset=col
+        )
+    return node
+
+
+def xonsh_call(name, args, lineno=None, col=None):
+    """Creates the AST node for calling a function of a given name.
+    Functions names may contain attribute access, e.g. __xonsh__.env.
+    """
+    return Call(
+        func
