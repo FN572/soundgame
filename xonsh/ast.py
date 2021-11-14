@@ -319,4 +319,43 @@ def isexpression(node, ctx=None, *args, **kwargs):
     elif isinstance(node, Module) and len(node.body) == 1:
         isexpr = isinstance(node.body[0], (Expr, Expression))
     else:
-        
+        isexpr = False
+    return isexpr
+
+
+class CtxAwareTransformer(NodeTransformer):
+    """Transforms a xonsh AST based to use subprocess calls when
+    the first name in an expression statement is not known in the context.
+    This assumes that the expression statement is instead parseable as
+    a subprocess.
+    """
+
+    def __init__(self, parser):
+        """Parameters
+        ----------
+        parser : xonsh.Parser
+            A parse instance to try to parse subprocess statements with.
+        """
+        super(CtxAwareTransformer, self).__init__()
+        self.parser = parser
+        self.input = None
+        self.contexts = []
+        self.lines = None
+        self.mode = None
+        self._nwith = 0
+        self.filename = "<xonsh-code>"
+        self.debug_level = 0
+
+    def ctxvisit(self, node, inp, ctx, mode="exec", filename=None, debug_level=0):
+        """Transforms the node in a context-dependent way.
+
+        Parameters
+        ----------
+        node : ast.AST
+            A syntax tree to transform.
+        input : str
+            The input code in string format.
+        ctx : dict
+            The root context to use.
+        filename : str, optional
+            File we are to transform.
