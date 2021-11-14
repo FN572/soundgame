@@ -359,3 +359,40 @@ class CtxAwareTransformer(NodeTransformer):
             The root context to use.
         filename : str, optional
             File we are to transform.
+        debug_level : int, optional
+            Debugging level to use in lexing and parsing.
+
+        Returns
+        -------
+        node : ast.AST
+            The transformed node.
+        """
+        self.filename = self.filename if filename is None else filename
+        self.debug_level = debug_level
+        self.lines = inp.splitlines()
+        self.contexts = [ctx, set()]
+        self.mode = mode
+        self._nwith = 0
+        node = self.visit(node)
+        del self.lines, self.contexts, self.mode
+        self._nwith = 0
+        return node
+
+    def ctxupdate(self, iterable):
+        """Updated the most recent context."""
+        self.contexts[-1].update(iterable)
+
+    def ctxadd(self, value):
+        """Adds a value the most recent context."""
+        self.contexts[-1].add(value)
+
+    def ctxremove(self, value):
+        """Removes a value the most recent context."""
+        for ctx in reversed(self.contexts):
+            if value in ctx:
+                ctx.remove(value)
+                break
+
+    def try_subproc_toks(self, node, strip_expr=False):
+        """Tries to parse the line of the node as a subprocess."""
+      
