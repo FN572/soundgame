@@ -165,3 +165,45 @@ def leftmostname(node):
     elif isinstance(node, UnaryOp):
         rtn = leftmostname(node.operand)
     elif isinstance(node, BoolOp):
+        rtn = leftmostname(node.values[0])
+    elif isinstance(node, (Assign, AnnAssign)):
+        rtn = leftmostname(node.targets[0])
+    elif isinstance(node, (Str, Bytes, JoinedStr)):
+        # handles case of "./my executable"
+        rtn = leftmostname(node.s)
+    elif isinstance(node, Tuple) and len(node.elts) > 0:
+        # handles case of echo ,1,2,3
+        rtn = leftmostname(node.elts[0])
+    else:
+        rtn = None
+    return rtn
+
+
+def get_lineno(node, default=0):
+    """Gets the lineno of a node or returns the default."""
+    return getattr(node, "lineno", default)
+
+
+def min_line(node):
+    """Computes the minimum lineno."""
+    node_line = get_lineno(node)
+    return min(map(get_lineno, walk(node), itertools.repeat(node_line)))
+
+
+def max_line(node):
+    """Computes the maximum lineno."""
+    return max(map(get_lineno, walk(node)))
+
+
+def get_col(node, default=-1):
+    """Gets the col_offset of a node, or returns the default"""
+    return getattr(node, "col_offset", default)
+
+
+def min_col(node):
+    """Computes the minimum col_offset."""
+    return min(map(get_col, walk(node), itertools.repeat(node.col_offset)))
+
+
+def max_col(node):
+    """Returns the maximum col_offset of the no
