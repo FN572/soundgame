@@ -527,4 +527,40 @@ class CtxAwareTransformer(NodeTransformer):
         """Handle visiting an assignment statement."""
         ups = set()
         for targ in node.targets:
-            if isinstance(targ,
+            if isinstance(targ, (Tuple, List)):
+                ups.update(leftmostname(elt) for elt in targ.elts)
+            elif isinstance(targ, BinOp):
+                newnode = self.try_subproc_toks(node)
+                if newnode is node:
+                    ups.add(leftmostname(targ))
+                else:
+                    return newnode
+            else:
+                ups.add(leftmostname(targ))
+        self.ctxupdate(ups)
+        return node
+
+    visit_AnnAssign = visit_Assign
+
+    def visit_Import(self, node):
+        """Handle visiting a import statement."""
+        for name in node.names:
+            if name.asname is None:
+                self.ctxadd(name.name)
+            else:
+                self.ctxadd(name.asname)
+        return node
+
+    def visit_ImportFrom(self, node):
+        """Handle visiting a "from ... import ..." statement."""
+        for name in node.names:
+            if name.asname is None:
+                self.ctxadd(name.name)
+            else:
+                self.ctxadd(name.asname)
+        return node
+
+    def visit_With(self, node):
+        """Handle visiting a with statement."""
+        for item in node.items:
+            if item.optional_va
