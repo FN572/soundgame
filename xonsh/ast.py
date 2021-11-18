@@ -638,4 +638,35 @@ def pdump(s, **kwargs):
     closer = closers[openers.find(s[i])]
     j = s.rfind(closer)
     if j == -1 or j <= i:
-        return s[: i + 1] + "\n" + text
+        return s[: i + 1] + "\n" + textwrap.indent(pdump(s[i + 1 :]), " ")
+    pre = s[: i + 1] + "\n"
+    mid = s[i + 1 : j]
+    post = "\n" + s[j:]
+    mid = textwrap.indent(pdump(mid), " ")
+    if "(" in post or "[" in post or "{" in post:
+        post = pdump(post)
+    return pre + mid + post
+
+
+def pprint_ast(s, *, sep=None, end=None, file=None, flush=False, **kwargs):
+    """Performs a pretty print of the AST nodes."""
+    print(pdump(s, **kwargs), sep=sep, end=end, file=file, flush=flush)
+
+
+#
+# Private helpers
+#
+
+
+def _getblockattr(name, lineno, col):
+    """calls getattr(name, '__xonsh_block__', False)."""
+    return xonsh_call(
+        "getattr",
+        args=[
+            Name(id=name, ctx=Load(), lineno=lineno, col_offset=col),
+            Str(s="__xonsh_block__", lineno=lineno, col_offset=col),
+            NameConstant(value=False, lineno=lineno, col_offset=col),
+        ],
+        lineno=lineno,
+        col=col,
+    )
