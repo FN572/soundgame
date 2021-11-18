@@ -456,3 +456,41 @@ class CtxAwareTransformer(NodeTransformer):
     def is_in_scope(self, node):
         """Determines whether or not the current node is in scope."""
         names, store = gather_load_store_names(node)
+        names -= store
+        if not names:
+            return True
+        inscope = False
+        for ctx in reversed(self.contexts):
+            names -= ctx
+            if not names:
+                inscope = True
+                break
+        return inscope
+
+    #
+    # Replacement visitors
+    #
+
+    def visit_Expression(self, node):
+        """Handle visiting an expression body."""
+        if isdescendable(node.body):
+            node.body = self.visit(node.body)
+        body = node.body
+        inscope = self.is_in_scope(body)
+        if not inscope:
+            node.body = self.try_subproc_toks(body)
+        return node
+
+    def visit_Expr(self, node):
+        """Handle visiting an expression."""
+        if isdescendable(node.value):
+            node.value = self.visit(node.value)  # this allows diving into BoolOps
+        if self.is_in_scope(node) or isinstance(node.value, Lambda):
+            return node
+        else:
+            newnode = self.try_subproc_toks(node)
+            if not isinstance(newnode, Expr):
+                newnode = Expr(
+                    value=newnode, lineno=node.lineno, col_offset=node.col_offset
+                )
+  
