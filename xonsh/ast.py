@@ -563,4 +563,39 @@ class CtxAwareTransformer(NodeTransformer):
     def visit_With(self, node):
         """Handle visiting a with statement."""
         for item in node.items:
-            if item.optional_va
+            if item.optional_vars is not None:
+                self.ctxupdate(gather_names(item.optional_vars))
+        self._nwith += 1
+        self.generic_visit(node)
+        self._nwith -= 1
+        return node
+
+    def visit_For(self, node):
+        """Handle visiting a for statement."""
+        targ = node.target
+        self.ctxupdate(gather_names(targ))
+        self.generic_visit(node)
+        return node
+
+    def visit_FunctionDef(self, node):
+        """Handle visiting a function definition."""
+        self.ctxadd(node.name)
+        self.contexts.append(set())
+        args = node.args
+        argchain = [args.args, args.kwonlyargs]
+        if args.vararg is not None:
+            argchain.append((args.vararg,))
+        if args.kwarg is not None:
+            argchain.append((args.kwarg,))
+        self.ctxupdate(a.arg for a in itertools.chain.from_iterable(argchain))
+        self.generic_visit(node)
+        self.contexts.pop()
+        return node
+
+    def visit_ClassDef(self, node):
+        """Handle visiting a class definition."""
+        self.ctxadd(node.name)
+        self.contexts.append(set())
+        self.generic_visit(node)
+        self.contexts.pop()
+        return 
