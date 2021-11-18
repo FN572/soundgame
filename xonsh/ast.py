@@ -598,4 +598,44 @@ class CtxAwareTransformer(NodeTransformer):
         self.contexts.append(set())
         self.generic_visit(node)
         self.contexts.pop()
-        return 
+        return node
+
+    def visit_Delete(self, node):
+        """Handle visiting a del statement."""
+        for targ in node.targets:
+            if isinstance(targ, Name):
+                self.ctxremove(targ.id)
+        self.generic_visit(node)
+        return node
+
+    def visit_Try(self, node):
+        """Handle visiting a try statement."""
+        for handler in node.handlers:
+            if handler.name is not None:
+                self.ctxadd(handler.name)
+        self.generic_visit(node)
+        return node
+
+    def visit_Global(self, node):
+        """Handle visiting a global statement."""
+        self.contexts[1].update(node.names)  # contexts[1] is the global ctx
+        self.generic_visit(node)
+        return node
+
+
+def pdump(s, **kwargs):
+    """performs a pretty dump of an AST node."""
+    if isinstance(s, AST):
+        s = dump(s, **kwargs).replace(",", ",\n")
+    openers = "([{"
+    closers = ")]}"
+    lens = len(s) + 1
+    if lens == 1:
+        return s
+    i = min([s.find(o) % lens for o in openers])
+    if i == lens - 1:
+        return s
+    closer = closers[openers.find(s[i])]
+    j = s.rfind(closer)
+    if j == -1 or j <= i:
+        return s[: i + 1] + "\n" + text
