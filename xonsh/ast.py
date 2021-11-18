@@ -493,4 +493,38 @@ class CtxAwareTransformer(NodeTransformer):
                 newnode = Expr(
                     value=newnode, lineno=node.lineno, col_offset=node.col_offset
                 )
-  
+                if hasattr(node, "max_lineno"):
+                    newnode.max_lineno = node.max_lineno
+                    newnode.max_col = node.max_col
+            return newnode
+
+    def visit_UnaryOp(self, node):
+        """Handle visiting an unary operands, like not."""
+        if isdescendable(node.operand):
+            node.operand = self.visit(node.operand)
+        operand = node.operand
+        inscope = self.is_in_scope(operand)
+        if not inscope:
+            node.operand = self.try_subproc_toks(operand, strip_expr=True)
+        return node
+
+    def visit_BoolOp(self, node):
+        """Handle visiting an boolean operands, like and/or."""
+        for i in range(len(node.values)):
+            val = node.values[i]
+            if isdescendable(val):
+                val = node.values[i] = self.visit(val)
+            inscope = self.is_in_scope(val)
+            if not inscope:
+                node.values[i] = self.try_subproc_toks(val, strip_expr=True)
+        return node
+
+    #
+    # Context aggregator visitors
+    #
+
+    def visit_Assign(self, node):
+        """Handle visiting an assignment statement."""
+        ups = set()
+        for targ in node.targets:
+            if isinstance(targ,
