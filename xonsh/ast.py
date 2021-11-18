@@ -395,4 +395,37 @@ class CtxAwareTransformer(NodeTransformer):
 
     def try_subproc_toks(self, node, strip_expr=False):
         """Tries to parse the line of the node as a subprocess."""
-      
+        line, nlogical, idx = get_logical_line(self.lines, node.lineno - 1)
+        if self.mode == "eval":
+            mincol = len(line) - len(line.lstrip())
+            maxcol = None
+        else:
+            mincol = max(min_col(node) - 1, 0)
+            maxcol = max_col(node)
+            if mincol == maxcol:
+                maxcol = find_next_break(line, mincol=mincol, lexer=self.parser.lexer)
+            elif nlogical > 1:
+                maxcol = None
+            elif maxcol < len(line) and line[maxcol] == ";":
+                pass
+            else:
+                maxcol += 1
+        spline = subproc_toks(
+            line,
+            mincol=mincol,
+            maxcol=maxcol,
+            returnline=False,
+            lexer=self.parser.lexer,
+        )
+        if spline is None or spline != "![{}]".format(line[mincol:maxcol].strip()):
+            # failed to get something consistent, try greedy wrap
+            spline = subproc_toks(
+                line,
+                mincol=mincol,
+                maxcol=maxcol,
+                returnline=False,
+                lexer=self.parser.lexer,
+                greedy=True,
+            )
+        if spline is None:
+            
