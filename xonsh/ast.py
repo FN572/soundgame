@@ -428,4 +428,31 @@ class CtxAwareTransformer(NodeTransformer):
                 greedy=True,
             )
         if spline is None:
-            
+            return node
+        try:
+            newnode = self.parser.parse(
+                spline,
+                mode=self.mode,
+                filename=self.filename,
+                debug_level=(self.debug_level > 2),
+            )
+            newnode = newnode.body
+            if not isinstance(newnode, AST):
+                # take the first (and only) Expr
+                newnode = newnode[0]
+            increment_lineno(newnode, n=node.lineno - 1)
+            newnode.col_offset = node.col_offset
+            if self.debug_level > 1:
+                msg = "{0}:{1}:{2}{3} - {4}\n" "{0}:{1}:{2}{3} + {5}"
+                mstr = "" if maxcol is None else ":" + str(maxcol)
+                msg = msg.format(self.filename, node.lineno, mincol, mstr, line, spline)
+                print(msg, file=sys.stderr)
+        except SyntaxError:
+            newnode = node
+        if strip_expr and isinstance(newnode, Expr):
+            newnode = newnode.value
+        return newnode
+
+    def is_in_scope(self, node):
+        """Determines whether or not the current node is in scope."""
+        names, store = gather_load_store_names(node)
