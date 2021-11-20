@@ -57,3 +57,40 @@ def should_use_cache(execer, mode):
 def run_compiled_code(code, glb, loc, mode):
     """
     Helper to run code in a given mode and context
+    """
+    if code is None:
+        return
+    if mode in {"exec", "single"}:
+        func = exec
+    else:
+        func = eval
+    func(code, glb, loc)
+
+
+def get_cache_filename(fname, code=True):
+    """
+    Return the filename of the cache for the given filename.
+
+    Cache filenames are similar to those used by the Mercurial DVCS for its
+    internal store.
+
+    The ``code`` switch should be true if we should use the code store rather
+    than the script store.
+    """
+    datadir = builtins.__xonsh__.env["XONSH_DATA_DIR"]
+    cachedir = os.path.join(
+        datadir, "xonsh_code_cache" if code else "xonsh_script_cache"
+    )
+    cachefname = os.path.join(cachedir, *_cache_renamer(fname, code=code))
+    return cachefname
+
+
+def update_cache(ccode, cache_file_name):
+    """
+    Update the cache at ``cache_file_name`` to contain the compiled code
+    represented by ``ccode``.
+    """
+    if cache_file_name is not None:
+        _make_if_not_exists(os.path.dirname(cache_file_name))
+        with open(cache_file_name, "wb") as cfile:
+            cfile.write(XONSH_VERSION.encode() + b"\n
