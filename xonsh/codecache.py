@@ -93,4 +93,45 @@ def update_cache(ccode, cache_file_name):
     if cache_file_name is not None:
         _make_if_not_exists(os.path.dirname(cache_file_name))
         with open(cache_file_name, "wb") as cfile:
-            cfile.write(XONSH_VERSION.encode() + b"\n
+            cfile.write(XONSH_VERSION.encode() + b"\n")
+            cfile.write(bytes(PYTHON_VERSION_INFO_BYTES) + b"\n")
+            marshal.dump(ccode, cfile)
+
+
+def _check_cache_versions(cfile):
+    # version data should be < 1 kb
+    ver = cfile.readline(1024).strip()
+    if ver != XONSH_VERSION.encode():
+        return False
+    ver = cfile.readline(1024).strip()
+    return ver == PYTHON_VERSION_INFO_BYTES
+
+
+def compile_code(filename, code, execer, glb, loc, mode):
+    """
+    Wrapper for ``execer.compile`` to compile the given code
+    """
+    try:
+        if not code.endswith("\n"):
+            code += "\n"
+        old_filename = execer.filename
+        execer.filename = filename
+        ccode = execer.compile(code, glbs=glb, locs=loc, mode=mode, filename=filename)
+    except Exception:
+        raise
+    finally:
+        execer.filename = old_filename
+    return ccode
+
+
+def script_cache_check(filename, cachefname):
+    """
+    Check whether the script cache for a particular file is valid.
+
+    Returns a tuple containing: a boolean representing whether the cached code
+    should be used, and the cached code (or ``None`` if the cache should not be
+    used).
+    """
+    ccode = None
+    run_cached = False
+    if o
