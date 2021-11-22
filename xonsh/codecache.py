@@ -134,4 +134,34 @@ def script_cache_check(filename, cachefname):
     """
     ccode = None
     run_cached = False
-    if o
+    if os.path.isfile(cachefname):
+        if os.stat(cachefname).st_mtime >= os.stat(filename).st_mtime:
+            with open(cachefname, "rb") as cfile:
+                if not _check_cache_versions(cfile):
+                    return False, None
+                ccode = marshal.load(cfile)
+                run_cached = True
+    return run_cached, ccode
+
+
+def run_script_with_cache(filename, execer, glb=None, loc=None, mode="exec"):
+    """
+    Run a script, using a cached version if it exists (and the source has not
+    changed), and updating the cache as necessary.
+    """
+    run_cached = False
+    use_cache = should_use_cache(execer, mode)
+    cachefname = get_cache_filename(filename, code=False)
+    if use_cache:
+        run_cached, ccode = script_cache_check(filename, cachefname)
+    if not run_cached:
+        with open(filename, "r") as f:
+            code = f.read()
+        ccode = compile_code(filename, code, execer, glb, loc, mode)
+        update_cache(ccode, cachefname)
+    run_compiled_code(ccode, glb, loc, mode)
+
+
+def code_cache_name(code):
+    """
+    Return an appropriate spoofed filename for the given co
