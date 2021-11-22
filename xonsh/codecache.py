@@ -164,4 +164,42 @@ def run_script_with_cache(filename, execer, glb=None, loc=None, mode="exec"):
 
 def code_cache_name(code):
     """
-    Return an appropriate spoofed filename for the given co
+    Return an appropriate spoofed filename for the given code.
+    """
+    if isinstance(code, str):
+        _code = code.encode()
+    else:
+        _code = code
+    return hashlib.md5(_code).hexdigest()
+
+
+def code_cache_check(cachefname):
+    """
+    Check whether the code cache for a particular piece of code is valid.
+
+    Returns a tuple containing: a boolean representing whether the cached code
+    should be used, and the cached code (or ``None`` if the cache should not be
+    used).
+    """
+    ccode = None
+    run_cached = False
+    if os.path.isfile(cachefname):
+        with open(cachefname, "rb") as cfile:
+            if not _check_cache_versions(cfile):
+                return False, None
+            ccode = marshal.load(cfile)
+            run_cached = True
+    return run_cached, ccode
+
+
+def run_code_with_cache(code, execer, glb=None, loc=None, mode="exec"):
+    """
+    Run a piece of code, using a cached version if it exists, and updating the
+    cache as necessary.
+    """
+    use_cache = should_use_cache(execer, mode)
+    filename = code_cache_name(code)
+    cachefname = get_cache_filename(filename, code=True)
+    run_cached = False
+    if use_cache:
+      
