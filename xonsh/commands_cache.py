@@ -13,4 +13,38 @@ import argparse
 import collections.abc as cabc
 
 from xonsh.platform import ON_WINDOWS, ON_POSIX, pathbasename
-from xonsh.tools i
+from xonsh.tools import executables_in
+from xonsh.lazyasd import lazyobject
+
+
+class CommandsCache(cabc.Mapping):
+    """A lazy cache representing the commands available on the file system.
+    The keys are the command names and the values a tuple of (loc, has_alias)
+    where loc is either a str pointing to the executable on the file system or
+    None (if no executable exists) and has_alias is a boolean flag for whether
+    the command has an alias.
+    """
+
+    def __init__(self):
+        self._cmds_cache = {}
+        self._path_checksum = None
+        self._alias_checksum = None
+        self._path_mtime = -1
+        self.threadable_predictors = default_threadable_predictors()
+
+    def __contains__(self, key):
+        _ = self.all_commands
+        return self.lazyin(key)
+
+    def __iter__(self):
+        for cmd, (path, is_alias) in self.all_commands.items():
+            if ON_WINDOWS and path is not None:
+                # All command keys are stored in uppercase on Windows.
+                # This ensures the original command name is returned.
+                cmd = pathbasename(path)
+            yield cmd
+
+    def __len__(self):
+        return len(self.all_commands)
+
+    def __getitem__(
