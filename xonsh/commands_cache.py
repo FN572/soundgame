@@ -47,4 +47,40 @@ class CommandsCache(cabc.Mapping):
     def __len__(self):
         return len(self.all_commands)
 
-    def __getitem__(
+    def __getitem__(self, key):
+        _ = self.all_commands
+        return self.lazyget(key)
+
+    def is_empty(self):
+        """Returns whether the cache is populated or not."""
+        return len(self._cmds_cache) == 0
+
+    @staticmethod
+    def get_possible_names(name):
+        """Generates the possible `PATHEXT` extension variants of a given executable
+         name on Windows as a list, conserving the ordering in `PATHEXT`.
+         Returns a list as `name` being the only item in it on other platforms."""
+        if ON_WINDOWS:
+            pathext = builtins.__xonsh__.env.get("PATHEXT", [])
+            name = name.upper()
+            return [name + ext for ext in ([""] + pathext)]
+        else:
+            return [name]
+
+    @staticmethod
+    def remove_dups(p):
+        ret = list()
+        for e in p:
+            if e not in ret:
+                ret.append(e)
+        return ret
+
+    @property
+    def all_commands(self):
+        paths = builtins.__xonsh__.env.get("PATH", [])
+        paths = CommandsCache.remove_dups(paths)
+        path_immut = tuple(x for x in paths if os.path.isdir(x))
+        # did PATH change?
+        path_hash = hash(path_immut)
+        cache_valid = path_hash == self._path_checksum
+        self._pat
