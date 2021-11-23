@@ -109,4 +109,34 @@ class CommandsCache(cabc.Mapping):
         for cmd in alss:
             if cmd not in allcmds:
                 key = cmd.upper() if ON_WINDOWS else cmd
- 
+                allcmds[key] = (cmd, True)
+        self._cmds_cache = allcmds
+        return allcmds
+
+    def cached_name(self, name):
+        """Returns the name that would appear in the cache, if it exists."""
+        if name is None:
+            return None
+        cached = pathbasename(name)
+        if ON_WINDOWS:
+            keys = self.get_possible_names(cached)
+            cached = next((k for k in keys if k in self._cmds_cache), None)
+        return cached
+
+    def lazyin(self, key):
+        """Checks if the value is in the current cache without the potential to
+        update the cache. It just says whether the value is known *now*. This
+        may not reflect precisely what is on the $PATH.
+        """
+        return self.cached_name(key) in self._cmds_cache
+
+    def lazyiter(self):
+        """Returns an iterator over the current cache contents without the
+        potential to update the cache. This may not reflect what is on the
+        $PATH.
+        """
+        return iter(self._cmds_cache)
+
+    def lazylen(self):
+        """Returns the length of the current cache contents without the
+        potential t
