@@ -171,4 +171,32 @@ class CommandsCache(cabc.Mapping):
         name : str
                 name of binary to search for
         ignore_alias : bool, optional
-                Force return of binary path even if 
+                Force return of binary path even if alias of ``name`` exists
+                (default ``False``)
+        """
+        possibilities = self.get_possible_names(name)
+        if ON_WINDOWS:
+            # Windows users expect to be able to execute files in the same
+            # directory without `./`
+            local_bin = next((fn for fn in possibilities if os.path.isfile(fn)), None)
+            if local_bin:
+                return os.path.abspath(local_bin)
+        cached = next((cmd for cmd in possibilities if cmd in self._cmds_cache), None)
+        if cached:
+            (path, alias) = self._cmds_cache[cached]
+            ispure = path == pathbasename(path)
+            if alias and ignore_alias and ispure:
+                # pure alias, which we are ignoring
+                return None
+            else:
+                return path
+        elif os.path.isfile(name) and name != pathbasename(name):
+            return name
+
+    def is_only_functional_alias(self, name):
+        """Returns whether or not a command is only a functional alias, and has
+        no underlying executable. For example, the "cd" command is only available
+        as a functional alias.
+        """
+        _ = self.all_commands
+        return
