@@ -370,4 +370,42 @@ def HG_PREDICTOR_PARSER():
 
 def predict_hg(args):
     """Predict if mercurial is about to be run in interactive mode.
-    If it is in
+    If it is interactive, predict False. If it isn't, predict True.
+    Also predict False for certain commands, such as split.
+    """
+    ns, _ = HG_PREDICTOR_PARSER.parse_known_args(args)
+    if ns.command == "split":
+        return False
+    else:
+        return not ns.interactive
+
+
+def default_threadable_predictors():
+    """Generates a new defaultdict for known threadable predictors.
+    The default is to predict true.
+    """
+    # alphabetical, for what it is worth.
+    predictors = {
+        "aurman": predict_false,
+        "bash": predict_shell,
+        "csh": predict_shell,
+        "clear": predict_false,
+        "cls": predict_false,
+        "cmd": predict_shell,
+        "cryptop": predict_false,
+        "curl": predict_true,
+        "ex": predict_false,
+        "emacsclient": predict_false,
+        "fish": predict_shell,
+        "gvim": predict_help_ver,
+        "hg": predict_hg,
+        "htop": predict_help_ver,
+        "ipython": predict_shell,
+        "ksh": predict_shell,
+        "less": predict_help_ver,
+        "ls": predict_true,
+        "man": predict_help_ver,
+        "more": predict_help_ver,
+        "mvim": predict_help_ver,
+        "mutt": predict_help_ver,
+        "nan
