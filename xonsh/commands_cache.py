@@ -139,4 +139,36 @@ class CommandsCache(cabc.Mapping):
 
     def lazylen(self):
         """Returns the length of the current cache contents without the
-        potential t
+        potential to update the cache. This may not reflect precisely
+        what is on the $PATH.
+        """
+        return len(self._cmds_cache)
+
+    def lazyget(self, key, default=None):
+        """A lazy value getter."""
+        return self._cmds_cache.get(self.cached_name(key), default)
+
+    def locate_binary(self, name, ignore_alias=False):
+        """Locates an executable on the file system using the cache.
+
+        Arguments
+        ---------
+        name : str
+                name of binary to search for
+        ignore_alias : bool, optional
+                Force return of binary path even if alias of ``name`` exists
+                (default ``False``)
+        """
+        # make sure the cache is up to date by accessing the property
+        _ = self.all_commands
+        return self.lazy_locate_binary(name, ignore_alias)
+
+    def lazy_locate_binary(self, name, ignore_alias=False):
+        """Locates an executable in the cache, without checking its validity.
+
+        Arguments
+        ---------
+        name : str
+                name of binary to search for
+        ignore_alias : bool, optional
+                Force return of binary path even if 
