@@ -199,4 +199,33 @@ class CommandsCache(cabc.Mapping):
         as a functional alias.
         """
         _ = self.all_commands
-        return
+        return self.lazy_is_only_functional_alias(name)
+
+    def lazy_is_only_functional_alias(self, name):
+        """Returns whether or not a command is only a functional alias, and has
+        no underlying executable. For example, the "cd" command is only available
+        as a functional alias. This search is performed lazily.
+        """
+        val = self._cmds_cache.get(name, None)
+        if val is None:
+            return False
+        return (
+            val == (name, True) and self.locate_binary(name, ignore_alias=True) is None
+        )
+
+    def predict_threadable(self, cmd):
+        """Predicts whether a command list is able to be run on a background
+        thread, rather than the main thread.
+        """
+        name = self.cached_name(cmd[0])
+        predictors = self.threadable_predictors
+        if ON_WINDOWS:
+            # On all names (keys) are stored in upper case so instead
+            # we get the original cmd or alias name
+            path, _ = self.lazyget(name, (None, None))
+            if path is None:
+                return True
+            else:
+                name = pathbasename(path)
+            if name not in predictors:
+             
