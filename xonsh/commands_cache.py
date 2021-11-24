@@ -292,3 +292,50 @@ class CommandsCache(cabc.Mapping):
                     if v[i]:
                         continue
                     if k[i] in analyzed_block:
+                        v[i] = True
+                if all(v):
+                    os.close(fd)
+                    return predict_false  # use one key of search_for
+        os.close(fd)
+        return failure  # timeout
+
+
+#
+# Background Predictors
+#
+
+
+def predict_true(args):
+    """Always say the process is threadable."""
+    return True
+
+
+def predict_false(args):
+    """Never say the process is threadable."""
+    return False
+
+
+@lazyobject
+def SHELL_PREDICTOR_PARSER():
+    p = argparse.ArgumentParser("shell", add_help=False)
+    p.add_argument("-c", nargs="?", default=None)
+    p.add_argument("filename", nargs="?", default=None)
+    return p
+
+
+def predict_shell(args):
+    """Predict the backgroundability of the normal shell interface, which
+    comes down to whether it is being run in subproc mode.
+    """
+    ns, _ = SHELL_PREDICTOR_PARSER.parse_known_args(args)
+    if ns.c is None and ns.filename is None:
+        pred = False
+    else:
+        pred = True
+    return pred
+
+
+@lazyobject
+def HELP_VER_PREDICTOR_PARSER():
+    p = argparse.ArgumentParser("cmd", add_help=False)
+    p.add_argument("-h", "--help", dest=
