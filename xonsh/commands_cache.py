@@ -338,4 +338,36 @@ def predict_shell(args):
 @lazyobject
 def HELP_VER_PREDICTOR_PARSER():
     p = argparse.ArgumentParser("cmd", add_help=False)
-    p.add_argument("-h", "--help", dest=
+    p.add_argument("-h", "--help", dest="help", action="store_true", default=None)
+    p.add_argument(
+        "-v", "-V", "--version", dest="version", action="store_true", default=None
+    )
+    return p
+
+
+def predict_help_ver(args):
+    """Predict the backgroundability of commands that have help & version
+    switches: -h, --help, -v, -V, --version. If either of these options is
+    present, the command is assumed to print to stdout normally and is therefore
+    threadable. Otherwise, the command is assumed to not be threadable.
+    This is useful for commands, like top, that normally enter alternate mode
+    but may not in certain circumstances.
+    """
+    ns, _ = HELP_VER_PREDICTOR_PARSER.parse_known_args(args)
+    pred = ns.help is not None or ns.version is not None
+    return pred
+
+
+@lazyobject
+def HG_PREDICTOR_PARSER():
+    p = argparse.ArgumentParser("hg", add_help=False)
+    p.add_argument("command")
+    p.add_argument(
+        "-i", "--interactive", action="store_true", default=False, dest="interactive"
+    )
+    return p
+
+
+def predict_hg(args):
+    """Predict if mercurial is about to be run in interactive mode.
+    If it is in
