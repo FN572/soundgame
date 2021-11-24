@@ -260,4 +260,35 @@ class CommandsCache(cabc.Mapping):
         if fname is None:
             return failure
         if not os.path.isfile(fname):
-  
+            return failure
+
+        try:
+            fd = os.open(fname, os.O_RDONLY | os.O_NONBLOCK)
+        except Exception:
+            return failure  # opening error
+
+        search_for = {
+            (b"ncurses",): [False],
+            (b"libgpm",): [False],
+            (b"isatty", b"tcgetattr", b"tcsetattr"): [False, False, False],
+        }
+        tstart = time.time()
+        block = b""
+        while time.time() < tstart + timeout:
+            previous_block = block
+            try:
+                block = os.read(fd, 2048)
+            except Exception:
+                # should not occur, except e.g. if a file is deleted a a dir is
+                # created with the same name between os.path.isfile and os.open
+                os.close(fd)
+                return failure
+            if len(block) == 0:
+                os.close(fd)
+                return predict_true  # no keys of search_for found
+            analyzed_block = previous_block + block
+            for k, v in search_for.items():
+                for i in range(len(k)):
+                    if v[i]:
+                        continue
+                    if k[i] in analyzed_block:
