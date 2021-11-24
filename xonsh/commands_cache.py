@@ -228,4 +228,36 @@ class CommandsCache(cabc.Mapping):
             else:
                 name = pathbasename(path)
             if name not in predictors:
-             
+                pre, ext = os.path.splitext(name)
+                if pre in predictors:
+                    predictors[name] = predictors[pre]
+        if name not in predictors:
+            predictors[name] = self.default_predictor(name, cmd[0])
+        predictor = predictors[name]
+        return predictor(cmd[1:])
+
+    #
+    # Background Predictors (as methods)
+    #
+
+    def default_predictor(self, name, cmd0):
+        if ON_POSIX:
+            return self.default_predictor_readbin(
+                name, cmd0, timeout=0.1, failure=predict_true
+            )
+        else:
+            return predict_true
+
+    def default_predictor_readbin(self, name, cmd0, timeout, failure):
+        """Make a default predictor by
+        analyzing the content of the binary. Should only works on POSIX.
+        Return failure if the analysis fails.
+        """
+        fname = cmd0 if os.path.isabs(cmd0) else None
+        fname = cmd0 if fname is None and os.sep in cmd0 else fname
+        fname = self.lazy_locate_binary(name) if fname is None else fname
+
+        if fname is None:
+            return failure
+        if not os.path.isfile(fname):
+  
