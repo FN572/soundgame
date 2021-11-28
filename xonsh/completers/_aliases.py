@@ -170,4 +170,21 @@ FUNC is the name of a completer function to use.  This should be a function
        * endidx: the index at which prefix ends in line
        * ctx: the current Python environment
 
-     If the completer expands the prefix in any way, it should return a tu
+     If the completer expands the prefix in any way, it should return a tuple
+     of two elements: the first should be the set of completions, and the
+     second should be the length of the modified prefix (for an example, see
+     xonsh.completers.path.complete_path).
+
+POS (optional) is a position into the list of completers at which the new
+     completer should be added.  It can be one of the following values:
+       * "start" indicates that the completer should be added to the start of
+                 the list of completers (it should be run before all others)
+       * "end" indicates that the completer should be added to the end of the
+               list of completers (it should be run after all others)
+       * ">KEY", where KEY is a pre-existing name, indicates that this should
+                 be added after the completer named KEY
+       * "<KEY", where KEY is a pre-existing name, indicates that this should
+                 be added before the completer named KEY
+
+     If POS is not provided, the default value is "start"
+"""
