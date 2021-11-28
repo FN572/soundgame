@@ -70,3 +70,33 @@ def _remove_completer(args, stdin=None, stack=None):
 
 def _register_completer(args, stdin=None, stack=None):
     err = None
+    if len(args) not in {2, 3}:
+        err = (
+            "completer add takes either 2 or 3 arguments.\n"
+            "For help, run:  completer help add"
+        )
+    else:
+        name = args[0]
+        func_name = args[1]
+        if name in builtins.__xonsh__.completers:
+            err = ("The name %s is already a registered " "completer function.") % name
+        else:
+            if func_name in builtins.__xonsh__.ctx:
+                func = builtins.__xonsh__.ctx[func_name]
+                if not callable(func):
+                    err = "%s is not callable" % func_name
+            else:
+                for frame_info in stack:
+                    frame = frame_info[0]
+                    if func_name in frame.f_locals:
+                        func = frame.f_locals[func_name]
+                        break
+                    elif func_name in frame.f_globals:
+                        func = frame.f_globals[func_name]
+                        break
+                else:
+                    err = "No such function: %s" % func_name
+    if err is None:
+        position = "start" if len(args) == 2 else args[2]
+        _add_one_completer(name, func, position)
+    e
