@@ -99,4 +99,37 @@ def _register_completer(args, stdin=None, stack=None):
     if err is None:
         position = "start" if len(args) == 2 else args[2]
         _add_one_completer(name, func, position)
-    e
+    else:
+        return None, err + "\n", 1
+
+
+def completer_alias(args, stdin=None, stdout=None, stderr=None, spec=None, stack=None):
+    err = None
+    if len(args) == 0 or args[0] not in (VALID_ACTIONS | {"help"}):
+        err = (
+            "Please specify an action.  Valid actions are: "
+            '"add", "remove", "list", or "help".'
+        )
+    elif args[0] == "help":
+        if len(args) == 1 or args[1] not in VALID_ACTIONS:
+            return (
+                "Valid actions are: add, remove, list.  For help with a "
+                "specific action, run: completer help ACTION\n"
+            )
+        elif args[1] == "add":
+            return COMPLETER_ADD_HELP_STR
+        elif args[1] == "remove":
+            return COMPLETER_REMOVE_HELP_STR
+        elif args[1] == "list":
+            return COMPLETER_LIST_HELP_STR
+
+    if err is not None:
+        return None, err + "\n", 1
+
+    if args[0] == "add":
+        func = _register_completer
+    elif args[0] == "remove":
+        func = _remove_completer
+    elif args[0] == "list":
+        func = _list_completers
+    return func(args[1:], stdin=std
