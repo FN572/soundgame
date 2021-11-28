@@ -132,4 +132,42 @@ def completer_alias(args, stdin=None, stdout=None, stderr=None, spec=None, stack
         func = _remove_completer
     elif args[0] == "list":
         func = _list_completers
-    return func(args[1:], stdin=std
+    return func(args[1:], stdin=stdin, stack=stack)
+
+
+COMPLETER_LIST_HELP_STR = """completer list: ordered list the active completers
+
+Usage:
+    completer remove
+"""
+
+COMPLETER_REMOVE_HELP_STR = """completer remove: removes a completer from xonsh
+
+Usage:
+    completer remove NAME
+
+NAME is a unique name of a completer (run "completer list" to see the current
+     completers in order)
+"""
+
+COMPLETER_ADD_HELP_STR = """completer add: adds a new completer to xonsh
+
+Usage:
+    completer add NAME FUNC [POS]
+
+NAME is a unique name to use in the listing (run "completer list" to see the
+     current completers in order)
+
+FUNC is the name of a completer function to use.  This should be a function
+     of the following arguments, and should return a set of valid completions
+     for the given prefix.  If this completer should not be used in a given
+     context, it should return an empty set or None.
+
+     Arguments to FUNC:
+       * prefix: the string to be matched
+       * line: a string representing the whole current line, for context
+       * begidx: the index at which prefix starts in line
+       * endidx: the index at which prefix ends in line
+       * ctx: the current Python environment
+
+     If the completer expands the prefix in any way, it should return a tu
