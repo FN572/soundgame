@@ -181,4 +181,39 @@ def complete_python_mode(prefix, line, start, end, ctx):
     python_matches = complete_python(prefix[2:], line, start - 2, end - 2, ctx)
     if isinstance(python_matches, cabc.Sequence):
         python_matches = python_matches[0]
- 
+    return set(prefix_start + i for i in python_matches)
+
+
+def _safe_eval(expr, ctx):
+    """Safely tries to evaluate an expression. If this fails, it will return
+    a (None, None) tuple.
+    """
+    _ctx = None
+    xonsh_safe_eval = builtins.__xonsh__.execer.eval
+    try:
+        val = xonsh_safe_eval(expr, ctx, ctx, transform=False)
+        _ctx = ctx
+    except:  # pylint:disable=bare-except
+        try:
+            val = xonsh_safe_eval(expr, builtins.__dict__, transform=False)
+            _ctx = builtins.__dict__
+        except:  # pylint:disable=bare-except
+            val = _ctx = None
+    return val, _ctx
+
+
+def attr_complete(prefix, ctx, filter_func):
+    """Complete attributes of an object."""
+    attrs = set()
+    m = RE_ATTR.match(prefix)
+    if m is None:
+        return attrs
+    expr, attr = m.group(1, 3)
+    expr = xt.subexpr_from_unbalanced(expr, "(", ")")
+    expr = xt.subexpr_from_unbalanced(expr, "[", "]")
+    expr = xt.subexpr_from_unbalanced(expr, "{", "}")
+    val, _ctx = _safe_eval(expr, ctx)
+    if val is None and _ctx is None:
+        return attrs
+    if len(attr) == 0:
+        opts = [o for o in dir(val
