@@ -148,4 +148,37 @@ def _complete_python(prefix, line, start, end, ctx):
     Completes based on the contents of the current Python environment,
     the Python built-ins, and xonsh operators.
     """
-    if 
+    if line != "":
+        first = line.split()[0]
+        if first in builtins.__xonsh__.commands_cache and first not in ctx:
+            return set()
+    filt = get_filter_function()
+    rtn = set()
+    if ctx is not None:
+        if "." in prefix:
+            rtn |= attr_complete(prefix, ctx, filt)
+        args = python_signature_complete(prefix, line, end, ctx, filt)
+        rtn |= args
+        rtn |= {s for s in ctx if filt(s, prefix)}
+    else:
+        args = ()
+    if len(args) == 0:
+        # not in a function call, so we can add non-expression tokens
+        rtn |= {s for s in XONSH_TOKENS if filt(s, prefix)}
+    else:
+        rtn |= {s for s in XONSH_EXPR_TOKENS if filt(s, prefix)}
+    rtn |= {s for s in dir(builtins) if filt(s, prefix)}
+    return rtn
+
+
+def complete_python_mode(prefix, line, start, end, ctx):
+    """
+    Python-mode completions for @( and ${
+    """
+    if not (prefix.startswith("@(") or prefix.startswith("${")):
+        return set()
+    prefix_start = prefix[:2]
+    python_matches = complete_python(prefix[2:], line, start - 2, end - 2, ctx)
+    if isinstance(python_matches, cabc.Sequence):
+        python_matches = python_matches[0]
+ 
