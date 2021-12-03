@@ -216,4 +216,38 @@ def attr_complete(prefix, ctx, filter_func):
     if val is None and _ctx is None:
         return attrs
     if len(attr) == 0:
-        opts = [o for o in dir(val
+        opts = [o for o in dir(val) if not o.startswith("_")]
+    else:
+        opts = [o for o in dir(val) if filter_func(o, attr)]
+    prelen = len(prefix)
+    for opt in opts:
+        # check whether these options actually work (e.g., disallow 7.imag)
+        _expr = "{0}.{1}".format(expr, opt)
+        _val_, _ctx_ = _safe_eval(_expr, _ctx)
+        if _val_ is None and _ctx_ is None:
+            continue
+        a = getattr(val, opt)
+        if builtins.__xonsh__.env["COMPLETIONS_BRACKETS"]:
+            if callable(a):
+                rpl = opt + "("
+            elif isinstance(a, (cabc.Sequence, cabc.Mapping)):
+                rpl = opt + "["
+            else:
+                rpl = opt
+        else:
+            rpl = opt
+        # note that prefix[:prelen-len(attr)] != prefix[:-len(attr)]
+        # when len(attr) == 0.
+        comp = prefix[: prelen - len(attr)] + rpl
+        attrs.add(comp)
+    return attrs
+
+
+def python_signature_complete(prefix, line, end, ctx, filter_func):
+    """Completes a python function (or other callable) call by completing
+    argument and keyword argument names.
+    """
+    front = line[:end]
+    if xt.is_balanced(front, "(", ")"):
+        return set()
+    fun
