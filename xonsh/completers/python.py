@@ -102,3 +102,50 @@ def XONSH_STMT_TOKENS():
         "->",
         "=",
         "+=",
+        "-=",
+        "*=",
+        "/=",
+        "%=",
+        "**=",
+        ">>=",
+        "<<=",
+        "&=",
+        "^=",
+        "|=",
+        "//=",
+        ";",
+        ":",
+        "..",
+    }
+
+
+@xl.lazyobject
+def XONSH_TOKENS():
+    return set(XONSH_EXPR_TOKENS) | set(XONSH_STMT_TOKENS)
+
+
+def complete_python(prefix, line, start, end, ctx):
+    """
+    Completes based on the contents of the current Python environment,
+    the Python built-ins, and xonsh operators.
+    If there are no matches, split on common delimiters and try again.
+    """
+    rtn = _complete_python(prefix, line, start, end, ctx)
+    if not rtn:
+        prefix = (
+            re.split(r"\(|=|{|\[|,", prefix)[-1]
+            if not prefix.startswith(",")
+            else prefix
+        )
+        start = line.find(prefix)
+        rtn = _complete_python(prefix, line, start, end, ctx)
+        return rtn, len(prefix)
+    return rtn
+
+
+def _complete_python(prefix, line, start, end, ctx):
+    """
+    Completes based on the contents of the current Python environment,
+    the Python built-ins, and xonsh operators.
+    """
+    if 
