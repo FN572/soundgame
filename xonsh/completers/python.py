@@ -250,4 +250,40 @@ def python_signature_complete(prefix, line, end, ctx, filter_func):
     front = line[:end]
     if xt.is_balanced(front, "(", ")"):
         return set()
-    fun
+    funcname = xt.subexpr_before_unbalanced(front, "(", ")")
+    val, _ctx = _safe_eval(funcname, ctx)
+    if val is None:
+        return set()
+    try:
+        sig = inspect.signature(val)
+    except ValueError:
+        return set()
+    args = {p + "=" for p in sig.parameters if filter_func(p, prefix)}
+    return args
+
+
+def complete_import(prefix, line, start, end, ctx):
+    """
+    Completes module names and contents for "import ..." and "from ... import
+    ..."
+    """
+    ltoks = line.split()
+    ntoks = len(ltoks)
+    if ntoks == 2 and ltoks[0] == "from":
+        # completing module to import
+        return {"{} ".format(i) for i in complete_module(prefix)}
+    if ntoks > 1 and ltoks[0] == "import" and start == len("import "):
+        # completing module to import
+        return complete_module(prefix)
+    if ntoks > 2 and ltoks[0] == "from" and ltoks[2] == "import":
+        # complete thing inside a module
+        try:
+            mod = importlib.import_module(ltoks[1])
+        except ImportError:
+            return set()
+        out = {i[0] for i in inspect.getmembers(mod) if i[0].startswith(prefix)}
+        return out
+    return set()
+
+
+def complete_module(prefi
