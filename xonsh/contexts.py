@@ -106,3 +106,13 @@ class Functor(Block):
             func.__defaults__ = tuple(v for _, v in self.kwargs)
         self.func = func
         return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        """Dispatches to func."""
+        if self.func is None:
+            msg = "{} block with 'None' func not callable"
+            raise AttributeError(msg.formst(self.__class__.__name__))
+        return self.func(*args, **kwargs)
