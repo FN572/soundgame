@@ -286,4 +286,5 @@ def complete_import(prefix, line, start, end, ctx):
     return set()
 
 
-def complete_module(prefi
+def complete_module(prefix):
+    return {s for s in sys.modules if get_filter_function()(s, prefix)}
