@@ -470,3 +470,107 @@ def popd(args, stdin=None):
 
 
 @lazyobject
+def dirs_parser():
+    parser = argparse.ArgumentParser(prog="dirs")
+    parser.add_argument("N", nargs="?")
+    parser.add_argument(
+        "-c",
+        dest="clear",
+        help="Clears the directory stack by deleting all of" " the entries.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-p",
+        dest="print_long",
+        help="Print the directory stack with one entry per" " line.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-v",
+        dest="verbose",
+        help="Print the directory stack with one entry per"
+        " line, prefixing each entry with its index in the"
+        " stack.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-l",
+        dest="long",
+        help="Produces a longer listing; the default listing"
+        " format uses a tilde to denote the home directory.",
+        action="store_true",
+    )
+    return parser
+
+
+def dirs(args, stdin=None):
+    """xonsh command: dirs
+
+    Displays the list of currently remembered directories.  Can also be used
+    to clear the directory stack.
+    """
+    global DIRSTACK
+    try:
+        args = dirs_parser.parse_args(args)
+    except SystemExit:
+        return None, None
+
+    env = builtins.__xonsh__.env
+    dirstack = [os.path.expanduser(env["PWD"])] + DIRSTACK
+
+    if env.get("PUSHD_MINUS"):
+        BACKWARD = "-"
+        FORWARD = "+"
+    else:
+        BACKWARD = "-"
+        FORWARD = "+"
+
+    if args.clear:
+        DIRSTACK = []
+        return None, None, 0
+
+    if args.long:
+        o = dirstack
+    else:
+        d = os.path.expanduser("~")
+        o = [i.replace(d, "~") for i in dirstack]
+
+    if args.verbose:
+        out = ""
+        pad = len(str(len(o) - 1))
+        for (ix, e) in enumerate(o):
+            blanks = " " * (pad - len(str(ix)))
+            out += "\n{0}{1} {2}".format(blanks, ix, e)
+        out = out[1:]
+    elif args.print_long:
+        out = "\n".join(o)
+    else:
+        out = " ".join(o)
+
+    N = args.N
+    if N is not None:
+        try:
+            num = int(N[1:])
+        except ValueError:
+            e = "Invalid argument to dirs: {0}\n"
+            return None, e.format(N), 1
+
+        if num < 0:
+            e = "Invalid argument to dirs: {0}\n"
+            return None, e.format(len(o)), 1
+
+        if num >= len(o):
+            e = "Too few elements in dirstack ({0} elements)\n"
+            return None, e.format(len(o)), 1
+
+        if N.startswith(BACKWARD):
+            idx = num
+        elif N.startswith(FORWARD):
+            idx = len(o) - 1 - num
+        else:
+            e = "Invalid argument to dirs: {0}\n"
+            return None, e.format(N), 1
+
+        out = o[idx]
+
+    return out + "\n", None, 0
