@@ -105,4 +105,53 @@ events.doc(
     """
 on_envvar_change(name: str, oldvalue: Any, newvalue: Any) -> None
 
-Fires after an
+Fires after an environment variable is changed.
+Note: Setting envvars inside the handler might
+cause a recursion until the limit.
+""",
+)
+
+
+events.doc(
+    "on_pre_spec_run_ls",
+    """
+on_pre_spec_run_ls(spec: xonsh.built_ins.SubprocSpec) -> None
+
+Fires right before a SubprocSpec.run() is called for the ls
+command.
+""",
+)
+
+
+@lazyobject
+def HELP_TEMPLATE():
+    return (
+        "{{INTENSE_RED}}{envvar}{{NO_COLOR}}:\n\n"
+        "{{INTENSE_YELLOW}}{docstr}{{NO_COLOR}}\n\n"
+        "default: {{CYAN}}{default}{{NO_COLOR}}\n"
+        "configurable: {{CYAN}}{configurable}{{NO_COLOR}}"
+    )
+
+
+@lazyobject
+def LOCALE_CATS():
+    lc = {
+        "LC_CTYPE": locale.LC_CTYPE,
+        "LC_COLLATE": locale.LC_COLLATE,
+        "LC_NUMERIC": locale.LC_NUMERIC,
+        "LC_MONETARY": locale.LC_MONETARY,
+        "LC_TIME": locale.LC_TIME,
+    }
+    if hasattr(locale, "LC_MESSAGES"):
+        lc["LC_MESSAGES"] = locale.LC_MESSAGES
+    return lc
+
+
+def locale_convert(key):
+    """Creates a converter for a locale key."""
+
+    def lc_converter(val):
+        try:
+            locale.setlocale(LOCALE_CATS[key], val)
+            val = locale.setlocale(LOCALE_CATS[key])
+        except (loca
