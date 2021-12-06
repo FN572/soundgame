@@ -154,4 +154,48 @@ def locale_convert(key):
         try:
             locale.setlocale(LOCALE_CATS[key], val)
             val = locale.setlocale(LOCALE_CATS[key])
-        except (loca
+        except (locale.Error, KeyError):
+            msg = "Failed to set locale {0!r} to {1!r}".format(key, val)
+            warnings.warn(msg, RuntimeWarning)
+        return val
+
+    return lc_converter
+
+
+def to_debug(x):
+    """Converts value using to_bool_or_int() and sets this value on as the
+    execer's debug level.
+    """
+    val = to_bool_or_int(x)
+    if (
+        hasattr(builtins, "__xonsh__")
+        and hasattr(builtins.__xonsh__, "execer")
+        and builtins.__xonsh__.execer is not None
+    ):
+        builtins.__xonsh__.execer.debug_level = val
+    return val
+
+
+#
+# $LS_COLORS tools
+#
+
+
+class LsColors(cabc.MutableMapping):
+    """Helps convert to/from $LS_COLORS format, respecting the xonsh color style.
+    This accepts the same inputs as dict().
+    """
+
+    default_settings = {
+        "*.7z": ("BOLD_RED",),
+        "*.Z": ("BOLD_RED",),
+        "*.aac": ("CYAN",),
+        "*.ace": ("BOLD_RED",),
+        "*.alz": ("BOLD_RED",),
+        "*.arc": ("BOLD_RED",),
+        "*.arj": ("BOLD_RED",),
+        "*.asf": ("BOLD_PURPLE",),
+        "*.au": ("CYAN",),
+        "*.avi": ("BOLD_PURPLE",),
+        "*.bmp": ("BOLD_PURPLE",),
+        "*.bz": ("
