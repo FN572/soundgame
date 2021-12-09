@@ -350,4 +350,36 @@ class LsColors(cabc.MutableMapping):
         )
 
     def _repr_pretty_(self, p, cycle):
-        name = "{0}.{1}".format(
+        name = "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
+        with p.group(0, name + "(", ")"):
+            if cycle:
+                p.text("...")
+            elif len(self):
+                p.break_()
+                p.pretty(dict(self))
+
+    def detype(self):
+        """De-types the instance, allowing it to be exported to the environment."""
+        style = self.style
+        if self._detyped is None:
+            self._detyped = ":".join(
+                [
+                    key + "=" + ";".join([style[v] or "0" for v in val])
+                    for key, val in sorted(self._d.items())
+                ]
+            )
+        return self._detyped
+
+    @property
+    def style_name(self):
+        """Current XONSH_COLOR_STYLE value"""
+        env = builtins.__xonsh__.env
+        env_style_name = env.get("XONSH_COLOR_STYLE")
+        if self._style_name is None or self._style_name != env_style_name:
+            self._style_name = env_style_name
+            self._style = self._dtyped = None
+        return self._style_name
+
+    @property
+    def style(self):
+        """The ANSI color style for the current
