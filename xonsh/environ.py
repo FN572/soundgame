@@ -305,4 +305,49 @@ class LsColors(cabc.MutableMapping):
         "di": ("BOLD_BLUE",),
         "do": ("BOLD_PURPLE",),
         "ex": ("BOLD_GREEN",),
-        "ln"
+        "ln": ("BOLD_CYAN",),
+        "mh": ("NO_COLOR",),
+        "mi": ("NO_COLOR",),
+        "or": ("BACKGROUND_BLACK", "RED"),
+        "ow": ("BLUE", "BACKGROUND_GREEN"),
+        "pi": ("BACKGROUND_BLACK", "YELLOW"),
+        "rs": ("NO_COLOR",),
+        "sg": ("BLACK", "BACKGROUND_YELLOW"),
+        "so": ("BOLD_PURPLE",),
+        "st": ("WHITE", "BACKGROUND_BLUE"),
+        "su": ("WHITE", "BACKGROUND_RED"),
+        "tw": ("BLACK", "BACKGROUND_GREEN"),
+    }
+
+    def __init__(self, *args, **kwargs):
+        self._d = dict(*args, **kwargs)
+        self._style = self._style_name = None
+        self._detyped = None
+
+    def __getitem__(self, key):
+        return self._d[key]
+
+    def __setitem__(self, key, value):
+        self._detyped = None
+        self._d[key] = value
+
+    def __delitem__(self, key):
+        self._detyped = None
+        del self._d[key]
+
+    def __len__(self):
+        return len(self._d)
+
+    def __iter__(self):
+        yield from self._d
+
+    def __str__(self):
+        return str(self._d)
+
+    def __repr__(self):
+        return "{0}.{1}(...)".format(
+            self.__class__.__module__, self.__class__.__name__, self._d
+        )
+
+    def _repr_pretty_(self, p, cycle):
+        name = "{0}.{1}".format(
