@@ -413,4 +413,41 @@ class LsColors(cabc.MutableMapping):
     @classmethod
     def fromdircolors(cls, filename=None):
         """Constructs an LsColors instance by running dircolors.
-        If a filename is provided, it is passed down to the dircolors 
+        If a filename is provided, it is passed down to the dircolors command.
+        """
+        # assemble command
+        cmd = ["dircolors", "-b"]
+        if filename is not None:
+            cmd.append(filename)
+        # get env
+        if hasattr(builtins, "__xonsh__") and hasattr(builtins.__xonsh__, "env"):
+            denv = builtins.__xonsh__.env.detype()
+        else:
+            denv = None
+        # run dircolors
+        try:
+            out = subprocess.check_output(
+                cmd, env=denv, universal_newlines=True, stderr=subprocess.DEVNULL
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return cls(cls.default_settings)
+        s = out.splitlines()[0]
+        _, _, s = s.partition("'")
+        s, _, _ = s.rpartition("'")
+        return cls.fromstring(s)
+
+    @classmethod
+    def convert(cls, x):
+        """Converts an object to LsColors, if needed."""
+        if isinstance(x, cls):
+            return x
+        elif isinstance(x, str):
+            return cls.fromstring(x)
+        elif isinstance(x, bytes):
+            return cls.fromstring(x.decode())
+        else:
+            return cls(x)
+
+
+def is_lscolors(x):
+    """Checks if an object is an instance of LsColors""
