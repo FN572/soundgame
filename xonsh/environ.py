@@ -382,4 +382,35 @@ class LsColors(cabc.MutableMapping):
 
     @property
     def style(self):
-        """The ANSI color style for the current
+        """The ANSI color style for the current XONSH_COLOR_STYLE"""
+        style_name = self.style_name
+        if self._style is None:
+            self._style = ansi_style_by_name(style_name)
+            self._detyped = None
+        return self._style
+
+    @classmethod
+    def fromstring(cls, s):
+        """Creates a new instance of the LsColors class from a colon-separated
+        string of dircolor-valid keys to ANSI color escape sequences.
+        """
+        obj = cls()
+        # string inputs always use default codes, so translating into
+        # xonsh names should be done from defaults
+        reversed_default = ansi_reverse_style(style="default")
+        data = {}
+        for item in s.split(":"):
+            key, eq, esc = item.partition("=")
+            if not eq:
+                # not a valid item
+                continue
+            data[key] = ansi_color_escape_code_to_name(
+                esc, "default", reversed_style=reversed_default
+            )
+        obj._d = data
+        return obj
+
+    @classmethod
+    def fromdircolors(cls, filename=None):
+        """Constructs an LsColors instance by running dircolors.
+        If a filename is provided, it is passed down to the dircolors 
