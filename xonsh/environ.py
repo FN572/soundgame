@@ -450,4 +450,39 @@ class LsColors(cabc.MutableMapping):
 
 
 def is_lscolors(x):
-    """Checks if an object is an instance of LsColors""
+    """Checks if an object is an instance of LsColors"""
+    return isinstance(x, LsColors)
+
+
+@events.on_pre_spec_run_ls
+def ensure_ls_colors_in_env(spec=None, **kwargs):
+    """This ensures that the $LS_COLORS environment variable is in the
+    environment. This fires exactly once upon the first time the
+    ls command is called.
+    """
+    env = builtins.__xonsh__.env
+    if "LS_COLORS" not in env._d:
+        # this adds it to the env too
+        default_lscolors(env)
+    events.on_pre_spec_run_ls.discard(ensure_ls_colors_in_env)
+
+
+#
+# Ensurerers
+#
+
+Ensurer = collections.namedtuple("Ensurer", ["validate", "convert", "detype"])
+Ensurer.__doc__ = """Named tuples whose elements are functions that
+represent environment variable validation, conversion, detyping.
+"""
+
+
+@lazyobject
+def DEFAULT_ENSURERS():
+    return {
+        "AUTO_CD": (is_bool, to_bool, bool_to_str),
+        "AUTO_PUSHD": (is_bool, to_bool, bool_to_str),
+        "AUTO_SUGGEST": (is_bool, to_bool, bool_to_str),
+        "AUTO_SUGGEST_IN_COMPLETIONS": (is_bool, to_bool, bool_to_str),
+        "BASH_COMPLETIONS": (is_env_path, str_to_env_path, env_path_to_str),
+        "CASE_SENSITIVE_COMPLETIONS": (is
