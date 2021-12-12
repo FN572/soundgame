@@ -529,4 +529,27 @@ def DEFAULT_ENSURERS():
         "LS_COLORS": (is_lscolors, LsColors.convert, detype),
         "LOADED_RC_FILES": (is_bool_seq, csv_to_bool_seq, bool_seq_to_csv),
         "MOUSE_SUPPORT": (is_bool, to_bool, bool_to_str),
-        "MULTILINE_PROMPT": (is_string_or_callable, ens
+        "MULTILINE_PROMPT": (is_string_or_callable, ensure_string, ensure_string),
+        re.compile(r"\w*PATH$"): (is_env_path, str_to_env_path, env_path_to_str),
+        "PATHEXT": (
+            is_nonstring_seq_of_strings,
+            pathsep_to_upper_seq,
+            seq_to_upper_pathsep,
+        ),
+        "PRETTY_PRINT_RESULTS": (is_bool, to_bool, bool_to_str),
+        "PROMPT": (is_string_or_callable, ensure_string, ensure_string),
+        "PROMPT_FIELDS": (always_true, None, None),
+        "PROMPT_TOOLKIT_COLOR_DEPTH": (
+            always_false,
+            ptk2_color_depth_setter,
+            ensure_string,
+        ),
+        "PUSHD_MINUS": (is_bool, to_bool, bool_to_str),
+        "PUSHD_SILENT": (is_bool, to_bool, bool_to_str),
+        "PTK_STYLE_OVERRIDES": (is_str_str_dict, to_str_str_dict, dict_to_str),
+        "RAISE_SUBPROC_ERROR": (is_bool, to_bool, bool_to_str),
+        "RIGHT_PROMPT": (is_string_or_callable, ensure_string, ensure_string),
+        "BOTTOM_TOOLBAR": (is_string_or_callable, ensure_string, ensure_string),
+        "SUBSEQUENCE_PATH_COMPLETION": (is_bool, to_bool, bool_to_str),
+        "SUGGEST_COMMANDS": (is_bool, to_bool, bool_to_str),
+        "SUGGEST_MAX_NUM": (is_int
