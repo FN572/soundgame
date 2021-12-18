@@ -596,4 +596,46 @@ def DEFAULT_ENSURERS():
 # Defaults
 #
 def default_value(f):
-    """Decorator for making callable d
+    """Decorator for making callable default values."""
+    f._xonsh_callable_default = True
+    return f
+
+
+def is_callable_default(x):
+    """Checks if a value is a callable default."""
+    return callable(x) and getattr(x, "_xonsh_callable_default", False)
+
+
+DEFAULT_TITLE = "{current_job:{} | }{user}@{hostname}: {cwd} | xonsh"
+
+
+@default_value
+def xonsh_data_dir(env):
+    """Ensures and returns the $XONSH_DATA_DIR"""
+    xdd = os.path.expanduser(os.path.join(env.get("XDG_DATA_HOME"), "xonsh"))
+    os.makedirs(xdd, exist_ok=True)
+    return xdd
+
+
+@default_value
+def xonsh_config_dir(env):
+    """Ensures and returns the $XONSH_CONFIG_DIR"""
+    xcd = os.path.expanduser(os.path.join(env.get("XDG_CONFIG_HOME"), "xonsh"))
+    os.makedirs(xcd, exist_ok=True)
+    return xcd
+
+
+def xonshconfig(env):
+    """Ensures and returns the $XONSHCONFIG"""
+    xcd = env.get("XONSH_CONFIG_DIR")
+    xc = os.path.join(xcd, "config.json")
+    return xc
+
+
+@default_value
+def default_xonshrc(env):
+    """Creates a new instance of the default xonshrc tuple."""
+    xcdrc = os.path.join(xonsh_config_dir(env), "rc.xsh")
+    if ON_WINDOWS:
+        dxrc = (
+            os.path.join(os_environ["ALLUSERSP
