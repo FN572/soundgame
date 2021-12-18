@@ -570,4 +570,30 @@ def DEFAULT_ENSURERS():
         "XONSH_CACHE_EVERYTHING": (is_bool, to_bool, bool_to_str),
         "XONSH_COLOR_STYLE": (is_string, ensure_string, ensure_string),
         "XONSH_DEBUG": (always_false, to_debug, bool_or_int_to_str),
-        "XONSH_ENCODING": (
+        "XONSH_ENCODING": (is_string, ensure_string, ensure_string),
+        "XONSH_ENCODING_ERRORS": (is_string, ensure_string, ensure_string),
+        "XONSH_HISTORY_BACKEND": (is_history_backend, to_itself, ensure_string),
+        "XONSH_HISTORY_FILE": (is_string, ensure_string, ensure_string),
+        "XONSH_HISTORY_MATCH_ANYWHERE": (is_bool, to_bool, bool_to_str),
+        "XONSH_HISTORY_SIZE": (
+            is_history_tuple,
+            to_history_tuple,
+            history_tuple_to_str,
+        ),
+        "XONSH_LOGIN": (is_bool, to_bool, bool_to_str),
+        "XONSH_PROC_FREQUENCY": (is_float, float, str),
+        "XONSH_SHOW_TRACEBACK": (is_bool, to_bool, bool_to_str),
+        "XONSH_STDERR_PREFIX": (is_string, ensure_string, ensure_string),
+        "XONSH_STDERR_POSTFIX": (is_string, ensure_string, ensure_string),
+        "XONSH_STORE_STDOUT": (is_bool, to_bool, bool_to_str),
+        "XONSH_STORE_STDIN": (is_bool, to_bool, bool_to_str),
+        "XONSH_TRACEBACK_LOGFILE": (is_logfile_opt, to_logfile_opt, logfile_opt_to_str),
+        "XONSH_DATETIME_FORMAT": (is_string, ensure_string, ensure_string),
+    }
+
+
+#
+# Defaults
+#
+def default_value(f):
+    """Decorator for making callable d
