@@ -638,4 +638,42 @@ def default_xonshrc(env):
     xcdrc = os.path.join(xonsh_config_dir(env), "rc.xsh")
     if ON_WINDOWS:
         dxrc = (
-            os.path.join(os_environ["ALLUSERSP
+            os.path.join(os_environ["ALLUSERSPROFILE"], "xonsh", "xonshrc"),
+            xcdrc,
+            os.path.expanduser("~/.xonshrc"),
+        )
+    else:
+        dxrc = ("/etc/xonshrc", xcdrc, os.path.expanduser("~/.xonshrc"))
+    # Check if old config file exists and issue warning
+    old_config_filename = xonshconfig(env)
+    if os.path.isfile(old_config_filename):
+        print(
+            "WARNING! old style configuration ("
+            + old_config_filename
+            + ") is no longer supported. "
+            + "Please migrate to xonshrc."
+        )
+    return dxrc
+
+
+@default_value
+def xonsh_append_newline(env):
+    """Appends a newline if we are in interactive mode"""
+    return env.get("XONSH_INTERACTIVE", False)
+
+
+@default_value
+def default_lscolors(env):
+    """Gets a default instanse of LsColors"""
+    inherited_lscolors = os_environ.get("LS_COLORS", None)
+    if inherited_lscolors is None:
+        lsc = LsColors.fromdircolors()
+    else:
+        lsc = LsColors.fromstring(inherited_lscolors)
+    # have to place this in the env, so it is applied
+    env["LS_COLORS"] = lsc
+    return lsc
+
+
+# Default values should generally be immutable, that way if a user wants
+# to set them they have to do 
