@@ -795,4 +795,32 @@ default : str, optional
 store_as_str : bool, optional
     Flag for whether the environment variable should be stored as a
     string. This is used when persisting a variable that is not JSON
-    
+    serializable to the config file. For example, sets, frozensets, and
+    potentially other non-trivial data types. default, False.
+"""
+# iterates from back
+VarDocs.__new__.__defaults__ = (True, DefaultNotGiven, False)
+
+
+# Please keep the following in alphabetic order - scopatz
+@lazyobject
+def DEFAULT_DOCS():
+    return {
+        "ANSICON": VarDocs(
+            "This is used on Windows to set the title, " "if available.",
+            configurable=False,
+        ),
+        "AUTO_CD": VarDocs(
+            "Flag to enable changing to a directory by entering the dirname or "
+            "full path only (without the cd command)."
+        ),
+        "AUTO_PUSHD": VarDocs(
+            "Flag for automatically pushing directories onto the directory stack."
+        ),
+        "AUTO_SUGGEST": VarDocs(
+            "Enable automatic command suggestions based on history, like in the fish "
+            "shell.\n\nPressing the right arrow key inserts the currently "
+            "displayed suggestion. Only usable with ``$SHELL_TYPE=prompt_toolkit.``"
+        ),
+        "AUTO_SUGGEST_IN_COMPLETIONS": VarDocs(
+            "Places the auto-suggest re
