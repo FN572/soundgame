@@ -763,4 +763,36 @@ def DEFAULT_VALUES():
         "XONSH_HISTORY_MATCH_ANYWHERE": False,
         "XONSH_HISTORY_SIZE": (8128, "commands"),
         "XONSH_LOGIN": False,
-        "XONSH_PRO
+        "XONSH_PROC_FREQUENCY": 1e-4,
+        "XONSH_SHOW_TRACEBACK": False,
+        "XONSH_STDERR_PREFIX": "",
+        "XONSH_STDERR_POSTFIX": "",
+        "XONSH_STORE_STDIN": False,
+        "XONSH_STORE_STDOUT": False,
+        "XONSH_TRACEBACK_LOGFILE": None,
+        "XONSH_DATETIME_FORMAT": "%Y-%m-%d %H:%M",
+    }
+    if hasattr(locale, "LC_MESSAGES"):
+        dv["LC_MESSAGES"] = locale.setlocale(locale.LC_MESSAGES)
+    return dv
+
+
+VarDocs = collections.namedtuple(
+    "VarDocs", ["docstr", "configurable", "default", "store_as_str"]
+)
+VarDocs.__doc__ = """Named tuple for environment variable documentation
+
+Parameters
+----------
+docstr : str
+   The environment variable docstring.
+configurable : bool, optional
+    Flag for whether the environment variable is configurable or not.
+default : str, optional
+    Custom docstring for the default value for complex defaults.
+    Is this is DefaultNotGiven, then the default will be looked up
+    from DEFAULT_VALUES and converted to a str.
+store_as_str : bool, optional
+    Flag for whether the environment variable should be stored as a
+    string. This is used when persisting a variable that is not JSON
+    
