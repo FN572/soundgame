@@ -676,4 +676,35 @@ def default_lscolors(env):
 
 
 # Default values should generally be immutable, that way if a user wants
-# to set them they have to do 
+# to set them they have to do a copy and write them to the environment.
+# try to keep this sorted.
+@lazyobject
+def DEFAULT_VALUES():
+    dv = {
+        "AUTO_CD": False,
+        "AUTO_PUSHD": False,
+        "AUTO_SUGGEST": True,
+        "AUTO_SUGGEST_IN_COMPLETIONS": False,
+        "BASH_COMPLETIONS": BASH_COMPLETIONS_DEFAULT,
+        "CASE_SENSITIVE_COMPLETIONS": ON_LINUX,
+        "CDPATH": (),
+        "COLOR_INPUT": True,
+        "COLOR_RESULTS": False,
+        "COMPLETIONS_BRACKETS": True,
+        "COMPLETIONS_CONFIRM": False,
+        "COMPLETIONS_DISPLAY": "single",
+        "COMPLETIONS_MENU_ROWS": 5,
+        "COMPLETION_QUERY_LIMIT": 100,
+        "DIRSTACK_SIZE": 20,
+        "DOTGLOB": False,
+        "DYNAMIC_CWD_WIDTH": (float("inf"), "c"),
+        "DYNAMIC_CWD_ELISION_CHAR": "",
+        "EXPAND_ENV_VARS": True,
+        "FORCE_POSIX_PATHS": False,
+        "FOREIGN_ALIASES_SUPPRESS_SKIP_MESSAGE": False,
+        "FOREIGN_ALIASES_OVERRIDE": False,
+        "PROMPT_FIELDS": dict(prompt.PROMPT_FIELDS),
+        "FUZZY_PATH_COMPLETION": True,
+        "GLOB_SORTED": True,
+        "HISTCONTROL": set(),
+        "IGNORE
