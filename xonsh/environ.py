@@ -843,4 +843,26 @@ def DEFAULT_DOCS():
                 "But, on Mac it is:\n\n"
                 "    ``('/usr/local/share/bash-completion/bash_completion', "
                 "'/usr/local/etc/bash_completion')``\n\n"
-                "Other 
+                "Other OS-specific defaults may be added in the future."
+            ),
+        ),
+        "CASE_SENSITIVE_COMPLETIONS": VarDocs(
+            "Sets whether completions should be case sensitive or case " "insensitive.",
+            default="True on Linux, False otherwise.",
+        ),
+        "CDPATH": VarDocs(
+            "A list of paths to be used as roots for a cd, breaking compatibility "
+            "with Bash, xonsh always prefer an existing relative path."
+        ),
+        "COLOR_INPUT": VarDocs("Flag for syntax highlighting interactive input."),
+        "COLOR_RESULTS": VarDocs("Flag for syntax highlighting return values."),
+        "COMPLETIONS_BRACKETS": VarDocs(
+            "Flag to enable/disable inclusion of square brackets and parentheses "
+            "in Python attribute completions.",
+            default="True",
+        ),
+        "COMPLETIONS_DISPLAY": VarDocs(
+            "Configure if and how Python completions are displayed by the "
+            "``prompt_toolkit`` shell.\n\nThis option does not affect Bash "
+            "completions, auto-suggestions, etc.\n\nChanging it at runtime will "
+            "take immediate effect, so
