@@ -823,4 +823,24 @@ def DEFAULT_DOCS():
             "displayed suggestion. Only usable with ``$SHELL_TYPE=prompt_toolkit.``"
         ),
         "AUTO_SUGGEST_IN_COMPLETIONS": VarDocs(
-            "Places the auto-suggest re
+            "Places the auto-suggest result as the first option in the completions. "
+            "This enables you to tab complete the auto-suggestion."
+        ),
+        "BASH_COMPLETIONS": VarDocs(
+            "This is a list (or tuple) of strings that specifies where the "
+            "``bash_completion`` script may be found. "
+            "The first valid path will be used. For better performance, "
+            "bash-completion v2.x is recommended since it lazy-loads individual "
+            "completion scripts. "
+            "For both bash-completion v1.x and v2.x, paths of individual completion "
+            "scripts (like ``.../completes/ssh``) do not need to be included here. "
+            "The default values are platform "
+            "dependent, but sane. To specify an alternate list, do so in the run "
+            "control file.",
+            default=(
+                "Normally this is:\n\n"
+                "    ``('/usr/share/bash-completion/bash_completion', )``\n\n"
+                "But, on Mac it is:\n\n"
+                "    ``('/usr/local/share/bash-completion/bash_completion', "
+                "'/usr/local/etc/bash_completion')``\n\n"
+                "Other 
