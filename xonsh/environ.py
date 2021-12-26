@@ -865,4 +865,24 @@ def DEFAULT_DOCS():
             "Configure if and how Python completions are displayed by the "
             "``prompt_toolkit`` shell.\n\nThis option does not affect Bash "
             "completions, auto-suggestions, etc.\n\nChanging it at runtime will "
-            "take immediate effect, so
+            "take immediate effect, so you can quickly disable and enable "
+            "completions during shell sessions.\n\n"
+            "- If ``$COMPLETIONS_DISPLAY`` is ``none`` or ``false``, do not display\n"
+            "  those completions.\n"
+            "- If ``$COMPLETIONS_DISPLAY`` is ``single``, display completions in a\n"
+            "  single column while typing.\n"
+            "- If ``$COMPLETIONS_DISPLAY`` is ``multi`` or ``true``, display completions\n"
+            "  in multiple columns while typing.\n\n"
+            "- If ``$COMPLETIONS_DISPLAY`` is ``readline``, display completions\n"
+            "  will emulate the behavior of readline.\n\n"
+            "These option values are not case- or type-sensitive, so e.g."
+            "writing ``$COMPLETIONS_DISPLAY = None`` "
+            "and ``$COMPLETIONS_DISPLAY = 'none'`` are equivalent. Only usable with "
+            "``$SHELL_TYPE=prompt_toolkit``"
+        ),
+        "COMPLETIONS_CONFIRM": VarDocs(
+            "While tab-completions menu is displayed, press <Enter> to confirm "
+            "completion instead of running command. This only affects the "
+            "prompt-toolkit shell."
+        ),
+        "COMPLETIONS_MENU_ROWS": Var
