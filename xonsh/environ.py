@@ -885,4 +885,31 @@ def DEFAULT_DOCS():
             "completion instead of running command. This only affects the "
             "prompt-toolkit shell."
         ),
-        "COMPLETIONS_MENU_ROWS": Var
+        "COMPLETIONS_MENU_ROWS": VarDocs(
+            "Number of rows to reserve for tab-completions menu if "
+            "``$COMPLETIONS_DISPLAY`` is ``single`` or ``multi``. This only affects the "
+            "prompt-toolkit shell."
+        ),
+        "COMPLETION_QUERY_LIMIT": VarDocs(
+            "The number of completions to display before the user is asked "
+            "for confirmation."
+        ),
+        "DIRSTACK_SIZE": VarDocs("Maximum size of the directory stack."),
+        "DOTGLOB": VarDocs(
+            'Globbing files with "*" or "**" will also match '
+            "dotfiles, or those 'hidden' files whose names "
+            "begin with a literal '.'. Such files are filtered "
+            "out by default."
+        ),
+        "DYNAMIC_CWD_WIDTH": VarDocs(
+            "Maximum length in number of characters "
+            "or as a percentage for the ``cwd`` prompt variable. For example, "
+            '"20" is a twenty character width and "10%" is ten percent of the '
+            "number of columns available."
+        ),
+        "DYNAMIC_CWD_ELISION_CHAR": VarDocs(
+            "The string used to show a shortened directory in a shortened cwd, "
+            "e.g. ``'…'``."
+        ),
+        "EXPAND_ENV_VARS": VarDocs(
+            "Toggles
