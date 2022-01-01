@@ -912,4 +912,26 @@ def DEFAULT_DOCS():
             "e.g. ``'…'``."
         ),
         "EXPAND_ENV_VARS": VarDocs(
-            "Toggles
+            "Toggles whether environment variables are expanded inside of strings "
+            "in subprocess mode."
+        ),
+        "FORCE_POSIX_PATHS": VarDocs(
+            "Forces forward slashes (``/``) on Windows systems when using auto "
+            "completion if set to anything truthy.",
+            configurable=ON_WINDOWS,
+        ),
+        "FOREIGN_ALIASES_SUPPRESS_SKIP_MESSAGE": VarDocs(
+            "Whether or not foreign aliases should suppress the message "
+            "that informs the user when a foreign alias has been skipped "
+            "because it already exists in xonsh.",
+            configurable=True,
+        ),
+        "FOREIGN_ALIASES_OVERRIDE": VarDocs(
+            "Whether or not foreign aliases should override xonsh aliases "
+            "with the same name. Note that setting of this must happen in the "
+            "environment that xonsh was started from. "
+            "It cannot be set in the ``.xonshrc`` as loading of foreign aliases happens before"
+            "``.xonshrc`` is parsed",
+            configurable=True,
+        ),
+        "PROMPT_FIELDS": Va
