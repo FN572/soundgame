@@ -934,4 +934,25 @@ def DEFAULT_DOCS():
             "``.xonshrc`` is parsed",
             configurable=True,
         ),
-        "PROMPT_FIELDS": Va
+        "PROMPT_FIELDS": VarDocs(
+            "Dictionary containing variables to be used when formatting $PROMPT "
+            "and $TITLE. See 'Customizing the Prompt' "
+            "http://xon.sh/tutorial.html#customizing-the-prompt",
+            configurable=False,
+            default="``xonsh.prompt.PROMPT_FIELDS``",
+        ),
+        "FUZZY_PATH_COMPLETION": VarDocs(
+            "Toggles 'fuzzy' matching of paths for tab completion, which is only "
+            "used as a fallback if no other completions succeed but can be used "
+            "as a way to adjust for typographical errors. If ``True``, then, e.g.,"
+            " ``xonhs`` will match ``xonsh``."
+        ),
+        "GLOB_SORTED": VarDocs(
+            "Toggles whether globbing results are manually sorted. If ``False``, "
+            "the results are returned in arbitrary order."
+        ),
+        "HISTCONTROL": VarDocs(
+            "A set of strings (comma-separated list in string form) of options "
+            "that determine what commands are saved to the history list. By "
+            "default all commands are saved. The option ``ignoredups`` will not "
+            "save the command if it matches the previous com
