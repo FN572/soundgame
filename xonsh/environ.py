@@ -955,4 +955,25 @@ def DEFAULT_DOCS():
             "A set of strings (comma-separated list in string form) of options "
             "that determine what commands are saved to the history list. By "
             "default all commands are saved. The option ``ignoredups`` will not "
-            "save the command if it matches the previous com
+            "save the command if it matches the previous command. The option "
+            "'ignoreerr' will cause any commands that fail (i.e. return non-zero "
+            "exit status) to not be added to the history list.",
+            store_as_str=True,
+        ),
+        "IGNOREEOF": VarDocs("Prevents Ctrl-D from exiting the shell."),
+        "INDENT": VarDocs("Indentation string for multiline input"),
+        "INTENSIFY_COLORS_ON_WIN": VarDocs(
+            "Enhance style colors for readability "
+            "when using the default terminal (``cmd.exe``) on Windows. Blue colors, "
+            "which are hard to read, are replaced with cyan. Other colors are "
+            "generally replaced by their bright counter parts.",
+            configurable=ON_WINDOWS,
+        ),
+        "LANG": VarDocs("Fallback locale setting for systems where it matters"),
+        "LS_COLORS": VarDocs("Color settings for ``ls`` command line utility"),
+        "LOADED_RC_FILES": VarDocs(
+            "Whether or not any of the xonsh run control files were loaded at "
+            "startup. This is a sequence of bools in Python that is converted "
+            "to a CSV list in string form, ie ``[True, False]`` becomes "
+            "``'True,False'``.",
+            confi
