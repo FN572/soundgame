@@ -1023,4 +1023,25 @@ def DEFAULT_DOCS():
         ),
         "RAISE_SUBPROC_ERROR": VarDocs(
             "Whether or not to raise an error if a subprocess (captured or "
-            "uncaptured) returns a non-zero exit status, which ind
+            "uncaptured) returns a non-zero exit status, which indicates failure. "
+            "This is most useful in xonsh scripts or modules where failures "
+            "should cause an end to execution. This is less useful at a terminal. "
+            "The error that is raised is a ``subprocess.CalledProcessError``."
+        ),
+        "RIGHT_PROMPT": VarDocs(
+            "Template string for right-aligned text "
+            "at the prompt. This may be parametrized in the same way as "
+            "the ``$PROMPT`` variable. Currently, this is only available in the "
+            "prompt-toolkit shell."
+        ),
+        "BOTTOM_TOOLBAR": VarDocs(
+            "Template string for the bottom toolbar. "
+            "This may be parametrized in the same way as "
+            "the ``$PROMPT`` variable. Currently, this is only available in the "
+            "prompt-toolkit shell."
+        ),
+        "SHELL_TYPE": VarDocs(
+            "Which shell is used. Currently two base shell types are supported:\n\n"
+            "    - ``readline`` that is backed by Python's readline module\n"
+            "    - ``prompt_toolkit`` that uses external library of the same name\n"
+            "    - ``random`` selects a random sh
