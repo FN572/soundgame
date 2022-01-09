@@ -1001,4 +1001,26 @@ def DEFAULT_DOCS():
         ),
         "PRETTY_PRINT_RESULTS": VarDocs('Flag for "pretty printing" return values.'),
         "PROMPT": VarDocs(
-            "The prompt text. May contain keyword arguments which 
+            "The prompt text. May contain keyword arguments which are "
+            "auto-formatted, see 'Customizing the Prompt' at "
+            "http://xon.sh/tutorial.html#customizing-the-prompt. "
+            "This value is never inherited from parent processes.",
+            default="``xonsh.environ.DEFAULT_PROMPT``",
+        ),
+        "PROMPT_TOOLKIT_COLOR_DEPTH": VarDocs(
+            "The color depth used by prompt toolkit 2. Possible values are: "
+            "``DEPTH_1_BIT``, ``DEPTH_4_BIT``, ``DEPTH_8_BIT``, ``DEPTH_24_BIT`` "
+            "colors. Default is an empty string which means that prompt toolkit decide."
+        ),
+        "PTK_STYLE_OVERRIDES": VarDocs(
+            "A dictionary containing custom prompt_toolkit style definitions."
+        ),
+        "PUSHD_MINUS": VarDocs(
+            "Flag for directory pushing functionality. False is the normal " "behavior."
+        ),
+        "PUSHD_SILENT": VarDocs(
+            "Whether or not to suppress directory stack manipulation output."
+        ),
+        "RAISE_SUBPROC_ERROR": VarDocs(
+            "Whether or not to raise an error if a subprocess (captured or "
+            "uncaptured) returns a non-zero exit status, which ind
