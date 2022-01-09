@@ -976,4 +976,29 @@ def DEFAULT_DOCS():
             "startup. This is a sequence of bools in Python that is converted "
             "to a CSV list in string form, ie ``[True, False]`` becomes "
             "``'True,False'``.",
-            confi
+            configurable=False,
+        ),
+        "MOUSE_SUPPORT": VarDocs(
+            "Enable mouse support in the ``prompt_toolkit`` shell. This allows "
+            "clicking for positioning the cursor or selecting a completion. In "
+            "some terminals however, this disables the ability to scroll back "
+            "through the history of the terminal. Only usable with "
+            "``$SHELL_TYPE=prompt_toolkit``"
+        ),
+        "MULTILINE_PROMPT": VarDocs(
+            "Prompt text for 2nd+ lines of input, may be str or function which "
+            "returns a str."
+        ),
+        "OLDPWD": VarDocs(
+            "Used to represent a previous present working directory.",
+            configurable=False,
+        ),
+        "PATH": VarDocs("List of strings representing where to look for executables."),
+        "PATHEXT": VarDocs(
+            "Sequence of extension strings (eg, ``.EXE``) for "
+            "filtering valid executables by. Each element must be "
+            "uppercase."
+        ),
+        "PRETTY_PRINT_RESULTS": VarDocs('Flag for "pretty printing" return values.'),
+        "PROMPT": VarDocs(
+            "The prompt text. May contain keyword arguments which 
