@@ -1067,4 +1067,23 @@ def DEFAULT_DOCS():
             "suggestions are shown."
         ),
         "SUGGEST_THRESHOLD": VarDocs(
-      
+            "An error threshold. If the Levenshtein distance between the entered "
+            "command and a valid command is less than this value, the valid "
+            'command will be offered as a suggestion.  Also used for "fuzzy" '
+            "tab completion of paths."
+        ),
+        "SUPPRESS_BRANCH_TIMEOUT_MESSAGE": VarDocs(
+            "Whether or not to suppress branch timeout warning messages."
+        ),
+        "TERM": VarDocs(
+            "TERM is sometimes set by the terminal emulator. This is used (when "
+            "valid) to determine whether or not to set the title. Users shouldn't "
+            "need to set this themselves. Note that this variable should be set as "
+            "early as possible in order to ensure it is effective. Here are a few "
+            "options:\n\n"
+            "* Set this from the program that launches xonsh. On POSIX systems, \n"
+            "  this can be performed by using env, e.g. \n"
+            "  ``/usr/bin/env TERM=xterm-color xonsh`` or similar.\n"
+            "* From the xonsh command line, namely ``xonsh -DTERM=xterm-color``.\n"
+            '* In the config file with ``{"env": {"TERM": "xterm-color"}}``.\n'
+         
