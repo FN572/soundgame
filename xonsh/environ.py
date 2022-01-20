@@ -1086,4 +1086,25 @@ def DEFAULT_DOCS():
             "  ``/usr/bin/env TERM=xterm-color xonsh`` or similar.\n"
             "* From the xonsh command line, namely ``xonsh -DTERM=xterm-color``.\n"
             '* In the config file with ``{"env": {"TERM": "xterm-color"}}``.\n'
-         
+            "* Lastly, in xonshrc with ``$TERM``\n\n"
+            "Ideally, your terminal emulator will set this correctly but that does "
+            "not always happen.",
+            configurable=False,
+        ),
+        "TITLE": VarDocs(
+            "The title text for the window in which xonsh is running. Formatted "
+            "in the same manner as ``$PROMPT``, see 'Customizing the Prompt' "
+            "http://xon.sh/tutorial.html#customizing-the-prompt.",
+            default="``xonsh.environ.DEFAULT_TITLE``",
+        ),
+        "UPDATE_COMPLETIONS_ON_KEYPRESS": VarDocs(
+            "Completions display is evaluated and presented whenever a key is "
+            "pressed. This avoids the need to press TAB, except to cycle through "
+            "the possibilities. This currently only affects the prompt-toolkit shell."
+        ),
+        "UPDATE_OS_ENVIRON": VarDocs(
+            "If True ``os_environ`` will always be updated "
+            "when the xonsh environment changes. The environment can be reset to "
+            "the default value by calling ``__xonsh__.env.undo_replace_env()``"
+        ),
+        "UPDATE_PROMPT_ON_KEYPRESS": Var
