@@ -1107,4 +1107,29 @@ def DEFAULT_DOCS():
             "when the xonsh environment changes. The environment can be reset to "
             "the default value by calling ``__xonsh__.env.undo_replace_env()``"
         ),
-        "UPDATE_PROMPT_ON_KEYPRESS": Var
+        "UPDATE_PROMPT_ON_KEYPRESS": VarDocs(
+            "Disables caching the prompt between commands, "
+            "so that it would be reevaluated on each keypress. "
+            "Disabled by default because of the incurred performance penalty."
+        ),
+        "VC_BRANCH_TIMEOUT": VarDocs(
+            "The timeout (in seconds) for version control "
+            "branch computations. This is a timeout per subprocess call, so the "
+            "total time to compute will be larger than this in many cases."
+        ),
+        "VC_HG_SHOW_BRANCH": VarDocs(
+            "Whether or not to show the Mercurial branch in the prompt."
+        ),
+        "VI_MODE": VarDocs(
+            "Flag to enable ``vi_mode`` in the ``prompt_toolkit`` shell."
+        ),
+        "VIRTUAL_ENV": VarDocs(
+            "Path to the currently active Python environment.", configurable=False
+        ),
+        "WIN_UNICODE_CONSOLE": VarDocs(
+            "Enables unicode support in windows terminals. Requires the external "
+            "library ``win_unicode_console``.",
+            configurable=ON_WINDOWS,
+        ),
+        "XDG_CONFIG_HOME": VarDocs(
+            "Open
