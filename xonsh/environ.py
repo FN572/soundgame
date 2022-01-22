@@ -1132,4 +1132,28 @@ def DEFAULT_DOCS():
             configurable=ON_WINDOWS,
         ),
         "XDG_CONFIG_HOME": VarDocs(
-            "Open
+            "Open desktop standard configuration home dir. This is the same "
+            "default as used in the standard.",
+            configurable=False,
+            default="``~/.config``",
+        ),
+        "XDG_DATA_HOME": VarDocs(
+            "Open desktop standard data home dir. This is the same default as "
+            "used in the standard.",
+            default="``~/.local/share``",
+        ),
+        "XONSHRC": VarDocs(
+            "A list of the locations of run control files, if they exist.  User "
+            "defined run control file will supersede values set in system-wide "
+            "control file if there is a naming collision.",
+            default=(
+                "On Linux & Mac OSX: ``['/etc/xonshrc', '~/.config/xonsh/rc.xsh', '~/.xonshrc']``\n"
+                "\nOn Windows: "
+                "``['%ALLUSERSPROFILE%\\\\xonsh\\\\xonshrc', '~/.config/xonsh/rc.xsh', '~/.xonshrc']``"
+            ),
+        ),
+        "XONSH_APPEND_NEWLINE": VarDocs(
+            "Append new line when a partial line is preserved in output."
+        ),
+        "XONSH_AUTOPAIR": VarDocs(
+            "Whether Xonsh will auto-insert matching parentheses, brackets
