@@ -1201,4 +1201,25 @@ def DEFAULT_DOCS():
             "(https://docs.python.org/3/library/codecs.html#error-handlers) "
             "for more information and available options.",
             default="``surrogateescape``",
-    
+        ),
+        "XONSH_GITSTATUS_*": VarDocs(
+            "Symbols for gitstatus prompt. Default values are: \n\n"
+            "* ``XONSH_GITSTATUS_HASH``: ``:``\n"
+            "* ``XONSH_GITSTATUS_BRANCH``: ``{CYAN}``\n"
+            "* ``XONSH_GITSTATUS_OPERATION``: ``{CYAN}``\n"
+            "* ``XONSH_GITSTATUS_STAGED``: ``{RED}●``\n"
+            "* ``XONSH_GITSTATUS_CONFLICTS``: ``{RED}×``\n"
+            "* ``XONSH_GITSTATUS_CHANGED``: ``{BLUE}+``\n"
+            "* ``XONSH_GITSTATUS_UNTRACKED``: ``…``\n"
+            "* ``XONSH_GITSTATUS_STASHED``: ``⚑``\n"
+            "* ``XONSH_GITSTATUS_CLEAN``: ``{BOLD_GREEN}✓``\n"
+            "* ``XONSH_GITSTATUS_AHEAD``: ``↑·``\n"
+            "* ``XONSH_GITSTATUS_BEHIND``: ``↓·``\n"
+        ),
+        "XONSH_HISTORY_BACKEND": VarDocs(
+            "Set which history backend to use. Options are: 'json', "
+            "'sqlite', and 'dummy'. The default is 'json'. "
+            "``XONSH_HISTORY_BACKEND`` also accepts a class type that inherits "
+            "from ``xonsh.history.base.History``, or its instance."
+        ),
+        "XONSH_HISTORY_FILE": V
