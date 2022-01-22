@@ -1179,4 +1179,26 @@ def DEFAULT_DOCS():
         "XONSH_DEBUG": VarDocs(
             "Sets the xonsh debugging level. This may be an integer or a boolean. "
             "Setting this variable prior to stating xonsh to ``1`` or ``True`` "
-            "will suppres
+            "will suppress amalgamated imports. Setting it to ``2`` will get some "
+            "basic information like input transformation, command replacement. "
+            "With ``3`` or a higher number will make more debugging information "
+            "presented, like PLY parsing messages.",
+            configurable=False,
+        ),
+        "XONSH_DATA_DIR": VarDocs(
+            "This is the location where xonsh data files are stored, such as "
+            "history.",
+            default="``$XDG_DATA_HOME/xonsh``",
+        ),
+        "XONSH_ENCODING": VarDocs(
+            "This is the encoding that xonsh should use for subprocess operations.",
+            default="``sys.getdefaultencoding()``",
+        ),
+        "XONSH_ENCODING_ERRORS": VarDocs(
+            "The flag for how to handle encoding errors should they happen. "
+            "Any string flag that has been previously registered with Python "
+            "is allowed. See the 'Python codecs documentation' "
+            "(https://docs.python.org/3/library/codecs.html#error-handlers) "
+            "for more information and available options.",
+            default="``surrogateescape``",
+    
