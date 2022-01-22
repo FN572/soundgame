@@ -1156,4 +1156,27 @@ def DEFAULT_DOCS():
             "Append new line when a partial line is preserved in output."
         ),
         "XONSH_AUTOPAIR": VarDocs(
-            "Whether Xonsh will auto-insert matching parentheses, brackets
+            "Whether Xonsh will auto-insert matching parentheses, brackets, and "
+            "quotes. Only available under the prompt-toolkit shell."
+        ),
+        "XONSH_CACHE_SCRIPTS": VarDocs(
+            "Controls whether the code for scripts run from xonsh will be cached"
+            " (``True``) or re-compiled each time (``False``)."
+        ),
+        "XONSH_CACHE_EVERYTHING": VarDocs(
+            "Controls whether all code (including code entered at the interactive"
+            " prompt) will be cached."
+        ),
+        "XONSH_COLOR_STYLE": VarDocs(
+            "Sets the color style for xonsh colors. This is a style name, not "
+            "a color map. Run ``xonfig styles`` to see the available styles."
+        ),
+        "XONSH_CONFIG_DIR": VarDocs(
+            "This is the location where xonsh configuration information is stored.",
+            configurable=False,
+            default="``$XDG_CONFIG_HOME/xonsh``",
+        ),
+        "XONSH_DEBUG": VarDocs(
+            "Sets the xonsh debugging level. This may be an integer or a boolean. "
+            "Setting this variable prior to stating xonsh to ``1`` or ``True`` "
+            "will suppres
