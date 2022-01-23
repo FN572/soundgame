@@ -1222,4 +1222,26 @@ def DEFAULT_DOCS():
             "``XONSH_HISTORY_BACKEND`` also accepts a class type that inherits "
             "from ``xonsh.history.base.History``, or its instance."
         ),
-        "XONSH_HISTORY_FILE": V
+        "XONSH_HISTORY_FILE": VarDocs(
+            "Location of history file (deprecated).",
+            configurable=False,
+            default="``~/.xonsh_history``",
+        ),
+        "XONSH_HISTORY_MATCH_ANYWHERE": VarDocs(
+            "When searching history from a partial string (by pressing up arrow), "
+            "match command history anywhere in a given line (not just the start)",
+            default="False",
+        ),
+        "XONSH_HISTORY_SIZE": VarDocs(
+            "Value and units tuple that sets the size of history after garbage "
+            "collection. Canonical units are:\n\n"
+            "- ``commands`` for the number of past commands executed,\n"
+            "- ``files`` for the number of history files to keep,\n"
+            "- ``s`` for the number of seconds in the past that are allowed, and\n"
+            "- ``b`` for the number of bytes that history may consume.\n\n"
+            "Common abbreviations, such as '6 months' or '1 GB' are also allowed.",
+            default="``(8128, 'commands')`` or ``'8128 commands'``",
+        ),
+        "XONSH_INTERACTIVE": VarDocs(
+            "``True`` if xonsh is running interactively, and ``False`` otherwise.",
+            confi
