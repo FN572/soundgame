@@ -1268,4 +1268,25 @@ def DEFAULT_DOCS():
         ),
         "XONSH_STDERR_PREFIX": VarDocs(
             "A format string, using the same keys and colors as ``$PROMPT``, that "
-            "is prepended whenever stderr 
+            "is prepended whenever stderr is displayed. This may be used in "
+            "conjunction with ``$XONSH_STDERR_POSTFIX`` to close out the block."
+            "For example, to have stderr appear on a red background, the "
+            'prefix & postfix pair would be "{BACKGROUND_RED}" & "{NO_COLOR}".'
+        ),
+        "XONSH_STDERR_POSTFIX": VarDocs(
+            "A format string, using the same keys and colors as ``$PROMPT``, that "
+            "is appended whenever stderr is displayed. This may be used in "
+            "conjunction with ``$XONSH_STDERR_PREFIX`` to start the block."
+            "For example, to have stderr appear on a red background, the "
+            'prefix & postfix pair would be "{BACKGROUND_RED}" & "{NO_COLOR}".'
+        ),
+        "XONSH_STORE_STDIN": VarDocs(
+            "Whether or not to store the stdin that is supplied to the "
+            "``!()`` and ``![]`` operators."
+        ),
+        "XONSH_STORE_STDOUT": VarDocs(
+            "Whether or not to store the ``stdout`` and ``stderr`` streams in the "
+            "history files."
+        ),
+        "XONSH_TRACEBACK_LOGFILE": VarDocs(
+            "Specifies a file to store the traceback log to, regardl
