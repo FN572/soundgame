@@ -1244,4 +1244,28 @@ def DEFAULT_DOCS():
         ),
         "XONSH_INTERACTIVE": VarDocs(
             "``True`` if xonsh is running interactively, and ``False`` otherwise.",
-            confi
+            configurable=False,
+        ),
+        "XONSH_LOGIN": VarDocs(
+            "``True`` if xonsh is running as a login shell, and ``False`` otherwise.",
+            configurable=False,
+        ),
+        "XONSH_PROC_FREQUENCY": VarDocs(
+            "The process frequency is the time that "
+            "xonsh process threads sleep for while running command pipelines. "
+            "The value has units of seconds [s]."
+        ),
+        "XONSH_SHOW_TRACEBACK": VarDocs(
+            "Controls if a traceback is shown if exceptions occur in the shell. "
+            "Set to ``True`` to always show traceback or ``False`` to always hide. "
+            "If undefined then the traceback is hidden but a notice is shown on how "
+            "to enable the full traceback."
+        ),
+        "XONSH_SOURCE": VarDocs(
+            "When running a xonsh script, this variable contains the absolute path "
+            "to the currently executing script's file.",
+            configurable=False,
+        ),
+        "XONSH_STDERR_PREFIX": VarDocs(
+            "A format string, using the same keys and colors as ``$PROMPT``, that "
+            "is prepended whenever stderr 
