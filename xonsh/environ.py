@@ -1289,4 +1289,38 @@ def DEFAULT_DOCS():
             "history files."
         ),
         "XONSH_TRACEBACK_LOGFILE": VarDocs(
-            "Specifies a file to store the traceback log to, regardl
+            "Specifies a file to store the traceback log to, regardless of whether "
+            "``XONSH_SHOW_TRACEBACK`` has been set. Its value must be a writable file "
+            "or None / the empty string if traceback logging is not desired. "
+            "Logging to a file is not enabled by default."
+        ),
+        "XONSH_DATETIME_FORMAT": VarDocs(
+            "The format that is used for ``datetime.strptime()`` in various places"
+            "i.e the history timestamp option"
+        ),
+    }
+
+
+#
+# actual environment
+#
+
+
+class Env(cabc.MutableMapping):
+    """A xonsh environment, whose variables have limited typing
+    (unlike BASH). Most variables are, by default, strings (like BASH).
+    However, the following rules also apply based on variable-name:
+
+    * PATH: any variable whose name ends in PATH is a list of strings.
+    * XONSH_HISTORY_SIZE: this variable is an (int | float, str) tuple.
+    * LC_* (locale categories): locale category names get/set the Python
+      locale via locale.getlocale() and locale.setlocale() functions.
+
+    An Env instance may be converted to an untyped version suitable for
+    use in a subprocess.
+    """
+
+    _arg_regex = None
+
+    def __init__(self, *args, **kwargs):
+        """If no initial environment is give
