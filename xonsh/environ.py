@@ -1323,4 +1323,33 @@ class Env(cabc.MutableMapping):
     _arg_regex = None
 
     def __init__(self, *args, **kwargs):
-        """If no initial environment is give
+        """If no initial environment is given, os_environ is used."""
+        self._d = {}
+        # sentinel value for non existing envvars
+        self._no_value = object()
+        self._orig_env = None
+        self._ensurers = {k: Ensurer(*v) for k, v in DEFAULT_ENSURERS.items()}
+        self._defaults = DEFAULT_VALUES
+        self._docs = DEFAULT_DOCS
+        if len(args) == 0 and len(kwargs) == 0:
+            args = (os_environ,)
+        for key, val in dict(*args, **kwargs).items():
+            self[key] = val
+        if ON_WINDOWS:
+            path_key = next((k for k in self._d if k.upper() == "PATH"), None)
+            if path_key:
+                self["PATH"] = self._d.pop(path_key)
+        if "PATH" not in self._d:
+            # this is here so the PATH is accessible to subprocs and so that
+            # it can be modified in-place in the xonshrc file
+            self._d["PATH"] = list(PATH_DEFAULT)
+        self._detyped = None
+
+    def detype(self):
+        if self._detyped is not None:
+            return self._detyped
+        ctx = {}
+        for key, val in self._d.items():
+            if not isinstance(key, str):
+                key = str(key)
+            
