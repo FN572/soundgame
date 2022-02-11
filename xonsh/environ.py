@@ -1352,4 +1352,41 @@ class Env(cabc.MutableMapping):
         for key, val in self._d.items():
             if not isinstance(key, str):
                 key = str(key)
-            
+            ensurer = self.get_ensurer(key)
+            if ensurer.detype is None:
+                # cannot be detyped
+                continue
+            deval = ensurer.detype(val)
+            if deval is None:
+                # cannot be detyped
+                continue
+            ctx[key] = deval
+        self._detyped = ctx
+        return ctx
+
+    def replace_env(self):
+        """Replaces the contents of os_environ with a detyped version
+        of the xonsh environment.
+        """
+        if self._orig_env is None:
+            self._orig_env = dict(os_environ)
+        os_environ.clear()
+        os_environ.update(self.detype())
+
+    def undo_replace_env(self):
+        """Replaces the contents of os_environ with a detyped version
+        of the xonsh environment.
+        """
+        if self._orig_env is not None:
+            os_environ.clear()
+            os_environ.update(self._orig_env)
+            self._orig_env = None
+
+    def _get_default_ensurer(self, default=None):
+        if default is not None:
+            return default
+        else:
+            default = Ensurer(always_true, None, ensure_string)
+        return default
+
+    def get_ensurer(self
