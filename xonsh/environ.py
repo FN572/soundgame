@@ -1389,4 +1389,37 @@ class Env(cabc.MutableMapping):
             default = Ensurer(always_true, None, ensure_string)
         return default
 
-    def get_ensurer(self
+    def get_ensurer(self, key, default=None):
+        """Gets an ensurer for the given key."""
+        if key in self._ensurers:
+            return self._ensurers[key]
+        for k, ensurer in self._ensurers.items():
+            if isinstance(k, str):
+                continue
+            if k.match(key) is not None:
+                break
+        else:
+            ensurer = self._get_default_ensurer(default=default)
+        self._ensurers[key] = ensurer
+        return ensurer
+
+    def set_ensurer(self, key, value):
+        """Sets an ensurer."""
+        self._detyped = None
+        self._ensurers[key] = value
+
+    def get_docs(self, key, default=VarDocs("<no documentation>")):
+        """Gets the documentation for the environment variable."""
+        vd = self._docs.get(key, None)
+        if vd is None:
+            return default
+        if vd.default is DefaultNotGiven:
+            dval = pprint.pformat(self._defaults.get(key, "<default not set>"))
+            vd = vd._replace(default=dval)
+            self._docs[key] = vd
+        return vd
+
+    def help(self, key):
+        """Get information about a specific environment variable."""
+        vardocs = self.get_docs(key)
+        width =
