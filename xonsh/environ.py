@@ -1422,4 +1422,35 @@ class Env(cabc.MutableMapping):
     def help(self, key):
         """Get information about a specific environment variable."""
         vardocs = self.get_docs(key)
-        width =
+        width = min(79, os.get_terminal_size()[0])
+        docstr = "\n".join(textwrap.wrap(vardocs.docstr, width=width))
+        template = HELP_TEMPLATE.format(
+            envvar=key,
+            docstr=docstr,
+            default=vardocs.default,
+            configurable=vardocs.configurable,
+        )
+        print_color(template)
+
+    def is_manually_set(self, varname):
+        """
+        Checks if an environment variable has been manually set.
+        """
+        return varname in self._d
+
+    @contextlib.contextmanager
+    def swap(self, other=None, **kwargs):
+        """Provides a context manager for temporarily swapping out certain
+        environment variables with other values. On exit from the context
+        manager, the original values are restored.
+        """
+        old = {}
+        # single positional argument should be a dict-like object
+        if other is not None:
+            for k, v in other.items():
+                old[k] = self.get(k, NotImplemented)
+                self[k] = v
+        # kwargs could also have been sent in
+        for k, v in kwargs.items():
+            old[k] = self.get(k, NotImplemented)
+            self[k] = 
