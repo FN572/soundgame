@@ -1453,4 +1453,45 @@ class Env(cabc.MutableMapping):
         # kwargs could also have been sent in
         for k, v in kwargs.items():
             old[k] = self.get(k, NotImplemented)
-            self[k] = 
+            self[k] = v
+
+        exception = None
+        try:
+            yield self
+        except Exception as e:
+            exception = e
+        finally:
+            # restore the values
+            for k, v in old.items():
+                if v is NotImplemented:
+                    del self[k]
+                else:
+                    self[k] = v
+            if exception is not None:
+                raise exception from None
+
+    #
+    # Mutable mapping interface
+    #
+
+    def __getitem__(self, key):
+        # remove this block on next release
+        if key is Ellipsis:
+            return self
+        elif key in self._d:
+            val = self._d[key]
+        elif key in self._defaults:
+            val = self._defaults[key]
+            if is_callable_default(val):
+                val = val(self)
+        else:
+            e = "Unknown environment variable: ${}"
+            raise KeyError(e.format(key))
+        if isinstance(
+            val, (cabc.MutableSet, cabc.MutableSequence, cabc.MutableMapping)
+        ):
+            self._detyped = None
+        return val
+
+    def __setitem__(self, key, val):
+        ensure
