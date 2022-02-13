@@ -1494,4 +1494,33 @@ class Env(cabc.MutableMapping):
         return val
 
     def __setitem__(self, key, val):
-        ensure
+        ensurer = self.get_ensurer(key)
+        if not ensurer.validate(val):
+            val = ensurer.convert(val)
+        # existing envvars can have any value including None
+        old_value = self._d[key] if key in self._d else self._no_value
+        self._d[key] = val
+        self._detyped = None
+        if self.get("UPDATE_OS_ENVIRON"):
+            if self._orig_env is None:
+                self.replace_env()
+            elif ensurer.detype is None:
+                pass
+            else:
+                deval = ensurer.detype(val)
+                if deval is not None:
+                    os_environ[key] = deval
+        if old_value is self._no_value:
+            events.on_envvar_new.fire(name=key, value=val)
+        elif old_value != val:
+            events.on_envvar_change.fire(name=key, oldvalue=old_value, newvalue=val)
+
+    def __delitem__(self, key):
+        del self._d[key]
+        self._detyped = None
+        if self.get("UPDATE_OS_ENVIRON") and key in os_environ:
+            del os_environ[key]
+
+    def get(self, key, default=None):
+        """The environment will look up default values from its own defaults if a
+        default i
