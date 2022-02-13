@@ -1563,4 +1563,45 @@ def _yield_executables(directory, name):
         for fname in executables_in(directory):
             fbase, fext = os.path.splitext(fname.lower())
             if base_name == fbase and (len(ext) == 0 or ext == fext):
-                yield os.path.join(d
+                yield os.path.join(directory, fname)
+    else:
+        for x in executables_in(directory):
+            if x == name:
+                yield os.path.join(directory, name)
+                return
+
+
+def locate_binary(name):
+    """Locates an executable on the file system."""
+    return builtins.__xonsh__.commands_cache.locate_binary(name)
+
+
+BASE_ENV = LazyObject(
+    lambda: {
+        "BASH_COMPLETIONS": list(DEFAULT_VALUES["BASH_COMPLETIONS"]),
+        "PROMPT_FIELDS": dict(DEFAULT_VALUES["PROMPT_FIELDS"]),
+        "XONSH_VERSION": XONSH_VERSION,
+    },
+    globals(),
+    "BASE_ENV",
+)
+
+
+def xonshrc_context(rcfiles=None, execer=None, ctx=None, env=None, login=True):
+    """Attempts to read in all xonshrc files and return the context."""
+    loaded = env["LOADED_RC_FILES"] = []
+    ctx = {} if ctx is None else ctx
+    if rcfiles is None:
+        return env
+    env["XONSHRC"] = tuple(rcfiles)
+    for rcfile in rcfiles:
+        if not os.path.isfile(rcfile):
+            loaded.append(False)
+            continue
+        _, ext = os.path.splitext(rcfile)
+        status = xonsh_script_run_control(rcfile, ctx, env, execer=execer, login=login)
+        loaded.append(status)
+    return ctx
+
+
+de
