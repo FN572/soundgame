@@ -1604,4 +1604,37 @@ def xonshrc_context(rcfiles=None, execer=None, ctx=None, env=None, login=True):
     return ctx
 
 
-de
+def windows_foreign_env_fixes(ctx):
+    """Environment fixes for Windows. Operates in-place."""
+    # remove these bash variables which only cause problems.
+    for ev in ["HOME", "OLDPWD"]:
+        if ev in ctx:
+            del ctx[ev]
+    # Override path-related bash variables; on Windows bash uses
+    # /c/Windows/System32 syntax instead of C:\\Windows\\System32
+    # which messes up these environment variables for xonsh.
+    for ev in ["PATH", "TEMP", "TMP"]:
+        if ev in os_environ:
+            ctx[ev] = os_environ[ev]
+        elif ev in ctx:
+            del ctx[ev]
+    ctx["PWD"] = _get_cwd() or ""
+
+
+def foreign_env_fixes(ctx):
+    """Environment fixes for all operating systems"""
+    if "PROMPT" in ctx:
+        del ctx["PROMPT"]
+
+
+def xonsh_script_run_control(filename, ctx, env, execer=None, login=True):
+    """Loads a xonsh file and applies it as a run control."""
+    if execer is None:
+        return False
+    updates = {"__file__": filename, "__name__": os.path.abspath(filename)}
+    try:
+        with swap_values(ctx, updates):
+            run_script_with_cache(filename, execer, ctx)
+        loaded = True
+    except SyntaxError as err:
+        msg = "sy
