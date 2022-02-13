@@ -1523,4 +1523,44 @@ class Env(cabc.MutableMapping):
 
     def get(self, key, default=None):
         """The environment will look up default values from its own defaults if a
-        default i
+        default is not given here.
+        """
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def __iter__(self):
+        yield from (set(self._d) | set(self._defaults))
+
+    def __contains__(self, item):
+        return item in self._d or item in self._defaults
+
+    def __len__(self):
+        return len(self._d)
+
+    def __str__(self):
+        return str(self._d)
+
+    def __repr__(self):
+        return "{0}.{1}(...)".format(
+            self.__class__.__module__, self.__class__.__name__, self._d
+        )
+
+    def _repr_pretty_(self, p, cycle):
+        name = "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
+        with p.group(0, name + "(", ")"):
+            if cycle:
+                p.text("...")
+            elif len(self):
+                p.break_()
+                p.pretty(dict(self))
+
+
+def _yield_executables(directory, name):
+    if ON_WINDOWS:
+        base_name, ext = os.path.splitext(name.lower())
+        for fname in executables_in(directory):
+            fbase, fext = os.path.splitext(fname.lower())
+            if base_name == fbase and (len(ext) == 0 or ext == fext):
+                yield os.path.join(d
