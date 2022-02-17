@@ -1674,4 +1674,5 @@ def make_args_env(args=None):
     if args is None:
         args = sys.argv
     env = {"ARG" + str(i): arg for i, arg in enumerate(args)}
-    env["ARGS"] = list(args)  # make a copy so we don't 
+    env["ARGS"] = list(args)  # make a copy so we don't interfere with original variable
+    return env
