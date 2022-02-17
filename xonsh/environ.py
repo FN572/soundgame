@@ -1637,4 +1637,41 @@ def xonsh_script_run_control(filename, ctx, env, execer=None, login=True):
             run_script_with_cache(filename, execer, ctx)
         loaded = True
     except SyntaxError as err:
-        msg = "sy
+        msg = "syntax error in xonsh run control file {0!r}: {1!s}"
+        print_exception(msg.format(filename, err))
+        loaded = False
+    except Exception as err:
+        msg = "error running xonsh run control file {0!r}: {1!s}"
+        print_exception(msg.format(filename, err))
+        loaded = False
+    return loaded
+
+
+def default_env(env=None):
+    """Constructs a default xonsh environment."""
+    # in order of increasing precedence
+    ctx = dict(BASE_ENV)
+    ctx.update(os_environ)
+    ctx["PWD"] = _get_cwd() or ""
+    # These can cause problems for programs (#2543)
+    ctx.pop("LINES", None)
+    ctx.pop("COLUMNS", None)
+    # other shells' PROMPT definitions generally don't work in XONSH:
+    try:
+        del ctx["PROMPT"]
+    except KeyError:
+        pass
+    # finalize env
+    if env is not None:
+        ctx.update(env)
+    return ctx
+
+
+def make_args_env(args=None):
+    """Makes a dictionary containing the $ARGS and $ARG<N> environment
+    variables. If the supplied ARGS is None, then sys.argv is used.
+    """
+    if args is None:
+        args = sys.argv
+    env = {"ARG" + str(i): arg for i, arg in enumerate(args)}
+    env["ARGS"] = list(args)  # make a copy so we don't 
