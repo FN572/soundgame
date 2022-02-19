@@ -45,4 +45,37 @@ class AbstractEvent(collections.abc.MutableSet, abc.ABC):
         """
         return type(self).__bases__[
             0
-        ]  # events.on_chdir -> <class on_chd
+        ]  # events.on_chdir -> <class on_chdir> -> <class Event>
+
+    def __call__(self, handler):
+        """
+        Registers a handler. It's suggested to use this as a decorator.
+
+        A decorator method is added to the handler, validator(). If a validator
+        function is added, it can filter if the handler will be considered. The
+        validator takes the same arguments as the handler. If it returns False,
+        the handler will not called or considered, as if it was not registered
+        at all.
+
+        Parameters
+        ----------
+        handler : callable
+            The handler to register
+
+        Returns
+        -------
+        rtn : callable
+            The handler
+        """
+        #  Using Python's "private" munging to minimize hypothetical collisions
+        handler.__validator = None
+        if debug_level():
+            if not has_kwargs(handler):
+                raise ValueError("Event handlers need a **kwargs for future proofing")
+        self.add(handler)
+
+        def validator(vfunc):
+            """
+            Adds a validator function to a handler to limit when it is considered.
+            """
+            if deb
