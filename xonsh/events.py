@@ -78,4 +78,44 @@ class AbstractEvent(collections.abc.MutableSet, abc.ABC):
             """
             Adds a validator function to a handler to limit when it is considered.
             """
-            if deb
+            if debug_level():
+                if not has_kwargs(handler):
+                    raise ValueError(
+                        "Event validators need a **kwargs for future proofing"
+                    )
+            handler.__validator = vfunc
+
+        handler.validator = validator
+
+        return handler
+
+    def _filterhandlers(self, handlers, **kwargs):
+        """
+        Helper method for implementing classes. Generates the handlers that pass validation.
+        """
+        for handler in handlers:
+            if handler.__validator is not None and not handler.__validator(**kwargs):
+                continue
+            yield handler
+
+    @abc.abstractmethod
+    def fire(self, **kwargs):
+        """
+        Fires an event, calling registered handlers with the given arguments.
+
+        Parameters
+        ----------
+        **kwargs :
+            Keyword arguments to pass to each handler
+        """
+
+
+class Event(AbstractEvent):
+    """
+    An event species for notify and scatter-gather events.
+    """
+
+    # Wish I could just pull from set...
+    def __init__(self):
+        self._handlers = set()
+        self._firing = False
