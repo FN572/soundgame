@@ -119,3 +119,47 @@ class Event(AbstractEvent):
     def __init__(self):
         self._handlers = set()
         self._firing = False
+        self._delayed_adds = None
+        self._delayed_discards = None
+
+    def __len__(self):
+        return len(self._handlers)
+
+    def __contains__(self, item):
+        return item in self._handlers
+
+    def __iter__(self):
+        yield from self._handlers
+
+    def add(self, item):
+        """
+        Add an element to a set.
+
+        This has no effect if the element is already present.
+        """
+        if self._firing:
+            if self._delayed_adds is None:
+                self._delayed_adds = set()
+            self._delayed_adds.add(item)
+        else:
+            self._handlers.add(item)
+
+    def discard(self, item):
+        """
+        Remove an element from a set if it is a member.
+
+        If the element is not a member, do nothing.
+        """
+        if self._firing:
+            if self._delayed_discards is None:
+                self._delayed_discards = set()
+            self._delayed_discards.add(item)
+        else:
+            self._handlers.discard(item)
+
+    def fire(self, **kwargs):
+        """
+        Fires an event, calling registered handlers with the given arguments. A non-unique iterable
+        of the results is returned.
+
+        Ea
