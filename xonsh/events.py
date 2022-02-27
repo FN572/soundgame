@@ -162,4 +162,39 @@ class Event(AbstractEvent):
         Fires an event, calling registered handlers with the given arguments. A non-unique iterable
         of the results is returned.
 
-        Ea
+        Each handler is called immediately. Exceptions are turned in to warnings.
+
+        Parameters
+        ----------
+        **kwargs :
+            Keyword arguments to pass to each handler
+
+        Returns
+        -------
+        vals : iterable
+            Return values of each handler. If multiple handlers return the same value, it will
+            appear multiple times.
+        """
+        vals = []
+        self._firing = True
+        for handler in self._filterhandlers(self._handlers, **kwargs):
+            try:
+                rv = handler(**kwargs)
+            except Exception:
+                print_exception("Exception raised in event handler; ignored.")
+            else:
+                vals.append(rv)
+        # clean up
+        self._firing = False
+        if self._delayed_adds is not None:
+            self._handlers.update(self._delayed_adds)
+            self._delayed_adds = None
+        if self._delayed_discards is not None:
+            self._handlers.difference_update(self._delayed_discards)
+            self._delayed_discards = None
+        return vals
+
+
+class LoadEvent(AbstractEvent):
+    """
+    An event s
