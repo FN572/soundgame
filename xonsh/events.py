@@ -238,4 +238,49 @@ class LoadEvent(AbstractEvent):
         """
         Remove an element from a set if it is a member.
 
-      
+        If the element is not a member, do nothing.
+        """
+        self._fired.discard(item)
+        self._unfired.discard(item)
+
+    def _call(self, handler):
+        try:
+            handler(**self._kwargs)
+        except Exception:
+            print_exception("Exception raised in event handler; ignored.")
+
+    def fire(self, **kwargs):
+        if self._hasfired:
+            return
+        self._kwargs = kwargs
+        while self._unfired:
+            handler = self._unfired.pop()
+            self._call(handler)
+        self._hasfired = True
+        return ()  # Entirely for API compatibility
+
+
+class EventManager:
+    """
+    Container for all events in a system.
+
+    Meant to be a singleton, but doesn't enforce that itself.
+
+    Each event is just an attribute. They're created dynamically on first use.
+    """
+
+    def doc(self, name, docstring):
+        """
+        Applies a docstring to an event.
+
+        Parameters
+        ----------
+        name : str
+            The name of the event, eg "on_precommand"
+        docstring : str
+            The docstring to apply to the event
+        """
+        type(getattr(self, name)).__doc__ = docstring
+
+    @staticmethod
+    def _mkeve
