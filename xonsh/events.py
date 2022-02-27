@@ -197,4 +197,45 @@ class Event(AbstractEvent):
 
 class LoadEvent(AbstractEvent):
     """
-    An event s
+    An event species where each handler is called exactly once, shortly after either the event is
+    fired or the handler is registered (whichever is later). Additional firings are ignored.
+
+    Note: Does not support scatter/gather, due to never knowing when we have all the handlers.
+
+    Note: Maintains a strong reference to pargs/kwargs in case of the addition of future handlers.
+
+    Note: This is currently NOT thread safe.
+    """
+
+    def __init__(self):
+        self._fired = set()
+        self._unfired = set()
+        self._hasfired = False
+
+    def __len__(self):
+        return len(self._fired) + len(self._unfired)
+
+    def __contains__(self, item):
+        return item in self._fired or item in self._unfired
+
+    def __iter__(self):
+        yield from self._fired
+        yield from self._unfired
+
+    def add(self, item):
+        """
+        Add an element to a set.
+
+        This has no effect if the element is already present.
+        """
+        if self._hasfired:
+            self._call(item)
+            self._fired.add(item)
+        else:
+            self._unfired.add(item)
+
+    def discard(self, item):
+        """
+        Remove an element from a set if it is a member.
+
+      
