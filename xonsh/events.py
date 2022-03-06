@@ -283,4 +283,37 @@ class EventManager:
         type(getattr(self, name)).__doc__ = docstring
 
     @staticmethod
-    def _mkeve
+    def _mkevent(name, species=Event, doc=None):
+        # NOTE: Also used in `xonsh_events` test fixture
+        # (A little bit of magic to enable docstrings to work right)
+        return type(
+            name,
+            (species,),
+            {
+                "__doc__": doc,
+                "__module__": "xonsh.events",
+                "__qualname__": "events." + name,
+            },
+        )()
+
+    def transmogrify(self, name, species):
+        """
+        Converts an event from one species to another, preserving handlers and docstring.
+
+        Please note: Some species maintain specialized state. This is lost on transmogrification.
+
+        Parameters
+        ----------
+        name : str
+            The name of the event, eg "on_precommand"
+        species : subclass of AbstractEvent
+            The type to turn the event in to.
+        """
+        if isinstance(species, str):
+            species = globals()[species]
+
+        if not issubclass(species, AbstractEvent):
+            raise ValueError("Invalid event class; must be a subclass of AbstractEvent")
+
+        oldevent = getattr(self, name)
+        newevent = self._mkevent(name, species
