@@ -316,4 +316,32 @@ class EventManager:
             raise ValueError("Invalid event class; must be a subclass of AbstractEvent")
 
         oldevent = getattr(self, name)
-        newevent = self._mkevent(name, species
+        newevent = self._mkevent(name, species, type(oldevent).__doc__)
+        setattr(self, name, newevent)
+
+        for handler in oldevent:
+            newevent.add(handler)
+
+    def exists(self, name):
+        """Checks if an event with a given name exist. If it does not exist, it
+        will not be created. That is what makes this different than
+        ``hasattr(events, name)``, which will create the event.
+        """
+        return name in self.__dict__
+
+    def __getattr__(self, name):
+        """Get an event, if it doesn't already exist."""
+        if name.startswith("_"):
+            raise AttributeError
+        # This is only called if the attribute doesn't exist, so create the Event...
+        e = self._mkevent(name)
+        # ... and save it.
+        setattr(self, name, e)
+        # Now it exists, and we won't be called again.
+        return e
+
+
+# Not lazy because:
+# 1. Initialization of EventManager can't be much cheaper
+# 2. It's expected to be used at load time, negating any benefits of using lazy object
+events = EventManager()
