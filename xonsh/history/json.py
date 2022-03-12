@@ -64,4 +64,37 @@ def _xhj_gc_bytes_to_rmfiles(hsize, files):
     return rmfiles
 
 
-def _xhj_g
+def _xhj_get_history_files(sort=True, newest_first=False):
+    """Find and return the history files. Optionally sort files by
+    modify time.
+    """
+    data_dir = builtins.__xonsh__.env.get("XONSH_DATA_DIR")
+    data_dir = xt.expanduser_abs_path(data_dir)
+    try:
+        files = [
+            os.path.join(data_dir, f)
+            for f in os.listdir(data_dir)
+            if f.startswith("xonsh-") and f.endswith(".json")
+        ]
+    except OSError:
+        files = []
+        if builtins.__xonsh__.env.get("XONSH_DEBUG"):
+            xt.print_exception("Could not collect xonsh history files.")
+    if sort:
+        files.sort(key=lambda x: os.path.getmtime(x), reverse=newest_first)
+    return files
+
+
+class JsonHistoryGC(threading.Thread):
+    """Shell history garbage collection."""
+
+    def __init__(self, wait_for_shell=True, size=None, *args, **kwargs):
+        """Thread responsible for garbage collecting old history.
+
+        May wait for shell (and for xonshrc to have been loaded) to start work.
+        """
+        super().__init__(*args, **kwargs)
+        self.daemon = True
+        self.size = size
+        self.wait_for_shell = wait_for_shell
+        self.start()
