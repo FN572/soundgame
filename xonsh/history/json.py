@@ -98,3 +98,37 @@ class JsonHistoryGC(threading.Thread):
         self.size = size
         self.wait_for_shell = wait_for_shell
         self.start()
+        self.gc_units_to_rmfiles = {
+            "commands": _xhj_gc_commands_to_rmfiles,
+            "files": _xhj_gc_files_to_rmfiles,
+            "s": _xhj_gc_seconds_to_rmfiles,
+            "b": _xhj_gc_bytes_to_rmfiles,
+        }
+
+    def run(self):
+        while self.wait_for_shell:
+            time.sleep(0.01)
+        env = builtins.__xonsh__.env  # pylint: disable=no-member
+        if self.size is None:
+            hsize, units = env.get("XONSH_HISTORY_SIZE")
+        else:
+            hsize, units = xt.to_history_tuple(self.size)
+        files = self.files(only_unlocked=True)
+        rmfiles_fn = self.gc_units_to_rmfiles.get(units)
+        if rmfiles_fn is None:
+            raise ValueError("Units type {0!r} not understood".format(units))
+
+        for _, _, f in rmfiles_fn(hsize, files):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+
+    def files(self, only_unlocked=False):
+        """Find and return the history files. Optionally locked files may be
+        excluded.
+
+        This is sorted by the last closed time. Returns a list of
+        (timestamp, number of cmds, file name) tuples.
+        """
+        # py
