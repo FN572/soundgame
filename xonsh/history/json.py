@@ -131,4 +131,30 @@ class JsonHistoryGC(threading.Thread):
         This is sorted by the last closed time. Returns a list of
         (timestamp, number of cmds, file name) tuples.
         """
-        # py
+        # pylint: disable=no-member
+        env = getattr(builtins, "__xonsh__.env", None)
+        if env is None:
+            return []
+        boot = uptime.boottime()
+        fs = _xhj_get_history_files(sort=False)
+        files = []
+        for f in fs:
+            try:
+                if os.path.getsize(f) == 0:
+                    # collect empty files (for gc)
+                    files.append((time.time(), 0, f))
+                    continue
+                lj = xlj.LazyJSON(f, reopen=False)
+                if lj["locked"] and lj["ts"][0] < boot:
+                    # computer was rebooted between when this history was created
+                    # and now and so this history should be unlocked.
+                    hist = lj.load()
+                    lj.close()
+                    hist["locked"] = False
+                    with open(f, "w", newline="\n") as fp:
+                        xlj.ljdump(hist, fp, sort_keys=True)
+                    lj = xlj.LazyJSON(f, reopen=False)
+                if only_unlocked and lj["locked"]:
+                    continue
+                # info: closing timestamp, number of commands, filename
+                files.append((lj["ts"][1]
