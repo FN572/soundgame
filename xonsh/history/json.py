@@ -157,4 +157,42 @@ class JsonHistoryGC(threading.Thread):
                 if only_unlocked and lj["locked"]:
                     continue
                 # info: closing timestamp, number of commands, filename
-                files.append((lj["ts"][1]
+                files.append((lj["ts"][1] or lj["ts"][0], len(lj.sizes["cmds"]) - 1, f))
+                lj.close()
+            except (IOError, OSError, ValueError):
+                continue
+        files.sort()
+        return files
+
+
+class JsonHistoryFlusher(threading.Thread):
+    """Flush shell history to disk periodically."""
+
+    def __init__(self, filename, buffer, queue, cond, at_exit=False, *args, **kwargs):
+        """Thread for flushing history."""
+        super(JsonHistoryFlusher, self).__init__(*args, **kwargs)
+        self.filename = filename
+        self.buffer = buffer
+        self.queue = queue
+        queue.append(self)
+        self.cond = cond
+        self.at_exit = at_exit
+        if at_exit:
+            self.dump()
+            queue.popleft()
+        else:
+            self.start()
+
+    def run(self):
+        with self.cond:
+            self.cond.wait_for(self.i_am_at_the_front)
+            self.dump()
+            self.queue.popleft()
+
+    def i_am_at_the_front(self):
+        """Tests if the flusher is at the front of the queue."""
+        return self is self.queue[0]
+
+    def dump(self):
+        """Write the cached history to external storage."""
+        opts = b
