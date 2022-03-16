@@ -226,4 +226,36 @@ class JsonCommandField(cabc.Sequence):
     def __init__(self, field, hist, default=None):
         """Represents a field in the 'cmds' portion of history.
 
-        Will query the buffer for the relevant data, if
+        Will query the buffer for the relevant data, if possible. Otherwise it
+        will lazily acquire data from the file.
+
+        Parameters
+        ----------
+        field : str
+            The name of the field to query.
+        hist : History object
+            The history object to query.
+        default : optional
+            The default value to return if key is not present.
+        """
+        self.field = field
+        self.hist = hist
+        self.default = default
+
+    def __len__(self):
+        return len(self.hist)
+
+    def __getitem__(self, key):
+        size = len(self)
+        if isinstance(key, slice):
+            return [self[i] for i in range(*key.indices(size))]
+        elif not isinstance(key, int):
+            raise IndexError("JsonCommandField may only be indexed by int or slice.")
+        elif size == 0:
+            raise IndexError("JsonCommandField is empty.")
+        # now we know we have an int
+        key = size + key if key < 0 else key  # ensure key is non-negative
+        bufsize = len(self.hist.buffer)
+        if size - bufsize <= key:  # key is in buffer
+            return self.hist.buffer[key + bufsize - size].get(self.field, self.default)
+ 
