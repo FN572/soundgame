@@ -258,4 +258,35 @@ class JsonCommandField(cabc.Sequence):
         bufsize = len(self.hist.buffer)
         if size - bufsize <= key:  # key is in buffer
             return self.hist.buffer[key + bufsize - size].get(self.field, self.default)
- 
+        # now we know we have to go into the file
+        queue = self.hist._queue
+        queue.append(self)
+        with self.hist._cond:
+            self.hist._cond.wait_for(self.i_am_at_the_front)
+            with open(self.hist.filename, "r", newline="\n") as f:
+                lj = xlj.LazyJSON(f, reopen=False)
+                rtn = lj["cmds"][key].get(self.field, self.default)
+                if isinstance(rtn, xlj.LJNode):
+                    rtn = rtn.load()
+            queue.popleft()
+        return rtn
+
+    def i_am_at_the_front(self):
+        """Tests if the command field is at the front of the queue."""
+        return self is self.hist._queue[0]
+
+
+class JsonHistory(History):
+    """Xonsh history backend implemented with JSON files.
+
+    JsonHistory implements two extra actions: ``diff``, and ``replay``.
+    """
+
+    def __init__(self, filename=None, sessionid=None, buffersize=100, gc=True, **meta):
+        """Represents a xonsh session's history as an in-memory buffer that is
+        periodically flushed to disk.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Lo
