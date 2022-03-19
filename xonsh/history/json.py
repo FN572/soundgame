@@ -289,4 +289,32 @@ class JsonHistory(History):
         Parameters
         ----------
         filename : str, optional
-            Lo
+            Location of history file, defaults to
+            ``$XONSH_DATA_DIR/xonsh-{sessionid}.json``.
+        sessionid : int, uuid, str, optional
+            Current session identifier, will generate a new sessionid if not
+            set.
+        buffersize : int, optional
+            Maximum buffersize in memory.
+        meta : optional
+            Top-level metadata to store along with the history. The kwargs
+            'cmds' and 'sessionid' are not allowed and will be overwritten.
+        gc : bool, optional
+            Run garbage collector flag.
+        """
+        super().__init__(sessionid=sessionid, **meta)
+        if filename is None:
+            # pylint: disable=no-member
+            data_dir = builtins.__xonsh__.env.get("XONSH_DATA_DIR")
+            data_dir = os.path.expanduser(data_dir)
+            self.filename = os.path.join(
+                data_dir, "xonsh-{0}.json".format(self.sessionid)
+            )
+        else:
+            self.filename = filename
+        self.buffer = []
+        self.buffersize = buffersize
+        self._queue = collections.deque()
+        self._cond = threading.Condition()
+        self._len = 0
+    
