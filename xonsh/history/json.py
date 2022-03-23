@@ -317,4 +317,34 @@ class JsonHistory(History):
         self._queue = collections.deque()
         self._cond = threading.Condition()
         self._len = 0
-    
+        self.last_cmd_out = None
+        self.last_cmd_rtn = None
+        meta["cmds"] = []
+        meta["sessionid"] = str(self.sessionid)
+        with open(self.filename, "w", newline="\n") as f:
+            xlj.ljdump(meta, f, sort_keys=True)
+        self.gc = JsonHistoryGC() if gc else None
+        # command fields that are known
+        self.tss = JsonCommandField("ts", self)
+        self.inps = JsonCommandField("inp", self)
+        self.outs = JsonCommandField("out", self)
+        self.rtns = JsonCommandField("rtn", self)
+
+    def __len__(self):
+        return self._len
+
+    def append(self, cmd):
+        """Appends command to history. Will periodically flush the history to file.
+
+        Parameters
+        ----------
+        cmd : dict
+            This dict contains information about the command that is to be
+            added to the history list. It should contain the keys ``inp``,
+            ``rtn`` and ``ts``. These key names mirror the same names defined
+            as instance variables in the ``HistoryEntry`` class.
+
+        Returns
+        -------
+        hf : JsonHistoryFlusher or None
+            The thread that was spawne
