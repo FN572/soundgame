@@ -347,4 +347,42 @@ class JsonHistory(History):
         Returns
         -------
         hf : JsonHistoryFlusher or None
-            The thread that was spawne
+            The thread that was spawned to flush history
+        """
+        self.buffer.append(cmd)
+        self._len += 1  # must come before flushing
+        if len(self.buffer) >= self.buffersize:
+            hf = self.flush()
+        else:
+            hf = None
+        return hf
+
+    def flush(self, at_exit=False):
+        """Flushes the current command buffer to disk.
+
+        Parameters
+        ----------
+        at_exit : bool, optional
+            Whether the JsonHistoryFlusher should act as a thread in the
+            background, or execute immediately and block.
+
+        Returns
+        -------
+        hf : JsonHistoryFlusher or None
+            The thread that was spawned to flush history
+        """
+        if len(self.buffer) == 0:
+            return
+        hf = JsonHistoryFlusher(
+            self.filename, tuple(self.buffer), self._queue, self._cond, at_exit=at_exit
+        )
+        self.buffer.clear()
+        return hf
+
+    def items(self, newest_first=False):
+        """Display history items of current session."""
+        if newest_first:
+            items = zip(reversed(self.inps), reversed(self.tss))
+        else:
+            items = zip(self.inps, self.tss)
+        for item, tss in items:
