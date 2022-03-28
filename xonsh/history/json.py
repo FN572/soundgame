@@ -413,4 +413,24 @@ class JsonHistory(History):
             if newest_first:
                 commands = reversed(commands)
             for c in commands:
-                yield {"inp": c["inp"].rstrip(), "ts": c["ts"
+                yield {"inp": c["inp"].rstrip(), "ts": c["ts"][0]}
+        # all items should also include session items
+        yield from self.items()
+
+    def info(self):
+        data = collections.OrderedDict()
+        data["backend"] = "json"
+        data["sessionid"] = str(self.sessionid)
+        data["filename"] = self.filename
+        data["length"] = len(self)
+        data["buffersize"] = self.buffersize
+        data["bufferlength"] = len(self.buffer)
+        envs = builtins.__xonsh__.env
+        data["gc options"] = envs.get("XONSH_HISTORY_SIZE")
+        return data
+
+    def run_gc(self, size=None, blocking=True):
+        self.gc = JsonHistoryGC(wait_for_shell=False, size=size)
+        if blocking:
+            while self.gc.is_alive():
+                continue
