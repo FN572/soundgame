@@ -552,3 +552,270 @@ class Inspector(object):
             name of the variable pointing to the object.
         info : dict, optional
             a structure with some information fields which may have been
+            precomputed already.
+        detail_level : int, optional
+            if set to 1, more information is given.
+        """
+        info = self.info(obj, oname=oname, info=info, detail_level=detail_level)
+        displayfields = []
+
+        def add_fields(fields):
+            for title, key in fields:
+                field = info[key]
+                if field is not None:
+                    displayfields.append((title, field.rstrip()))
+
+        add_fields(self.pinfo_fields1)
+        add_fields(self.pinfo_fields2)
+
+        # Namespace
+        if info["namespace"] is not None and info["namespace"] != "Interactive":
+            displayfields.append(("Namespace", info["namespace"].rstrip()))
+
+        add_fields(self.pinfo_fields3)
+        if info["isclass"] and info["init_definition"]:
+            displayfields.append(("Init definition", info["init_definition"].rstrip()))
+
+        # Source or docstring, depending on detail level and whether
+        # source found.
+        if detail_level > 0 and info["source"] is not None:
+            displayfields.append(("Source", cast_unicode(info["source"])))
+        elif info["docstring"] is not None:
+            displayfields.append(("Docstring", info["docstring"]))
+
+        # Constructor info for classes
+        if info["isclass"]:
+            if info["init_docstring"] is not None:
+                displayfields.append(("Init docstring", info["init_docstring"]))
+
+        # Info for objects:
+        else:
+            add_fields(self.pinfo_fields_obj)
+
+        # Finally send to printer/pager:
+        if displayfields:
+            print_color(self._format_fields(displayfields))
+
+    def info(self, obj, oname="", info=None, detail_level=0):
+        """Compute a dict with detailed information about an object.
+
+        Optional arguments:
+
+        - oname: name of the variable pointing to the object.
+
+        - info: a structure with some information fields which may have been
+          precomputed already.
+
+        - detail_level: if set to 1, more information is given.
+        """
+        obj_type = type(obj)
+        if info is None:
+            ismagic = 0
+            isalias = 0
+            ospace = ""
+        else:
+            ismagic = info.ismagic
+            isalias = info.isalias
+            ospace = info.namespace
+        # Get docstring, special-casing aliases:
+        if isalias:
+            if not callable(obj):
+                if len(obj) >= 2 and isinstance(obj[1], str):
+                    ds = "Alias to the system command:\n  {0}".format(obj[1])
+                else:  # pylint:disable=bare-except
+                    ds = "Alias: " + str(obj)
+            else:
+                ds = "Alias to " + str(obj)
+                if obj.__doc__:
+                    ds += "\nDocstring:\n" + obj.__doc__
+        else:
+            ds = getdoc(obj)
+            if ds is None:
+                ds = "<no docstring>"
+
+        # store output in a dict, we initialize it here and fill it as we go
+        out = dict(name=oname, found=True, isalias=isalias, ismagic=ismagic)
+
+        string_max = 200  # max size of strings to show (snipped if longer)
+        shalf = int((string_max - 5) / 2)
+
+        if ismagic:
+            obj_type_name = "Magic function"
+        elif isalias:
+            obj_type_name = "System alias"
+        else:
+            obj_type_name = obj_type.__name__
+        out["type_name"] = obj_type_name
+
+        try:
+            bclass = obj.__class__
+            out["base_class"] = str(bclass)
+        except:  # pylint:disable=bare-except
+            pass
+
+        # String form, but snip if too long in ? form (full in ??)
+        if detail_level >= self.str_detail_level:
+            try:
+                ostr = str(obj)
+                str_head = "string_form"
+                if not detail_level and len(ostr) > string_max:
+                    ostr = ostr[:shalf] + " <...> " + ostr[-shalf:]
+                    ostr = ("\n" + " " * len(str_head.expandtabs())).join(
+                        q.strip() for q in ostr.split("\n")
+                    )
+                out[str_head] = ostr
+            except:  # pylint:disable=bare-except
+                pass
+
+        if ospace:
+            out["namespace"] = ospace
+
+        # Length (for strings and lists)
+        try:
+            out["length"] = str(len(obj))
+        except:  # pylint:disable=bare-except
+            pass
+
+        # Filename where object was defined
+        binary_file = False
+        fname = find_file(obj)
+        if fname is None:
+            # if anything goes wrong, we don't want to show source, so it's as
+            # if the file was binary
+            binary_file = True
+        else:
+            if fname.endswith((".so", ".dll", ".pyd")):
+                binary_file = True
+            elif fname.endswith("<string>"):
+                fname = "Dynamically generated function. " "No source code available."
+            out["file"] = fname
+
+        # Docstrings only in detail 0 mode, since source contains them (we
+        # avoid repetitions).  If source fails, we add them back, see below.
+        if ds and detail_level == 0:
+            out["docstring"] = ds
+
+        # Original source code for any callable
+        if detail_level:
+            # Flush the source cache because inspect can return out-of-date
+            # source
+            linecache.checkcache()
+            source = None
+            try:
+                try:
+                    source = getsource(obj, binary_file)
+                except TypeError:
+                    if hasattr(obj, "__class__"):
+                        source = getsource(obj.__class__, binary_file)
+                if source is not None:
+                    source = source.rstrip()
+                    if HAS_PYGMENTS:
+                        lexer = pyghooks.XonshLexer()
+                        source = list(pygments.lex(source, lexer=lexer))
+                    out["source"] = source
+            except Exception:  # pylint:disable=broad-except
+                pass
+
+            if ds and source is None:
+                out["docstring"] = ds
+
+        # Constructor docstring for classes
+        if inspect.isclass(obj):
+            out["isclass"] = True
+            # reconstruct the function definition and print it:
+            try:
+                obj_init = obj.__init__
+            except AttributeError:
+                init_def = init_ds = None
+            else:
+                init_def = self._getdef(obj_init, oname)
+                init_ds = getdoc(obj_init)
+                # Skip Python's auto-generated docstrings
+                if init_ds == _object_init_docstring:
+                    init_ds = None
+
+            if init_def or init_ds:
+                if init_def:
+                    out["init_definition"] = init_def
+                if init_ds:
+                    out["init_docstring"] = init_ds
+
+        # and class docstring for instances:
+        else:
+            # reconstruct the function definition and print it:
+            defln = self._getdef(obj, oname)
+            if defln:
+                out["definition"] = defln
+
+            # First, check whether the instance docstring is identical to the
+            # class one, and print it separately if they don't coincide.  In
+            # most cases they will, but it's nice to print all the info for
+            # objects which use instance-customized docstrings.
+            if ds:
+                try:
+                    cls = getattr(obj, "__class__")
+                except:  # pylint:disable=bare-except
+                    class_ds = None
+                else:
+                    class_ds = getdoc(cls)
+                # Skip Python's auto-generated docstrings
+                if class_ds in _builtin_type_docstrings:
+                    class_ds = None
+                if class_ds and ds != class_ds:
+                    out["class_docstring"] = class_ds
+
+            # Next, try to show constructor docstrings
+            try:
+                init_ds = getdoc(obj.__init__)
+                # Skip Python's auto-generated docstrings
+                if init_ds == _object_init_docstring:
+                    init_ds = None
+            except AttributeError:
+                init_ds = None
+            if init_ds:
+                out["init_docstring"] = init_ds
+
+            # Call form docstring for callable instances
+            if safe_hasattr(obj, "__call__") and not is_simple_callable(obj):
+                call_def = self._getdef(obj.__call__, oname)
+                if call_def:
+                    call_def = call_def
+                    # it may never be the case that call def and definition
+                    # differ, but don't include the same signature twice
+                    if call_def != out.get("definition"):
+                        out["call_def"] = call_def
+                call_ds = getdoc(obj.__call__)
+                # Skip Python's auto-generated docstrings
+                if call_ds == _func_call_docstring:
+                    call_ds = None
+                if call_ds:
+                    out["call_docstring"] = call_ds
+
+        # Compute the object's argspec as a callable.  The key is to decide
+        # whether to pull it from the object itself, from its __init__ or
+        # from its __call__ method.
+
+        if inspect.isclass(obj):
+            # Old-style classes need not have an __init__
+            callable_obj = getattr(obj, "__init__", None)
+        elif callable(obj):
+            callable_obj = obj
+        else:
+            callable_obj = None
+
+        if callable_obj:
+            try:
+                argspec = getargspec(callable_obj)
+            except (TypeError, AttributeError):
+                # For extensions/builtins we can't retrieve the argspec
+                pass
+            else:
+                # named tuples' _asdict() method returns an OrderedDict, but we
+                # we want a normal
+                out["argspec"] = argspec_dict = dict(argspec._asdict())
+                # We called this varkw before argspec became a named tuple.
+                # With getfullargspec it's also called varkw.
+                if "varkw" not in argspec_dict:
+                    argspec_dict["varkw"] = argspec_dict.pop("keywords")
+
+        return object_info(**out)
