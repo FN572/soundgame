@@ -374,3 +374,45 @@ def _xh_parse_args(args):
             else:
                 ns.slices.extend(slices)
     else:
+        ns = parser.parse_args(args)
+    return ns
+
+
+def history_main(
+    args=None, stdin=None, stdout=None, stderr=None, spec=None, stack=None
+):
+    """This is the history command entry point."""
+    hist = builtins.__xonsh__.history
+    ns = _xh_parse_args(args)
+    if not ns or not ns.action:
+        return
+    if ns.action == "show":
+        _xh_show_history(hist, ns, stdout=stdout, stderr=stderr)
+    elif ns.action == "info":
+        data = hist.info()
+        if ns.json:
+            s = json.dumps(data)
+            print(s, file=stdout)
+        else:
+            lines = ["{0}: {1}".format(k, v) for k, v in data.items()]
+            print("\n".join(lines), file=stdout)
+    elif ns.action == "id":
+        if not hist.sessionid:
+            return
+        print(str(hist.sessionid), file=stdout)
+    elif ns.action == "file":
+        if not hist.filename:
+            return
+        print(str(hist.filename), file=stdout)
+    elif ns.action == "gc":
+        hist.run_gc(size=ns.size, blocking=ns.blocking)
+    elif ns.action == "diff":
+        if isinstance(hist, JsonHistory):
+            xdh.dh_main_action(ns)
+    elif ns.action == "replay":
+        if isinstance(hist, JsonHistory):
+            import xonsh.replay as xrp
+
+            xrp.replay_main_action(hist, ns, stdout=stdout, stderr=stderr)
+    else:
+        print("Unknown history action {}".format(ns.action), file=sys.stderr)
