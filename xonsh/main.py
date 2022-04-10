@@ -143,4 +143,50 @@ def parser():
     p.add_argument(
         "-c",
         help="Run a single command and exit",
-        
+        dest="command",
+        required=False,
+        default=None,
+    )
+    p.add_argument(
+        "-i",
+        "--interactive",
+        help="force running in interactive mode",
+        dest="force_interactive",
+        action="store_true",
+        default=False,
+    )
+    p.add_argument(
+        "-l",
+        "--login",
+        help="run as a login shell",
+        dest="login",
+        action="store_true",
+        default=False,
+    )
+    p.add_argument(
+        "--config-path",
+        help="DEPRECATED: static configuration files may now be used "
+        "in the XONSHRC file list, see the --rc option.",
+        dest="config_path",
+        default=None,
+        type=path_argument,
+    )
+    p.add_argument(
+        "--rc",
+        help="The xonshrc files to load, these may be either xonsh "
+        "files or JSON-based static configuration files.",
+        dest="rc",
+        nargs="+",
+        type=path_argument,
+        default=None,
+    )
+    p.add_argument(
+        "--no-rc",
+        help="Do not load the .xonshrc files",
+        dest="norc",
+        action="store_true",
+        default=False,
+    )
+    p.add_argument(
+        "--no-script-cache",
+        help="Do not cache scr
