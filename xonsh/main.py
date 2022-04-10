@@ -36,3 +36,67 @@ events.doc(
     "on_post_init",
     """
 on_post_init() -> None
+
+Fired after all initialization is finished and we're ready to do work.
+
+NOTE: This is fired before the wizard is automatically started.
+""",
+)
+
+events.transmogrify("on_exit", "LoadEvent")
+events.doc(
+    "on_exit",
+    """
+on_exit() -> None
+
+Fired after all commands have been executed, before tear-down occurs.
+
+NOTE: All the caveats of the ``atexit`` module also apply to this event.
+""",
+)
+
+
+events.transmogrify("on_pre_cmdloop", "LoadEvent")
+events.doc(
+    "on_pre_cmdloop",
+    """
+on_pre_cmdloop() -> None
+
+Fired just before the command loop is started, if it is.
+""",
+)
+
+events.transmogrify("on_post_cmdloop", "LoadEvent")
+events.doc(
+    "on_post_cmdloop",
+    """
+on_post_cmdloop() -> None
+
+Fired just after the command loop finishes, if it is.
+
+NOTE: All the caveats of the ``atexit`` module also apply to this event.
+""",
+)
+
+events.transmogrify("on_pre_rc", "LoadEvent")
+events.doc(
+    "on_pre_rc",
+    """
+on_pre_rc() -> None
+
+Fired just before rc files are loaded, if they are.
+""",
+)
+
+events.transmogrify("on_post_rc", "LoadEvent")
+events.doc(
+    "on_post_rc",
+    """
+on_post_rc() -> None
+
+Fired just after rc files are loaded, if they are.
+""",
+)
+
+
+def get_setpro
