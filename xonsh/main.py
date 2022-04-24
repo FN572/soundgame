@@ -226,4 +226,45 @@ def parser():
         "and investigating startup times.",
         dest="timings",
         action="store_true",
-    
+        default=None,
+    )
+    p.add_argument(
+        "file",
+        metavar="script-file",
+        help="If present, execute the script in script-file" " and exit",
+        nargs="?",
+        default=None,
+    )
+    p.add_argument(
+        "args",
+        metavar="args",
+        help="Additional arguments to the script specified " "by script-file",
+        nargs=argparse.REMAINDER,
+        default=[],
+    )
+    return p
+
+
+def _pprint_displayhook(value):
+    if value is None:
+        return
+    builtins._ = None  # Set '_' to None to avoid recursion
+    if isinstance(value, HiddenCommandPipeline):
+        builtins._ = value
+        return
+    env = builtins.__xonsh__.env
+    if env.get("PRETTY_PRINT_RESULTS"):
+        printed_val = pretty(value)
+    else:
+        printed_val = repr(value)
+    if HAS_PYGMENTS and env.get("COLOR_RESULTS"):
+        tokens = list(pygments.lex(printed_val, lexer=pyghooks.XonshLexer()))
+        end = "" if env.get("SHELL_TYPE") == "prompt_toolkit2" else "\n"
+        print_color(tokens, end=end)
+    else:
+        print(printed_val)  # black & white case
+    builtins._ = value
+
+
+class XonshMode(enum.Enum):
+    single_comma
