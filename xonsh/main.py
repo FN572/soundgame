@@ -189,4 +189,41 @@ def parser():
     )
     p.add_argument(
         "--no-script-cache",
-        help="Do not cache scr
+        help="Do not cache scripts as they are run",
+        dest="scriptcache",
+        action="store_false",
+        default=True,
+    )
+    p.add_argument(
+        "--cache-everything",
+        help="Use a cache, even for interactive commands",
+        dest="cacheall",
+        action="store_true",
+        default=False,
+    )
+    p.add_argument(
+        "-D",
+        dest="defines",
+        help="define an environment variable, in the form of "
+        "-DNAME=VAL. May be used many times.",
+        metavar="ITEM",
+        action="append",
+        default=None,
+    )
+    p.add_argument(
+        "--shell-type",
+        help="What kind of shell should be used. "
+        "Possible options: readline, prompt_toolkit, random. "
+        "Warning! If set this overrides $SHELL_TYPE variable.",
+        dest="shell_type",
+        choices=tuple(Shell.shell_type_aliases.keys()),
+        default=None,
+    )
+    p.add_argument(
+        "--timings",
+        help="Prints timing information before the prompt is shown. "
+        "This is useful while tracking down performance issues "
+        "and investigating startup times.",
+        dest="timings",
+        action="store_true",
+    
