@@ -267,4 +267,35 @@ def _pprint_displayhook(value):
 
 
 class XonshMode(enum.Enum):
-    single_comma
+    single_command = 0
+    script_from_file = 1
+    script_from_stdin = 2
+    interactive = 3
+
+
+def start_services(shell_kwargs, args):
+    """Starts up the essential services in the proper order.
+    This returns the environment instance as a convenience.
+    """
+    install_import_hooks()
+    # create execer, which loads builtins
+    ctx = shell_kwargs.get("ctx", {})
+    debug = to_bool_or_int(os.getenv("XONSH_DEBUG", "0"))
+    events.on_timingprobe.fire(name="pre_execer_init")
+    execer = Execer(
+        xonsh_ctx=ctx,
+        debug_level=debug,
+        scriptcache=shell_kwargs.get("scriptcache", True),
+        cacheall=shell_kwargs.get("cacheall", False),
+    )
+    events.on_timingprobe.fire(name="post_execer_init")
+    # load rc files
+    login = shell_kwargs.get("login", True)
+    env = builtins.__xonsh__.env
+    rc = shell_kwargs.get("rc", None)
+    rc = env.get("XONSHRC") if rc is None else rc
+    if args.mode != XonshMode.interactive and not args.force_interactive:
+        #  Don't load xonshrc if not interactive shell
+        rc = None
+    events.on_pre_rc.fire()
+    xonshrc_context(rcfiles=rc, execer=e
