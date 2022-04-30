@@ -298,4 +298,43 @@ def start_services(shell_kwargs, args):
         #  Don't load xonshrc if not interactive shell
         rc = None
     events.on_pre_rc.fire()
-    xonshrc_context(rcfiles=rc, execer=e
+    xonshrc_context(rcfiles=rc, execer=execer, ctx=ctx, env=env, login=login)
+    events.on_post_rc.fire()
+    # create shell
+    builtins.__xonsh__.shell = Shell(execer=execer, **shell_kwargs)
+    ctx["__name__"] = "__main__"
+    return env
+
+
+def premain(argv=None):
+    """Setup for main xonsh entry point. Returns parsed arguments."""
+    if argv is None:
+        argv = sys.argv[1:]
+    builtins.__xonsh__ = XonshSession()
+    setup_timings(argv)
+    setproctitle = get_setproctitle()
+    if setproctitle is not None:
+        setproctitle(" ".join(["xonsh"] + argv))
+    args = parser.parse_args(argv)
+    if args.help:
+        parser.print_help()
+        parser.exit()
+    if args.version:
+        version = "/".join(("xonsh", __version__))
+        print(version)
+        parser.exit()
+    shell_kwargs = {
+        "shell_type": args.shell_type,
+        "completer": False,
+        "login": False,
+        "scriptcache": args.scriptcache,
+        "cacheall": args.cacheall,
+        "ctx": builtins.__xonsh__.ctx,
+    }
+    if args.login:
+        shell_kwargs["login"] = True
+    if args.norc:
+        shell_kwargs["rc"] = ()
+    elif args.rc:
+        shell_kwargs["rc"] = args.rc
+    setattr(sy
