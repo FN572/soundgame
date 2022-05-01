@@ -402,4 +402,38 @@ def main(argv=None):
     args = None
     try:
         args = premain(argv)
-        return
+        return main_xonsh(args)
+    except Exception as err:
+        _failback_to_other_shells(args, err)
+
+
+def main_xonsh(args):
+    """Main entry point for xonsh cli."""
+    if not ON_WINDOWS:
+
+        def func_sig_ttin_ttou(n, f):
+            pass
+
+        signal.signal(signal.SIGTTIN, func_sig_ttin_ttou)
+        signal.signal(signal.SIGTTOU, func_sig_ttin_ttou)
+
+    events.on_post_init.fire()
+    env = builtins.__xonsh__.env
+    shell = builtins.__xonsh__.shell
+    try:
+        if args.mode == XonshMode.interactive:
+            # enter the shell
+            env["XONSH_INTERACTIVE"] = True
+            ignore_sigtstp()
+            if env["XONSH_INTERACTIVE"] and not any(
+                os.path.isfile(i) for i in env["XONSHRC"]
+            ):
+                print_welcome_screen()
+            events.on_pre_cmdloop.fire()
+            try:
+                shell.shell.cmdloop()
+            finally:
+                events.on_post_cmdloop.fire()
+        elif args.mode == XonshMode.single_command:
+            # run a single command and exit
+            run_code_with_cache(args.command.l
