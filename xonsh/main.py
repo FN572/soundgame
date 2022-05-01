@@ -501,4 +501,27 @@ def setup(
         The type of shell to start. By default this is 'none', indicating
         we should start in headless mode.
     env : dict-like, optional
-        Environment to update the current en
+        Environment to update the current environment with after the shell
+        has been initialized.
+    aliases : dict-like, optional
+        Aliases to add after the shell has been initialized.
+    xontribs : iterable of str, optional
+        Xontrib names to load.
+    threadable_predictors : dict-like, optional
+        Threadable predictors to start up with. These overide the defaults.
+    """
+    ctx = {} if ctx is None else ctx
+    # setup xonsh ctx and execer
+    if not hasattr(builtins, "__xonsh__"):
+        execer = Execer(xonsh_ctx=ctx)
+        builtins.__xonsh__ = XonshSession(ctx=ctx, execer=execer)
+        load_builtins(ctx=ctx, execer=execer)
+        load_proxies()
+        builtins.__xonsh__.shell = Shell(execer, ctx=ctx, shell_type=shell_type)
+    builtins.__xonsh__.env.update(env)
+    install_import_hooks()
+    builtins.aliases.update(aliases)
+    if xontribs:
+        xontribs_load(xontribs)
+    tp = builtins.__xonsh__.commands_cache.threadable_predictors
+    tp.update(threadable_predictors)
