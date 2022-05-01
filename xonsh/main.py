@@ -465,4 +465,40 @@ def postmain(args=None):
     """Teardown for main xonsh entry point, accepts parsed arguments."""
     if ON_WINDOWS:
         setup_win_unicode_console(enable=False)
-    
+    builtins.__xonsh__.shell = None
+
+
+@contextlib.contextmanager
+def main_context(argv=None):
+    """Generator that runs pre- and post-main() functions. This has two iterations.
+    The first yields the shell. The second returns None but cleans
+    up the shell.
+    """
+    args = premain(argv)
+    yield builtins.__xonsh__.shell
+    postmain(args)
+
+
+def setup(
+    ctx=None,
+    shell_type="none",
+    env=(("RAISE_SUBPROC_ERROR", True),),
+    aliases=(),
+    xontribs=(),
+    threadable_predictors=(),
+):
+    """Starts up a new xonsh shell. Calling this in function in another
+    packages __init__.py will allow xonsh to be fully used in the
+    package in headless or headed mode. This function is primarily indended to
+    make starting up xonsh for 3rd party packages easier.
+
+    Parameters
+    ----------
+    ctx : dict-like or None, optional
+        The xonsh context to start with. If None, an empty dictionary
+        is provided.
+    shell_type : str, optional
+        The type of shell to start. By default this is 'none', indicating
+        we should start in headless mode.
+    env : dict-like, optional
+        Environment to update the current en
