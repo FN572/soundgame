@@ -40,3 +40,43 @@ def source_to_unicode(txt, errors="replace", skip_encoding_cookie=True):
         buf = io.BytesIO(txt)
     else:
         buf = txt
+    try:
+        encoding, _ = detect_encoding(buf.readline)
+    except SyntaxError:
+        encoding = "ascii"
+    buf.seek(0)
+    text = io.TextIOWrapper(buf, encoding, errors=errors, line_buffering=True)
+    text.mode = "r"
+    if skip_encoding_cookie:
+        return u"".join(strip_encoding_cookie(text))
+    else:
+        return text.read()
+
+
+def strip_encoding_cookie(filelike):
+    """Generator to pull lines from a text-mode file, skipping the encoding
+    cookie if it is found in the first two lines.
+    """
+    it = iter(filelike)
+    try:
+        first = next(it)
+        if not cookie_comment_re.match(first):
+            yield first
+        second = next(it)
+        if not cookie_comment_re.match(second):
+            yield second
+    except StopIteration:
+        return
+    for line in it:
+        yield line
+
+
+def read_py_file(filename, skip_encoding_cookie=True):
+    """Read a Python file, using the encoding declared inside the file.
+
+    Parameters
+    ----------
+    filename : str
+      The path to the file to read.
+    skip_encoding_cookie : bool
+      If True (the default), and the encoding declaration is found in the fir
