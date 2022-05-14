@@ -111,4 +111,25 @@ def read_py_url(url, errors="replace", skip_encoding_cookie=True):
 
     Returns
     -------
-    A unicode string containin
+    A unicode string containing the contents of the file.
+    """
+    # Deferred import for faster start
+    try:
+        from urllib.request import urlopen  # Py 3
+    except ImportError:
+        from urllib import urlopen
+    response = urlopen(url)
+    buf = io.BytesIO(response.read())
+    return source_to_unicode(buf, errors, skip_encoding_cookie)
+
+
+def _list_readline(x):
+    """Given a list, returns a readline() function that returns the next element
+    with each call.
+    """
+    x = iter(x)
+
+    def readline():
+        return next(x)
+
+    return readline
