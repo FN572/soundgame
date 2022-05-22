@@ -80,4 +80,42 @@ class Parser(BaseParser):
 
     def p_async_stmt(self, p):
         """async_stmt : async_funcdef
-          
+                      | async_with_stmt
+                      | async_for_stmt
+        """
+        p[0] = p[1]
+
+    def p_item_test(self, p):
+        """item : test COLON test"""
+        p[0] = [p[1], p[3]]
+
+    def p_item_pow(self, p):
+        """item : POW expr"""
+        p[0] = [None, p[2]]
+
+    def _set_arg(self, args, arg, ensure_kw=False):
+        if isinstance(arg, ast.keyword):
+            args["keywords"].append(arg)
+        elif ensure_kw:
+            args["keywords"].append(ast.keyword(arg=None, value=arg))
+        else:
+            args["args"].append(arg)
+
+    def p_arglist_single(self, p):
+        """arglist : argument comma_opt"""
+        p0 = {"args": [], "keywords": []}
+        self._set_arg(p0, p[1])
+        p[0] = p0
+
+    def p_arglist_many(self, p):
+        """arglist : argument comma_argument_list comma_opt
+        """
+        p0 = {"args": [], "keywords": []}
+        self._set_arg(p0, p[1])
+        for arg in p[2]:
+            self._set_arg(p0, arg)
+        p[0] = p0
+
+    # Argument rules
+    # "test '=' test" is really "keyword '=' test", but we have no such token.
+    # These need to be in 
