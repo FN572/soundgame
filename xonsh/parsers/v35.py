@@ -118,4 +118,31 @@ class Parser(BaseParser):
 
     # Argument rules
     # "test '=' test" is really "keyword '=' test", but we have no such token.
-    # These need to be in 
+    # These need to be in a single rule to avoid grammar that is ambiguous
+    # to our LL(1) parser. Even though 'test' includes '*expr' in star_expr,
+    # we explicitly match '*' here, too, to give it proper precedence.
+    # Illegal combinations and orderings are blocked in ast.c:
+    # multiple (test comp_for) arguments are blocked; keyword unpackings
+    # that precede iterable unpackings are blocked; etc.
+    def p_argument_test_or_star(self, p):
+        """argument : test_or_star_expr"""
+        p[0] = p[1]
+
+    def p_argument_kwargs(self, p):
+        """argument : POW test"""
+        p[0] = ast.keyword(arg=None, value=p[2])
+
+    def p_argument_args(self, p):
+        """argument : TIMES test"""
+        p[0] = ast.Starred(value=p[2])
+
+    def p_argument(self, p):
+        """argument : test comp_for"""
+        p1 = p[1]
+        p[0] = ast.GeneratorExp(
+            elt=p1, generators=p[2]["comps"], lineno=p1.lineno, col_offset=p1.col_offset
+        )
+
+    def p_argument_eq(self, p):
+        """argument : test EQUALS test"""
+        p[0] = ast.keyword(arg=p[1].id, value=p[3])
