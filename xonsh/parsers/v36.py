@@ -31,4 +31,13 @@ class Parser(ThreeFiveParser):
         lineno, col = lopen_loc(p1)
         if len(p[1]) > 1 or not isinstance(p1, ast.Name):
             loc = self.currloc(lineno, col)
-            self._parse_error("only single target can be annotated"
+            self._parse_error("only single target can be annotated", loc)
+        store_ctx(p1)
+        p[0] = ast.AnnAssign(
+            target=p1,
+            annotation=p[3],
+            value=p[5],
+            simple=1,
+            lineno=lineno,
+            col_offset=col,
+        )
