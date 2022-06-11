@@ -1,0 +1,727 @@
+
+<html>
+<head>
+<title>PLY (Python Lex-Yacc)</title>
+</head>
+<body bgcolor="#ffffff">
+
+<h1>PLY (Python Lex-Yacc)</h1>
+ 
+<b>
+David M. Beazley <br>
+dave@dabeaz.com<br>
+</b>
+
+<p>
+<b>PLY Version: 3.11</b>
+<p>
+
+<!-- INDEX -->
+<div class="sectiontoc">
+<ul>
+<li><a href="#ply_nn0">Preface and Requirements</a>
+<li><a href="#ply_nn1">Introduction</a>
+<li><a href="#ply_nn2">PLY Overview</a>
+<li><a href="#ply_nn3">Lex</a>
+<ul>
+<li><a href="#ply_nn4">Lex Example</a>
+<li><a href="#ply_nn5">The tokens list</a>
+<li><a href="#ply_nn6">Specification of tokens</a>
+<li><a href="#ply_nn7">Token values</a>
+<li><a href="#ply_nn8">Discarded tokens</a>
+<li><a href="#ply_nn9">Line numbers and positional information</a>
+<li><a href="#ply_nn10">Ignored characters</a>
+<li><a href="#ply_nn11">Literal characters</a>
+<li><a href="#ply_nn12">Error handling</a>
+<li><a href="#ply_nn14">EOF Handling</a>
+<li><a href="#ply_nn13">Building and using the lexer</a>
+<li><a href="#ply_nn14b">The @TOKEN decorator</a>
+<li><a href="#ply_nn15">Optimized mode</a>
+<li><a href="#ply_nn16">Debugging</a>
+<li><a href="#ply_nn17">Alternative specification of lexers</a>
+<li><a href="#ply_nn18">Maintaining state</a>
+<li><a href="#ply_nn19">Lexer cloning</a>
+<li><a href="#ply_nn20">Internal lexer state</a>
+<li><a href="#ply_nn21">Conditional lexing and start conditions</a>
+<li><a href="#ply_nn21b">Miscellaneous Issues</a>
+</ul>
+<li><a href="#ply_nn22">Parsing basics</a>
+<li><a href="#ply_nn23">Yacc</a>
+<ul>
+<li><a href="#ply_nn24">An example</a>
+<li><a href="#ply_nn25">Combining Grammar Rule Functions</a>
+<li><a href="#ply_nn26">Character Literals</a>
+<li><a href="#ply_nn26b">Empty Productions</a>
+<li><a href="#ply_nn28">Changing the starting symbol</a>
+<li><a href="#ply_nn27">Dealing With Ambiguous Grammars</a>
+<li><a href="#ply_nn28b">The parser.out file</a>
+<li><a href="#ply_nn29">Syntax Error Handling</a>
+<ul>
+<li><a href="#ply_nn30">Recovery and resynchronization with error rules</a>
+<li><a href="#ply_nn31">Panic mode recovery</a>
+<li><a href="#ply_nn35">Signalling an error from a production</a>
+<li><a href="#ply_nn38">When Do Syntax Errors Get Reported</a>
+<li><a href="#ply_nn32">General comments on error handling</a>
+</ul>
+<li><a href="#ply_nn33">Line Number and Position Tracking</a>
+<li><a href="#ply_nn34">AST Construction</a>
+<li><a href="#ply_nn35b">Embedded Actions</a>
+<li><a href="#ply_nn36">Miscellaneous Yacc Notes</a>
+</ul>
+<li><a href="#ply_nn37">Multiple Parsers and Lexers</a>
+<li><a href="#ply_nn38b">Using Python's Optimized Mode</a>
+<li><a href="#ply_nn44">Advanced Debugging</a>
+<ul>
+<li><a href="#ply_nn45">Debugging the lex() and yacc() commands</a>
+<li><a href="#ply_nn46">Run-time Debugging</a>
+</ul>
+<li><a href="#ply_nn49">Packaging Advice</a>
+<li><a href="#ply_nn39">Where to go from here?</a>
+</ul>
+</div>
+<!-- INDEX -->
+
+
+
+
+
+
+<H2><a name="ply_nn0"></a>1. Preface and Requirements</H2>
+
+
+<p>
+This document provides an overview of lexing and parsing with PLY.
+Given the intrinsic complexity of parsing, I would strongly advise 
+that you read (or at least skim) this entire document before jumping
+into a big development project with PLY.  
+</p>
+
+<p>
+PLY-3.5 is compatible with both Python 2 and Python 3.  If you are using
+Python 2, you have to use Python 2.6 or newer.
+</p>
+
+<H2><a name="ply_nn1"></a>2. Introduction</H2>
+
+
+PLY is a pure-Python implementation of the popular compiler
+construction tools lex and yacc. The main goal of PLY is to stay
+fairly faithful to the way in which traditional lex/yacc tools work.
+This includes supporting LALR(1) parsing as well as providing
+extensive input validation, error reporting, and diagnostics.  Thus,
+if you've used yacc in another programming language, it should be
+relatively straightforward to use PLY.  
+
+<p>
+Early versions of PLY were developed to support an Introduction to
+Compilers Course I taught in 2001 at the University of Chicago. 
+Since PLY was primarily developed as an instructional tool, you will
+find it to be fairly picky about token and grammar rule
+specification. In part, this
+added formality is meant to catch common programming mistakes made by
+novice users.  However, advanced users will also find such features to
+be useful when building complicated grammars for real programming
+languages.  It should also be noted that PLY does not provide much in
+the way of bells and whistles (e.g., automatic construction of
+abstract syntax trees, tree traversal, etc.). Nor would I consider it
+to be a parsing framework.  Instead, you will find a bare-bones, yet
+fully capable lex/yacc implementation written entirely in Python.
+
+<p>
+The rest of this document assumes that you are somewhat familiar with
+parsing theory, syntax directed translation, and the use of compiler
+construction tools such as lex and yacc in other programming
+languages. If you are unfamiliar with these topics, you will probably
+want to consult an introductory text such as "Compilers: Principles,
+Techniques, and Tools", by Aho, Sethi, and Ullman.  O'Reilly's "Lex
+and Yacc" by John Levine may also be handy.  In fact, the O'Reilly book can be
+used as a reference for PLY as the concepts are virtually identical.
+
+<H2><a name="ply_nn2"></a>3. PLY Overview</H2>
+
+
+<p>
+PLY consists of two separate modules; <tt>lex.py</tt> and
+<tt>yacc.py</tt>, both of which are found in a Python package
+called <tt>ply</tt>. The <tt>lex.py</tt> module is used to break input text into a
+collection of tokens specified by a collection of regular expression
+rules.  <tt>yacc.py</tt> is used to recognize language syntax that has
+been specified in the form of a context free grammar.
+</p>
+
+<p>
+The two tools are meant to work together.  Specifically,
+<tt>lex.py</tt> provides an external interface in the form of a
+<tt>token()</tt> function that returns the next valid token on the
+input stream.  <tt>yacc.py</tt> calls this repeatedly to retrieve
+tokens and invoke grammar rules.  The output of <tt>yacc.py</tt> is
+often an Abstract Syntax Tree (AST).  However, this is entirely up to
+the user.  If desired, <tt>yacc.py</tt> can also be used to implement
+simple one-pass compilers.  
+
+<p>
+Like its Unix counterpart, <tt>yacc.py</tt> provides most of the
+features you expect including extensive error checking, grammar
+validation, support for empty productions, error tokens, and ambiguity
+resolution via precedence rules.  In fact, almost everything that is possible in traditional yacc 
+should be supported in PLY.
+
+<p>
+The primary difference between
+<tt>yacc.py</tt> and Unix <tt>yacc</tt> is that <tt>yacc.py</tt> 
+doesn't involve a separate code-generation process. 
+Instead, PLY relies on reflection (introspection)
+to build its lexers and parsers.  Unlike traditional lex/yacc which
+require a special input file that is converted into a separate source
+file, the specifications given to PLY <em>are</em> valid Python
+programs.  This means that there are no extra source files nor is
+there a special compiler construction step (e.g., running yacc to
+generate Python code for the compiler).  Since the generation of the
+parsing tables is relatively expensive, PLY caches the results and
+saves them to a file.  If no changes are detected in the input source,
+the tables are read from the cache. Otherwise, they are regenerated.
+
+<H2><a name="ply_nn3"></a>4. Lex</H2>
+
+
+<tt>lex.py</tt> is used to tokenize an input string.  For example, suppose
+you're writing a programming language and a user supplied the following input string:
+
+<blockquote>
+<pre>
+x = 3 + 42 * (s - t)
+</pre>
+</blockquote>
+
+A tokenizer splits the string into individual tokens
+
+<blockquote>
+<pre>
+'x','=', '3', '+', '42', '*', '(', 's', '-', 't', ')'
+</pre>
+</blockquote>
+
+Tokens are usually given names to indicate what they are. For example:
+
+<blockquote>
+<pre>
+'ID','EQUALS','NUMBER','PLUS','NUMBER','TIMES',
+'LPAREN','ID','MINUS','ID','RPAREN'
+</pre>
+</blockquote>
+
+More specifically, the input is broken into pairs of token types and values.  For example:
+
+<blockquote>
+<pre>
+('ID','x'), ('EQUALS','='), ('NUMBER','3'), 
+('PLUS','+'), ('NUMBER','42), ('TIMES','*'),
+('LPAREN','('), ('ID','s'), ('MINUS','-'),
+('ID','t'), ('RPAREN',')'
+</pre>
+</blockquote>
+
+The identification of tokens is typically done by writing a series of regular expression
+rules.  The next section shows how this is done using <tt>lex.py</tt>.
+
+<H3><a name="ply_nn4"></a>4.1 Lex Example</H3>
+
+
+The following example shows how <tt>lex.py</tt> is used to write a simple tokenizer.
+
+<blockquote>
+<pre>
+# ------------------------------------------------------------
+# calclex.py
+#
+# tokenizer for a simple expression evaluator for
+# numbers and +,-,*,/
+# ------------------------------------------------------------
+import ply.lex as lex
+
+# List of token names.   This is always required
+tokens = (
+   'NUMBER',
+   'PLUS',
+   'MINUS',
+   'TIMES',
+   'DIVIDE',
+   'LPAREN',
+   'RPAREN',
+)
+
+# Regular expression rules for simple tokens
+t_PLUS    = r'\+'
+t_MINUS   = r'-'
+t_TIMES   = r'\*'
+t_DIVIDE  = r'/'
+t_LPAREN  = r'\('
+t_RPAREN  = r'\)'
+
+# A regular expression rule with some action code
+def t_NUMBER(t):
+    r'\d+'
+    t.value = int(t.value)    
+    return t
+
+# Define a rule so we can track line numbers
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+# A string containing ignored characters (spaces and tabs)
+t_ignore  = ' \t'
+
+# Error handling rule
+def t_error(t):
+    print("Illegal character '%s'" % t.value[0])
+    t.lexer.skip(1)
+
+# Build the lexer
+lexer = lex.lex()
+
+</pre>
+</blockquote>
+To use the lexer, you first need to feed it some input text using
+its <tt>input()</tt> method.  After that, repeated calls
+to <tt>token()</tt> produce tokens.  The following code shows how this
+works:
+
+<blockquote>
+<pre>
+
+# Test it out
+data = '''
+3 + 4 * 10
+  + -20 *2
+'''
+
+# Give the lexer some input
+lexer.input(data)
+
+# Tokenize
+while True:
+    tok = lexer.token()
+    if not tok: 
+        break      # No more input
+    print(tok)
+</pre>
+</blockquote>
+
+When executed, the example will produce the following output:
+
+<blockquote>
+<pre>
+$ python example.py
+LexToken(NUMBER,3,2,1)
+LexToken(PLUS,'+',2,3)
+LexToken(NUMBER,4,2,5)
+LexToken(TIMES,'*',2,7)
+LexToken(NUMBER,10,2,10)
+LexToken(PLUS,'+',3,14)
+LexToken(MINUS,'-',3,16)
+LexToken(NUMBER,20,3,18)
+LexToken(TIMES,'*',3,20)
+LexToken(NUMBER,2,3,21)
+</pre>
+</blockquote>
+
+Lexers also support the iteration protocol.    So, you can write the above loop as follows:
+
+<blockquote>
+<pre>
+for tok in lexer:
+    print(tok)
+</pre>
+</blockquote>
+
+The tokens returned by <tt>lexer.token()</tt> are instances
+of <tt>LexToken</tt>.  This object has
+attributes <tt>tok.type</tt>, <tt>tok.value</tt>,
+<tt>tok.lineno</tt>, and <tt>tok.lexpos</tt>.  The following code shows an example of
+accessing these attributes:
+
+<blockquote>
+<pre>
+# Tokenize
+while True:
+    tok = lexer.token()
+    if not tok: 
+        break      # No more input
+    print(tok.type, tok.value, tok.lineno, tok.lexpos)
+</pre>
+</blockquote>
+
+The <tt>tok.type</tt> and <tt>tok.value</tt> attributes contain the
+type and value of the token itself. 
+<tt>tok.lineno</tt> and <tt>tok.lexpos</tt> contain information about
+the location of the token.  <tt>tok.lexpos</tt> is the index of the
+token relative to the start of the input text.
+
+<H3><a name="ply_nn5"></a>4.2 The tokens list</H3>
+
+
+<p>
+All lexers must provide a list <tt>tokens</tt> that defines all of the possible token
+names that can be produced by the lexer.  This list is always required
+and is used to perform a variety of validation checks.  The tokens list is also used by the
+<tt>yacc.py</tt> module to identify terminals.
+</p>
+
+<p>
+In the example, the following code specified the token names:
+
+<blockquote>
+<pre>
+tokens = (
+   'NUMBER',
+   'PLUS',
+   'MINUS',
+   'TIMES',
+   'DIVIDE',
+   'LPAREN',
+   'RPAREN',
+)
+</pre>
+</blockquote>
+
+<H3><a name="ply_nn6"></a>4.3 Specification of tokens</H3>
+
+
+Each token is specified by writing a regular expression rule compatible with Python's <tt>re</tt> module.  Each of these rules
+are defined by  making declarations with a special prefix <tt>t_</tt> to indicate that it
+defines a token.  For simple tokens, the regular expression can
+be specified as strings such as this (note: Python raw strings are used since they are the
+most convenient way to write regular expression strings):
+
+<blockquote>
+<pre>
+t_PLUS = r'\+'
+</pre>
+</blockquote>
+
+In this case, the name following the <tt>t_</tt> must exactly match one of the
+names supplied in <tt>tokens</tt>.   If some kind of action needs to be performed,
+a token rule can be specified as a function.  For example, this rule matches numbers and
+converts the string into a Python integer.
+
+<blockquote>
+<pre>
+def t_NUMBER(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
+</pre>
+</blockquote>
+
+When a function is used, the regular expression rule is specified in the function documentation string. 
+The function always takes a single argument which is an instance of 
+<tt>LexToken</tt>.   This object has attributes of <tt>t.type</tt> which is the token type (as a string),
+<tt>t.value</tt> which is the lexeme (the actual text matched), <tt>t.lineno</tt> which is the current line number, and <tt>t.lexpos</tt> which
+is the position of the token relative to the beginning of the input text.
+By default, <tt>t.type</tt> is set to the name following the <tt>t_</tt> prefix.  The action
+function can modify the contents of the <tt>LexToken</tt> object as appropriate.  However, 
+when it is done, the resulting token should be returned.  If no value is returned by the action
+function, the token is simply discarded and the next token read.
+
+<p>
+Internally, <tt>lex.py</tt> uses the <tt>re</tt> module to do its pattern matching.  Patterns are compiled
+using the <tt>re.VERBOSE</tt> flag which can be used to help readability.  However, be aware that unescaped
+whitespace is ignored and comments are allowed in this mode.  If your pattern involves whitespace, make sure you
+use <tt>\s</tt>.  If you need to match the <tt>#</tt> character, use <tt>[#]</tt>.
+</p>
+
+<p>
+When building the master regular expression,
+rules are added in the following order:
+</p>
+
+<p>
+<ol>
+<li>All tokens defined by functions are added in the same order as they appear in the lexer file.
+<li>Tokens defined by strings are added next by sorting them in order of decreasing regular expression length (longer expressions
+are added first).
+</ol>
+<p>
+Without this ordering, it can be difficult to correctly match certain types of tokens.  For example, if you 
+wanted to have separate tokens for "=" and "==", you need to make sure that "==" is checked first.  By sorting regular
+expressions in order of decreasing length, this problem is solved for rules defined as strings.  For functions,
+the order can be explicitly controlled since rules appearing first are checked first.
+
+<p>
+To handle reserved words, you should write a single rule to match an
+identifier and do a special name lookup in a function like this:
+
+<blockquote>
+<pre>
+reserved = {
+   'if' : 'IF',
+   'then' : 'THEN',
+   'else' : 'ELSE',
+   'while' : 'WHILE',
+   ...
+}
+
+tokens = ['LPAREN','RPAREN',...,'ID'] + list(reserved.values())
+
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value,'ID')    # Check for reserved words
+    return t
+</pre>
+</blockquote>
+
+This approach greatly reduces the number of regular expression rules and is likely to make things a little faster.
+
+<p>
+<b>Note:</b> You should avoid writing individual rules for reserved words.  For example, if you write rules like this,
+
+<blockquote>
+<pre>
+t_FOR   = r'for'
+t_PRINT = r'print'
+</pre>
+</blockquote>
+
+those rules will be triggered for identifiers that include those words as a prefix such as "forget" or "printed".  This is probably not
+what you want.
+
+<H3><a name="ply_nn7"></a>4.4 Token values</H3>
+
+
+When tokens are returned by lex, they have a value that is stored in the <tt>value</tt> attribute.    Normally, the value is the text
+that was matched.   However, the value can be assigned to any Python object.   For instance, when lexing identifiers, you may
+want to return both the identifier name and information from some sort of symbol table.  To do this, you might write a rule like this:
+
+<blockquote>
+<pre>
+def t_ID(t):
+    ...
+    # Look up symbol table information and return a tuple
+    t.value = (t.value, symbol_lookup(t.value))
+    ...
+    return t
+</pre>
+</blockquote>
+
+It is important to note that storing data in other attribute names is <em>not</em> recommended.  The <tt>yacc.py</tt> module only exposes the
+contents of the <tt>value</tt> attribute.  Thus, accessing other attributes may  be unnecessarily awkward.   If you
+need to store multiple values on a token, assign a tuple, dictionary, or instance to <tt>value</tt>.
+
+<H3><a name="ply_nn8"></a>4.5 Discarded tokens</H3>
+
+
+To discard a token, such as a comment, simply define a token rule that returns no value.  For example:
+
+<blockquote>
+<pre>
+def t_COMMENT(t):
+    r'\#.*'
+    pass
+    # No return value. Token discarded
+</pre>
+</blockquote>
+
+Alternatively, you can include the prefix "ignore_" in the token declaration to force a token to be ignored.  For example:
+
+<blockquote>
+<pre>
+t_ignore_COMMENT = r'\#.*'
+</pre>
+</blockquote>
+
+Be advised that if you are ignoring many different kinds of text, you may still want to use functions since these provide more precise
+control over the order in which regular expressions are matched (i.e., functions are matched in order of specification whereas strings are
+sorted by regular expression length).
+
+<H3><a name="ply_nn9"></a>4.6 Line numbers and positional information</H3>
+
+
+<p>By default, <tt>lex.py</tt> knows nothing about line numbers.  This is because <tt>lex.py</tt> doesn't know anything
+about what constitutes a "line" of input (e.g., the newline character or even if the input is textual data).
+To update this information, you need to write a special rule.  In the example, the <tt>t_newline()</tt> rule shows how to do this.
+
+<blockquote>
+<pre>
+# Define a rule so we can track line numbers
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+</pre>
+</blockquote>
+Within the rule, the <tt>lineno</tt> attribute of the underlying lexer <tt>t.lexer</tt> is updated.
+After the line number is updated, the token is simply discarded since nothing is returned.
+
+<p>
+<tt>lex.py</tt> does not perform any kind of automatic column tracking.  However, it does record positional
+information related to each token in the <tt>lexpos</tt> attribute.   Using this, it is usually possible to compute 
+column information as a separate step.   For instance, just count backwards until you reach a newline.
+
+<blockquote>
+<pre>
+# Compute column.
+#     input is the input text string
+#     token is a token instance
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+</pre>
+</blockquote>
+
+Since column information is often only useful in the context of error handling, calculating the column
+position can be performed when needed as opposed to doing it for each token.
+
+<H3><a name="ply_nn10"></a>4.7 Ignored characters</H3>
+
+
+<p>
+The special <tt>t_ignore</tt> rule is reserved by <tt>lex.py</tt> for characters
+that should be completely ignored in the input stream. 
+Usually this is used to skip over whitespace and other non-essential characters. 
+Although it is possible to define a regular expression rule for whitespace in a manner
+similar to <tt>t_newline()</tt>, the use of <tt>t_ignore</tt> provides substantially better
+lexing performance because it is handled as a special case and is checked in a much
+more efficient manner than the normal regular expression rules.
+</p>
+
+<p>
+The characters given in <tt>t_ignore</tt> are not ignored when such characters are part of
+other regular expression patterns.  For example, if you had a rule to capture quoted text,
+that pattern can include the ignored characters (which will be captured in the normal way).  The
+main purpose of <tt>t_ignore</tt> is to ignore whitespace and other padding between the
+tokens that you actually want to parse.
+</p>
+
+<H3><a name="ply_nn11"></a>4.8 Literal characters</H3>
+
+
+<p>
+Literal characters can be specified by defining a variable <tt>literals</tt> in your lexing module.  For example:
+
+<blockquote>
+<pre>
+literals = [ '+','-','*','/' ]
+</pre>
+</blockquote>
+
+or alternatively
+
+<blockquote>
+<pre>
+literals = "+-*/"
+</pre>
+</blockquote>
+
+A literal character is simply a single character that is returned "as is" when encountered by the lexer.  Literals are checked
+after all of the defined regular expression rules.  Thus, if a rule starts with one of the literal characters, it will always 
+take precedence.
+
+<p>
+When a literal token is returned, both its <tt>type</tt> and <tt>value</tt> attributes are set to the character itself. For example, <tt>'+'</tt>.
+</p>
+
+<p>
+It's possible to write token functions that perform additional actions
+when literals are matched.  However, you'll need to set the token type
+appropriately. For example:
+</p>
+
+<blockquote>
+<pre>
+literals = [ '{', '}' ]
+
+def t_lbrace(t):
+    r'\{'
+    t.type = '{'      # Set token type to the expected literal
+    return t
+
+def t_rbrace(t):
+    r'\}'
+    t.type = '}'      # Set token type to the expected literal
+    return t
+</pre>
+</blockquote>
+
+<H3><a name="ply_nn12"></a>4.9 Error handling</H3>
+
+
+<p>
+The <tt>t_error()</tt>
+function is used to handle lexing errors that occur when illegal
+characters are detected.  In this case, the <tt>t.value</tt> attribute contains the
+rest of the input string that has not been tokenized.  In the example, the error function
+was defined as follows:
+
+<blockquote>
+<pre>
+# Error handling rule
+def t_error(t):
+    print("Illegal character '%s'" % t.value[0])
+    t.lexer.skip(1)
+</pre>
+</blockquote>
+
+In this case, we simply print the offending character and skip ahead one character by calling <tt>t.lexer.skip(1)</tt>.
+
+<H3><a name="ply_nn14"></a>4.10 EOF Handling</H3>
+
+
+<p>
+The <tt>t_eof()</tt> function is used to handle an end-of-file (EOF) condition in the input.   As input, it
+receives a token type <tt>'eof'</tt> with the <tt>lineno</tt> and <tt>lexpos</tt> attributes set appropriately.
+The main use of this function is provide more input to the lexer so that it can continue to parse.  Here is an
+example of how this works:
+</p>
+
+<blockquote>
+<pre>
+# EOF handling rule
+def t_eof(t):
+    # Get more input (Example)
+    more = raw_input('... ')
+    if more:
+        self.lexer.input(more)
+        return self.lexer.token()
+    return None
+</pre>
+</blockquote>
+
+<p>
+The EOF function should return the next available token (by calling <tt>self.lexer.token())</tt> or <tt>None</tt> to
+indicate no more data.   Be aware that setting more input with the <tt>self.lexer.input()</tt> method does
+NOT reset the lexer state or the <tt>lineno</tt> attribute used for position tracking.   The <tt>lexpos</tt> 
+attribute is reset so be aware of that if you're using it in error reporting.
+</p>
+
+<H3><a name="ply_nn13"></a>4.11 Building and using the lexer</H3>
+
+
+<p>
+To build the lexer, the function <tt>lex.lex()</tt> is used.  For example:</p>
+
+<blockquote>
+<pre>
+lexer = lex.lex()
+</pre>
+</blockquote>
+
+<p>This function
+uses Python reflection (or introspection) to read the regular expression rules
+out of the calling context and build the lexer. Once the lexer has been built, two methods can
+be used to control the lexer.
+</p>
+<ul>
+<li><tt>lexer.input(data)</tt>.   Reset the lexer and store a new input string.
+<li><tt>lexer.token()</tt>.  Return the next token.  Returns a special <tt>LexToken</tt> instance on success or
+None if the end of the input text has been reached.
+</ul>
+
+<H3><a name="ply_nn14b"></a>4.12 The @TOKEN decorator</H3>
+
+
+In some applications, you may want to define build tokens from as a series of
+more complex regular expression rules.  For example:
+
+<blockquote>
+<pre>
+digit            = r'([0-9])'

@@ -727,3 +727,148 @@ An instance <tt>p</tt> of <tt>ParserReflect</tt> has the following methods:
 <b><tt>p.get_all()</tt></b>
 <blockquote>
 Collect and store all required parsing information.
+</blockquote>
+
+<p>
+<b><tt>p.validate_all()</tt></b>
+<blockquote>
+Validate all of the collected parsing information.  This is a seprate step
+from <tt>p.get_all()</tt> as a performance optimization.  In order to
+increase parser start-up time, a parser can elect to only validate the
+parsing data when regenerating the parsing tables.   The validation
+step tries to collect as much information as possible rather than
+raising an exception at the first sign of trouble.  The attribute
+<tt>p.error</tt> is set if there are any validation errors.  The
+value of this attribute is also returned.
+</blockquote>
+
+<p>
+<b><tt>p.signature()</tt></b>
+<blockquote>
+Compute a signature representing the contents of the collected parsing
+data.  The signature value should change if anything in the parser
+specification has changed in a way that would justify parser table
+regeneration.   This method can be called after <tt>p.get_all()</tt>,
+but before <tt>p.validate_all()</tt>.
+</blockquote>
+
+The following attributes are set in the process of collecting data:
+
+<p>
+<b><tt>p.start</tt></b>
+<blockquote>
+The grammar start symbol, if any. Taken from <tt>pdict['start']</tt>.
+</blockquote>
+
+<p>
+<b><tt>p.error_func</tt></b>
+<blockquote>
+The error handling function or <tt>None</tt>. Taken from <tt>pdict['p_error']</tt>.
+</blockquote>
+
+<p>
+<b><tt>p.tokens</tt></b>
+<blockquote>
+The token list. Taken from <tt>pdict['tokens']</tt>.
+</blockquote>
+
+<p>
+<b><tt>p.prec</tt></b>
+<blockquote>
+The precedence specifier.  Taken from <tt>pdict['precedence']</tt>.
+</blockquote>
+
+<p>
+<b><tt>p.preclist</tt></b>
+<blockquote>
+A parsed version of the precedence specified.  A list of tuples of the form
+<tt>(token,assoc,level)</tt> where <tt>token</tt> is the terminal symbol,
+<tt>assoc</tt> is the associativity (e.g., <tt>'left'</tt>) and <tt>level</tt>
+is a numeric precedence level.
+</blockquote>
+
+<p>
+<b><tt>p.grammar</tt></b>
+<blockquote>
+A list of tuples <tt>(name, rules)</tt> representing the grammar rules. <tt>name</tt> is the
+name of a Python function or method in <tt>pdict</tt> that starts with <tt>"p_"</tt>.
+<tt>rules</tt> is a list of tuples <tt>(filename,line,prodname,syms)</tt> representing
+the grammar rules found in the documentation string of that function. <tt>filename</tt> and <tt>line</tt> contain location
+information that can be used for debugging. <tt>prodname</tt> is the name of the 
+production. <tt>syms</tt> is the right-hand side of the production.  If you have a
+function like this
+
+<pre>
+def p_expr(p):
+    '''expr : expr PLUS expr
+            | expr MINUS expr
+            | expr TIMES expr
+            | expr DIVIDE expr'''
+</pre>
+
+then the corresponding entry in <tt>p.grammar</tt> might look like this:
+
+<pre>
+('p_expr', [ ('calc.py',10,'expr', ['expr','PLUS','expr']),
+             ('calc.py',11,'expr', ['expr','MINUS','expr']),
+             ('calc.py',12,'expr', ['expr','TIMES','expr']),
+             ('calc.py',13,'expr', ['expr','DIVIDE','expr'])
+           ])
+</pre>
+</blockquote>
+
+<p>
+<b><tt>p.pfuncs</tt></b>
+<blockquote>
+A sorted list of tuples <tt>(line, file, name, doc)</tt> representing all of
+the <tt>p_</tt> functions found. <tt>line</tt> and <tt>file</tt> give location
+information.  <tt>name</tt> is the name of the function. <tt>doc</tt> is the
+documentation string.   This list is sorted in ascending order by line number.
+</blockquote>
+
+<p>
+<b><tt>p.files</tt></b>
+<blockquote>
+A dictionary holding all of the source filenames that were encountered
+while collecting parser information.  Only the keys of this dictionary have
+any meaning.
+</blockquote>
+
+<p>
+<b><tt>p.error</tt></b>
+<blockquote>
+An attribute that indicates whether or not any critical errors 
+occurred in validation.  If this is set, it means that that some kind
+of problem was detected and that no further processing should be
+performed.
+</blockquote>
+
+
+<H2><a name="internal_nn9"></a>9. High-level operation</H2>
+
+
+Using all of the above classes requires some attention to detail.  The <tt>yacc()</tt>
+function carries out a very specific sequence of operations to create a grammar.
+This same sequence should be emulated if you build an alternative PLY interface.
+
+<ol>
+<li>A <tt>ParserReflect</tt> object is created and raw grammar specification data is
+collected.
+<li>A <tt>Grammar</tt> object is created and populated with information
+from the specification data.
+<li>A <tt>LRGenerator</tt> object is created to run the LALR algorithm over
+the <tt>Grammar</tt> object.
+<li>Productions in the LRGenerator and bound to callables using the <tt>bind_callables()</tt>
+method.
+<li>A <tt>LRParser</tt> object is created from from the information in the
+<tt>LRGenerator</tt> object.
+</ol>
+
+</body>
+</html>
+
+
+
+
+
+
