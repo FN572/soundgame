@@ -1902,3 +1902,1152 @@ def p_empty(p):
     'empty :'
     pass
 </pre>
+</blockquote>
+
+Now to use the empty production, simply use 'empty' as a symbol.  For example:
+
+<blockquote>
+<pre>
+def p_optitem(p):
+    'optitem : item'
+    '        | empty'
+    ...
+</pre>
+</blockquote>
+
+Note: You can write empty rules anywhere by simply specifying an empty
+right hand side.  However, I personally find that writing an "empty"
+rule and using "empty" to denote an empty production is easier to read
+and more clearly states your intentions.
+
+<H3><a name="ply_nn28"></a>6.5 Changing the starting symbol</H3>
+
+
+Normally, the first rule found in a yacc specification defines the starting grammar rule (top level rule).  To change this, simply
+supply a <tt>start</tt> specifier in your file.  For example:
+
+<blockquote>
+<pre>
+start = 'foo'
+
+def p_bar(p):
+    'bar : A B'
+
+# This is the starting rule due to the start specifier above
+def p_foo(p):
+    'foo : bar X'
+...
+</pre>
+</blockquote>
+
+The use of a <tt>start</tt> specifier may be useful during debugging
+since you can use it to have yacc build a subset of a larger grammar.
+For this purpose, it is also possible to specify a starting symbol as
+an argument to <tt>yacc()</tt>. For example:
+
+<blockquote>
+<pre>
+parser = yacc.yacc(start='foo')
+</pre>
+</blockquote>
+
+<H3><a name="ply_nn27"></a>6.6 Dealing With Ambiguous Grammars</H3>
+
+
+The expression grammar given in the earlier example has been written
+in a special format to eliminate ambiguity.  However, in many
+situations, it is extremely difficult or awkward to write grammars in
+this format.  A much more natural way to express the grammar is in a
+more compact form like this:
+
+<blockquote>
+<pre>
+expression : expression PLUS expression
+           | expression MINUS expression
+           | expression TIMES expression
+           | expression DIVIDE expression
+           | LPAREN expression RPAREN
+           | NUMBER
+</pre>
+</blockquote>
+
+Unfortunately, this grammar specification is ambiguous.  For example,
+if you are parsing the string "3 * 4 + 5", there is no way to tell how
+the operators are supposed to be grouped.  For example, does the
+expression mean "(3 * 4) + 5" or is it "3 * (4+5)"?
+
+<p>
+When an ambiguous grammar is given to <tt>yacc.py</tt> it will print
+messages about "shift/reduce conflicts" or "reduce/reduce conflicts".
+A shift/reduce conflict is caused when the parser generator can't
+decide whether or not to reduce a rule or shift a symbol on the
+parsing stack.  For example, consider the string "3 * 4 + 5" and the
+internal parsing stack:
+
+<blockquote>
+<pre>
+Step Symbol Stack           Input Tokens            Action
+---- ---------------------  ---------------------   -------------------------------
+1    $                                3 * 4 + 5$    Shift 3
+2    $ 3                                * 4 + 5$    Reduce : expression : NUMBER
+3    $ expr                             * 4 + 5$    Shift *
+4    $ expr *                             4 + 5$    Shift 4
+5    $ expr * 4                             + 5$    Reduce: expression : NUMBER
+6    $ expr * expr                          + 5$    SHIFT/REDUCE CONFLICT ????
+</pre>
+</blockquote>
+
+In this case, when the parser reaches step 6, it has two options.  One
+is to reduce the rule <tt>expr : expr * expr</tt> on the stack.  The
+other option is to shift the token <tt>+</tt> on the stack.  Both
+options are perfectly legal from the rules of the
+context-free-grammar.
+
+<p>
+By default, all shift/reduce conflicts are resolved in favor of
+shifting.  Therefore, in the above example, the parser will always
+shift the <tt>+</tt> instead of reducing.  Although this strategy
+works in many cases (for example, the case of 
+"if-then" versus "if-then-else"), it is not enough for arithmetic expressions.  In fact,
+in the above example, the decision to shift <tt>+</tt> is completely
+wrong---we should have reduced <tt>expr * expr</tt> since
+multiplication has higher mathematical precedence than addition.
+
+<p>To resolve ambiguity, especially in expression
+grammars, <tt>yacc.py</tt> allows individual tokens to be assigned a
+precedence level and associativity.  This is done by adding a variable
+<tt>precedence</tt> to the grammar file like this:
+
+<blockquote>
+<pre>
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+)
+</pre>
+</blockquote>
+
+This declaration specifies that <tt>PLUS</tt>/<tt>MINUS</tt> have the
+same precedence level and are left-associative and that
+<tt>TIMES</tt>/<tt>DIVIDE</tt> have the same precedence and are
+left-associative.  Within the <tt>precedence</tt> declaration, tokens
+are ordered from lowest to highest precedence. Thus, this declaration
+specifies that <tt>TIMES</tt>/<tt>DIVIDE</tt> have higher precedence
+than <tt>PLUS</tt>/<tt>MINUS</tt> (since they appear later in the
+precedence specification).
+
+<p>
+The precedence specification works by associating a numerical
+precedence level value and associativity direction to the listed
+tokens.  For example, in the above example you get:
+
+<blockquote>
+<pre>
+PLUS      : level = 1,  assoc = 'left'
+MINUS     : level = 1,  assoc = 'left'
+TIMES     : level = 2,  assoc = 'left'
+DIVIDE    : level = 2,  assoc = 'left'
+</pre>
+</blockquote>
+
+These values are then used to attach a numerical precedence value and
+associativity direction to each grammar rule. <em>This is always
+determined by looking at the precedence of the right-most terminal
+symbol.</em>  For example:
+
+<blockquote>
+<pre>
+expression : expression PLUS expression                 # level = 1, left
+           | expression MINUS expression                # level = 1, left
+           | expression TIMES expression                # level = 2, left
+           | expression DIVIDE expression               # level = 2, left
+           | LPAREN expression RPAREN                   # level = None (not specified)
+           | NUMBER                                     # level = None (not specified)
+</pre>
+</blockquote>
+
+When shift/reduce conflicts are encountered, the parser generator resolves the conflict by
+looking at the precedence rules and associativity specifiers.
+
+<p>
+<ol>
+<li>If the current token has higher precedence than the rule on the stack, it is shifted.
+<li>If the grammar rule on the stack has higher precedence, the rule is reduced.
+<li>If the current token and the grammar rule have the same precedence, the
+rule is reduced for left associativity, whereas the token is shifted for right associativity.
+<li>If nothing is known about the precedence, shift/reduce conflicts are resolved in
+favor of shifting (the default).
+</ol>
+
+For example, if "expression PLUS expression" has been parsed and the
+next token is "TIMES", the action is going to be a shift because
+"TIMES" has a higher precedence level than "PLUS".  On the other hand,
+if "expression TIMES expression" has been parsed and the next token is
+"PLUS", the action is going to be reduce because "PLUS" has a lower
+precedence than "TIMES."
+
+<p>
+When shift/reduce conflicts are resolved using the first three
+techniques (with the help of precedence rules), <tt>yacc.py</tt> will
+report no errors or conflicts in the grammar (although it will print
+some information in the <tt>parser.out</tt> debugging file).
+
+<p>
+One problem with the precedence specifier technique is that it is
+sometimes necessary to change the precedence of an operator in certain
+contexts.  For example, consider a unary-minus operator in "3 + 4 *
+-5".  Mathematically, the unary minus is normally given a very high
+precedence--being evaluated before the multiply.  However, in our
+precedence specifier, MINUS has a lower precedence than TIMES.  To
+deal with this, precedence rules can be given for so-called "fictitious tokens"
+like this:
+
+<blockquote>
+<pre>
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+    ('right', 'UMINUS'),            # Unary minus operator
+)
+</pre>
+</blockquote>
+
+Now, in the grammar file, we can write our unary minus rule like this:
+
+<blockquote>
+<pre>
+def p_expr_uminus(p):
+    'expression : MINUS expression %prec UMINUS'
+    p[0] = -p[2]
+</pre>
+</blockquote>
+
+In this case, <tt>%prec UMINUS</tt> overrides the default rule precedence--setting it to that
+of UMINUS in the precedence specifier.
+
+<p>
+At first, the use of UMINUS in this example may appear very confusing.
+UMINUS is not an input token or a grammar rule.  Instead, you should
+think of it as the name of a special marker in the precedence table.   When you use the <tt>%prec</tt> qualifier, you're simply
+telling yacc that you want the precedence of the expression to be the same as for this special marker instead of the usual precedence.
+
+<p>
+It is also possible to specify non-associativity in the <tt>precedence</tt> table. This would
+be used when you <em>don't</em> want operations to chain together.  For example, suppose
+you wanted to support comparison operators like <tt>&lt;</tt> and <tt>&gt;</tt> but you didn't want to allow
+combinations like <tt>a &lt; b &lt; c</tt>.   To do this, simply specify a rule like this:
+
+<blockquote>
+<pre>
+precedence = (
+    ('nonassoc', 'LESSTHAN', 'GREATERTHAN'),  # Nonassociative operators
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+    ('right', 'UMINUS'),            # Unary minus operator
+)
+</pre>
+</blockquote>
+
+<p>
+If you do this, the occurrence of input text such as <tt> a &lt; b &lt; c</tt> will result in a syntax error.  However, simple
+expressions such as <tt>a &lt; b</tt> will still be fine.
+
+<p>
+Reduce/reduce conflicts are caused when there are multiple grammar
+rules that can be applied to a given set of symbols.  This kind of
+conflict is almost always bad and is always resolved by picking the
+rule that appears first in the grammar file.   Reduce/reduce conflicts
+are almost always caused when different sets of grammar rules somehow
+generate the same set of symbols.  For example:
+
+<blockquote>
+<pre>
+assignment :  ID EQUALS NUMBER
+           |  ID EQUALS expression
+           
+expression : expression PLUS expression
+           | expression MINUS expression
+           | expression TIMES expression
+           | expression DIVIDE expression
+           | LPAREN expression RPAREN
+           | NUMBER
+</pre>
+</blockquote>
+
+In this case, a reduce/reduce conflict exists between these two rules:
+
+<blockquote>
+<pre>
+assignment  : ID EQUALS NUMBER
+expression  : NUMBER
+</pre>
+</blockquote>
+
+For example, if you wrote "a = 5", the parser can't figure out if this
+is supposed to be reduced as <tt>assignment : ID EQUALS NUMBER</tt> or
+whether it's supposed to reduce the 5 as an expression and then reduce
+the rule <tt>assignment : ID EQUALS expression</tt>.
+
+<p>
+It should be noted that reduce/reduce conflicts are notoriously
+difficult to spot simply looking at the input grammar.  When a
+reduce/reduce conflict occurs, <tt>yacc()</tt> will try to help by
+printing a warning message such as this:
+
+<blockquote>
+<pre>
+WARNING: 1 reduce/reduce conflict
+WARNING: reduce/reduce conflict in state 15 resolved using rule (assignment -> ID EQUALS NUMBER)
+WARNING: rejected rule (expression -> NUMBER)
+</pre>
+</blockquote>
+
+This message identifies the two rules that are in conflict.  However,
+it may not tell you how the parser arrived at such a state.  To try
+and figure it out, you'll probably have to look at your grammar and
+the contents of the
+<tt>parser.out</tt> debugging file with an appropriately high level of
+caffeination.
+
+<H3><a name="ply_nn28b"></a>6.7 The parser.out file</H3>
+
+
+Tracking down shift/reduce and reduce/reduce conflicts is one of the finer pleasures of using an LR
+parsing algorithm.  To assist in debugging, <tt>yacc.py</tt> creates a debugging file called
+'parser.out' when it generates the parsing table.   The contents of this file look like the following:
+
+<blockquote>
+<pre>
+Unused terminals:
+
+
+Grammar
+
+Rule 1     expression -> expression PLUS expression
+Rule 2     expression -> expression MINUS expression
+Rule 3     expression -> expression TIMES expression
+Rule 4     expression -> expression DIVIDE expression
+Rule 5     expression -> NUMBER
+Rule 6     expression -> LPAREN expression RPAREN
+
+Terminals, with rules where they appear
+
+TIMES                : 3
+error                : 
+MINUS                : 2
+RPAREN               : 6
+LPAREN               : 6
+DIVIDE               : 4
+PLUS                 : 1
+NUMBER               : 5
+
+Nonterminals, with rules where they appear
+
+expression           : 1 1 2 2 3 3 4 4 6 0
+
+
+Parsing method: LALR
+
+
+state 0
+
+    S' -> . expression
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 1
+
+    S' -> expression .
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 5
+    TIMES           shift and go to state 4
+    DIVIDE          shift and go to state 7
+
+
+state 2
+
+    expression -> LPAREN . expression RPAREN
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 3
+
+    expression -> NUMBER .
+
+    $               reduce using rule 5
+    PLUS            reduce using rule 5
+    MINUS           reduce using rule 5
+    TIMES           reduce using rule 5
+    DIVIDE          reduce using rule 5
+    RPAREN          reduce using rule 5
+
+
+state 4
+
+    expression -> expression TIMES . expression
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 5
+
+    expression -> expression MINUS . expression
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 6
+
+    expression -> expression PLUS . expression
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 7
+
+    expression -> expression DIVIDE . expression
+    expression -> . expression PLUS expression
+    expression -> . expression MINUS expression
+    expression -> . expression TIMES expression
+    expression -> . expression DIVIDE expression
+    expression -> . NUMBER
+    expression -> . LPAREN expression RPAREN
+
+    NUMBER          shift and go to state 3
+    LPAREN          shift and go to state 2
+
+
+state 8
+
+    expression -> LPAREN expression . RPAREN
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    RPAREN          shift and go to state 13
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 5
+    TIMES           shift and go to state 4
+    DIVIDE          shift and go to state 7
+
+
+state 9
+
+    expression -> expression TIMES expression .
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    $               reduce using rule 3
+    PLUS            reduce using rule 3
+    MINUS           reduce using rule 3
+    TIMES           reduce using rule 3
+    DIVIDE          reduce using rule 3
+    RPAREN          reduce using rule 3
+
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 5 ]
+  ! TIMES           [ shift and go to state 4 ]
+  ! DIVIDE          [ shift and go to state 7 ]
+
+state 10
+
+    expression -> expression MINUS expression .
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    $               reduce using rule 2
+    PLUS            reduce using rule 2
+    MINUS           reduce using rule 2
+    RPAREN          reduce using rule 2
+    TIMES           shift and go to state 4
+    DIVIDE          shift and go to state 7
+
+  ! TIMES           [ reduce using rule 2 ]
+  ! DIVIDE          [ reduce using rule 2 ]
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 5 ]
+
+state 11
+
+    expression -> expression PLUS expression .
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    $               reduce using rule 1
+    PLUS            reduce using rule 1
+    MINUS           reduce using rule 1
+    RPAREN          reduce using rule 1
+    TIMES           shift and go to state 4
+    DIVIDE          shift and go to state 7
+
+  ! TIMES           [ reduce using rule 1 ]
+  ! DIVIDE          [ reduce using rule 1 ]
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 5 ]
+
+state 12
+
+    expression -> expression DIVIDE expression .
+    expression -> expression . PLUS expression
+    expression -> expression . MINUS expression
+    expression -> expression . TIMES expression
+    expression -> expression . DIVIDE expression
+
+    $               reduce using rule 4
+    PLUS            reduce using rule 4
+    MINUS           reduce using rule 4
+    TIMES           reduce using rule 4
+    DIVIDE          reduce using rule 4
+    RPAREN          reduce using rule 4
+
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 5 ]
+  ! TIMES           [ shift and go to state 4 ]
+  ! DIVIDE          [ shift and go to state 7 ]
+
+state 13
+
+    expression -> LPAREN expression RPAREN .
+
+    $               reduce using rule 6
+    PLUS            reduce using rule 6
+    MINUS           reduce using rule 6
+    TIMES           reduce using rule 6
+    DIVIDE          reduce using rule 6
+    RPAREN          reduce using rule 6
+</pre>
+</blockquote>
+
+The different states that appear in this file are a representation of
+every possible sequence of valid input tokens allowed by the grammar.
+When receiving input tokens, the parser is building up a stack and
+looking for matching rules.  Each state keeps track of the grammar
+rules that might be in the process of being matched at that point.  Within each
+rule, the "." character indicates the current location of the parse
+within that rule.  In addition, the actions for each valid input token
+are listed.  When a shift/reduce or reduce/reduce conflict arises,
+rules <em>not</em> selected are prefixed with an !.  For example:
+
+<blockquote>
+<pre>
+  ! TIMES           [ reduce using rule 2 ]
+  ! DIVIDE          [ reduce using rule 2 ]
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 5 ]
+</pre>
+</blockquote>
+
+By looking at these rules (and with a little practice), you can usually track down the source
+of most parsing conflicts.  It should also be stressed that not all shift-reduce conflicts are
+bad.  However, the only way to be sure that they are resolved correctly is to look at <tt>parser.out</tt>.
+  
+<H3><a name="ply_nn29"></a>6.8 Syntax Error Handling</H3>
+
+
+If you are creating a parser for production use, the handling of
+syntax errors is important.  As a general rule, you don't want a
+parser to simply throw up its hands and stop at the first sign of
+trouble.  Instead, you want it to report the error, recover if possible, and
+continue parsing so that all of the errors in the input get reported
+to the user at once.   This is the standard behavior found in compilers
+for languages such as C, C++, and Java.
+
+In PLY, when a syntax error occurs during parsing, the error is immediately
+detected (i.e., the parser does not read any more tokens beyond the
+source of the error).  However, at this point, the parser enters a
+recovery mode that can be used to try and continue further parsing.
+As a general rule, error recovery in LR parsers is a delicate
+topic that involves ancient rituals and black-magic.   The recovery mechanism
+provided by <tt>yacc.py</tt> is comparable to Unix yacc so you may want
+consult a book like O'Reilly's "Lex and Yacc" for some of the finer details.
+
+<p>
+When a syntax error occurs, <tt>yacc.py</tt> performs the following steps:
+
+<ol>
+<li>On the first occurrence of an error, the user-defined <tt>p_error()</tt> function
+is called with the offending token as an argument. However, if the syntax error is due to
+reaching the end-of-file, <tt>p_error()</tt> is called with an
+  argument of <tt>None</tt>.
+Afterwards, the parser enters
+an "error-recovery" mode in which it will not make future calls to <tt>p_error()</tt> until it
+has successfully shifted at least 3 tokens onto the parsing stack.
+
+<p>
+<li>If no recovery action is taken in <tt>p_error()</tt>, the offending lookahead token is replaced
+with a special <tt>error</tt> token.
+
+<p>
+<li>If the offending lookahead token is already set to <tt>error</tt>, the top item of the parsing stack is
+deleted.
+
+<p>
+<li>If the entire parsing stack is unwound, the parser enters a restart state and attempts to start
+parsing from its initial state.
+
+<p>
+<li>If a grammar rule accepts <tt>error</tt> as a token, it will be
+shifted onto the parsing stack.
+
+<p>
+<li>If the top item of the parsing stack is <tt>error</tt>, lookahead tokens will be discarded until the
+parser can successfully shift a new symbol or reduce a rule involving <tt>error</tt>.
+</ol>
+
+<H4><a name="ply_nn30"></a>6.8.1 Recovery and resynchronization with error rules</H4>
+
+
+The most well-behaved approach for handling syntax errors is to write grammar rules that include the <tt>error</tt>
+token.  For example, suppose your language had a grammar rule for a print statement like this:
+
+<blockquote>
+<pre>
+def p_statement_print(p):
+     'statement : PRINT expr SEMI'
+     ...
+</pre>
+</blockquote>
+
+To account for the possibility of a bad expression, you might write an additional grammar rule like this:
+
+<blockquote>
+<pre>
+def p_statement_print_error(p):
+     'statement : PRINT error SEMI'
+     print("Syntax error in print statement. Bad expression")
+
+</pre>
+</blockquote>
+
+In this case, the <tt>error</tt> token will match any sequence of
+tokens that might appear up to the first semicolon that is
+encountered.  Once the semicolon is reached, the rule will be
+invoked and the <tt>error</tt> token will go away.
+
+<p>
+This type of recovery is sometimes known as parser resynchronization.
+The <tt>error</tt> token acts as a wildcard for any bad input text and
+the token immediately following <tt>error</tt> acts as a
+synchronization token.
+
+<p>
+It is important to note that the <tt>error</tt> token usually does not appear as the last token
+on the right in an error rule.  For example:
+
+<blockquote>
+<pre>
+def p_statement_print_error(p):
+    'statement : PRINT error'
+    print("Syntax error in print statement. Bad expression")
+</pre>
+</blockquote>
+
+This is because the first bad token encountered will cause the rule to
+be reduced--which may make it difficult to recover if more bad tokens
+immediately follow.   
+
+<H4><a name="ply_nn31"></a>6.8.2 Panic mode recovery</H4>
+
+
+An alternative error recovery scheme is to enter a panic mode recovery in which tokens are
+discarded to a point where the parser might be able to recover in some sensible manner.
+
+<p>
+Panic mode recovery is implemented entirely in the <tt>p_error()</tt> function.  For example, this
+function starts discarding tokens until it reaches a closing '}'.  Then, it restarts the 
+parser in its initial state.
+
+<blockquote>
+<pre>
+def p_error(p):
+    print("Whoa. You are seriously hosed.")
+    if not p:
+        print("End of File!")
+        return
+
+    # Read ahead looking for a closing '}'
+    while True:
+        tok = parser.token()             # Get the next token
+        if not tok or tok.type == 'RBRACE': 
+            break
+    parser.restart()
+</pre>
+</blockquote>
+
+<p>
+This function simply discards the bad token and tells the parser that the error was ok.
+
+<blockquote>
+<pre>
+def p_error(p):
+    if p:
+         print("Syntax error at token", p.type)
+         # Just discard the token and tell the parser it's okay.
+         parser.errok()
+    else:
+         print("Syntax error at EOF")
+</pre>
+</blockquote>
+
+<P>
+More information on these methods is as follows:
+</p>
+
+<p>
+<ul>
+<li><tt>parser.errok()</tt>.  This resets the parser state so it doesn't think it's in error-recovery
+mode.   This will prevent an <tt>error</tt> token from being generated and will reset the internal
+error counters so that the next syntax error will call <tt>p_error()</tt> again.
+
+<p>
+<li><tt>parser.token()</tt>.  This returns the next token on the input stream.
+
+<p>
+<li><tt>parser.restart()</tt>.  This discards the entire parsing stack and resets the parser
+to its initial state. 
+</ul>
+
+<p>
+To supply the next lookahead token to the parser, <tt>p_error()</tt> can return a token.  This might be
+useful if trying to synchronize on special characters.  For example:
+
+<blockquote>
+<pre>
+def p_error(p):
+    # Read ahead looking for a terminating ";"
+    while True:
+        tok = parser.token()             # Get the next token
+        if not tok or tok.type == 'SEMI': break
+    parser.errok()
+
+    # Return SEMI to the parser as the next lookahead token
+    return tok  
+</pre>
+</blockquote>
+
+<p>
+Keep in mind in that the above error handling functions,
+<tt>parser</tt> is an instance of the parser created by
+<tt>yacc()</tt>.   You'll need to save this instance someplace in your
+code so that you can refer to it during error handling.
+</p>
+
+<H4><a name="ply_nn35"></a>6.8.3 Signalling an error from a production</H4>
+
+
+If necessary, a production rule can manually force the parser to enter error recovery.  This
+is done by raising the <tt>SyntaxError</tt> exception like this:
+
+<blockquote>
+<pre>
+def p_production(p):
+    'production : some production ...'
+    raise SyntaxError
+</pre>
+</blockquote>
+
+The effect of raising <tt>SyntaxError</tt> is the same as if the last symbol shifted onto the
+parsing stack was actually a syntax error.  Thus, when you do this, the last symbol shifted is popped off
+of the parsing stack and the current lookahead token is set to an <tt>error</tt> token.   The parser
+then enters error-recovery mode where it tries to reduce rules that can accept <tt>error</tt> tokens.  
+The steps that follow from this point are exactly the same as if a syntax error were detected and 
+<tt>p_error()</tt> were called.
+
+<P>
+One important aspect of manually setting an error is that the <tt>p_error()</tt> function will <b>NOT</b> be
+called in this case.   If you need to issue an error message, make sure you do it in the production that
+raises <tt>SyntaxError</tt>.
+
+<P>
+Note: This feature of PLY is meant to mimic the behavior of the YYERROR macro in yacc.
+
+<H4><a name="ply_nn38"></a>6.8.4 When Do Syntax Errors Get Reported</H4>
+
+
+<p>
+In most cases, yacc will handle errors as soon as a bad input token is
+detected on the input.  However, be aware that yacc may choose to
+delay error handling until after it has reduced one or more grammar
+rules first.  This behavior might be unexpected, but it's related to
+special states in the underlying parsing table known as "defaulted
+states."  A defaulted state is parsing condition where the same
+grammar rule will be reduced regardless of what <em>valid</em> token
+comes next on the input.  For such states, yacc chooses to go ahead
+and reduce the grammar rule <em>without reading the next input
+token</em>.  If the next token is bad, yacc will eventually get around to reading it and 
+report a syntax error.  It's just a little unusual in that you might
+see some of your grammar rules firing immediately prior to the syntax 
+error.
+</p>
+
+<p>
+Usually, the delayed error reporting with defaulted states is harmless
+(and there are other reasons for wanting PLY to behave in this way).
+However, if you need to turn this behavior off for some reason.  You
+can clear the defaulted states table like this:
+</p>
+
+<blockquote>
+<pre>
+parser = yacc.yacc()
+parser.defaulted_states = {}
+</pre>
+</blockquote>
+
+<p>
+Disabling defaulted states is not recommended if your grammar makes use
+of embedded actions as described in Section 6.11.</p>
+
+<H4><a name="ply_nn32"></a>6.8.5 General comments on error handling</H4>
+
+
+For normal types of languages, error recovery with error rules and resynchronization characters is probably the most reliable
+technique. This is because you can instrument the grammar to catch errors at selected places where it is relatively easy 
+to recover and continue parsing.  Panic mode recovery is really only useful in certain specialized applications where you might want
+to discard huge portions of the input text to find a valid restart point.
+
+<H3><a name="ply_nn33"></a>6.9 Line Number and Position Tracking</H3>
+
+
+Position tracking is often a tricky problem when writing compilers.
+By default, PLY tracks the line number and position of all tokens.
+This information is available using the following functions:
+
+<ul>
+<li><tt>p.lineno(num)</tt>. Return the line number for symbol <em>num</em>
+<li><tt>p.lexpos(num)</tt>. Return the lexing position for symbol <em>num</em>
+</ul>
+
+For example:
+
+<blockquote>
+<pre>
+def p_expression(p):
+    'expression : expression PLUS expression'
+    line   = p.lineno(2)        # line number of the PLUS token
+    index  = p.lexpos(2)        # Position of the PLUS token
+</pre>
+</blockquote>
+
+As an optional feature, <tt>yacc.py</tt> can automatically track line
+numbers and positions for all of the grammar symbols as well.
+However, this extra tracking requires extra processing and can
+significantly slow down parsing.  Therefore, it must be enabled by
+passing the
+<tt>tracking=True</tt> option to <tt>yacc.parse()</tt>.  For example:
+
+<blockquote>
+<pre>
+yacc.parse(data,tracking=True)
+</pre>
+</blockquote>
+
+Once enabled, the <tt>lineno()</tt> and <tt>lexpos()</tt> methods work
+for all grammar symbols.  In addition, two additional methods can be
+used:
+
+<ul>
+<li><tt>p.linespan(num)</tt>. Return a tuple (startline,endline) with the starting and ending line number for symbol <em>num</em>.
+<li><tt>p.lexspan(num)</tt>. Return a tuple (start,end) with the starting and ending positions for symbol <em>num</em>.
+</ul>
+
+For example:
+
+<blockquote>
+<pre>
+def p_expression(p):
+    'expression : expression PLUS expression'
+    p.lineno(1)        # Line number of the left expression
+    p.lineno(2)        # line number of the PLUS operator
+    p.lineno(3)        # line number of the right expression
+    ...
+    start,end = p.linespan(3)    # Start,end lines of the right expression
+    starti,endi = p.lexspan(3)   # Start,end positions of right expression
+
+</pre>
+</blockquote>
+
+Note: The <tt>lexspan()</tt> function only returns the range of values up to the start of the last grammar symbol.  
+
+<p>
+Although it may be convenient for PLY to track position information on
+all grammar symbols, this is often unnecessary.  For example, if you
+are merely using line number information in an error message, you can
+often just key off of a specific token in the grammar rule.  For
+example:
+
+<blockquote>
+<pre>
+def p_bad_func(p):
+    'funccall : fname LPAREN error RPAREN'
+    # Line number reported from LPAREN token
+    print("Bad function call at line", p.lineno(2))
+</pre>
+</blockquote>
+
+<p>
+Similarly, you may get better parsing performance if you only
+selectively propagate line number information where it's needed using
+the <tt>p.set_lineno()</tt> method.  For example:
+
+<blockquote>
+<pre>
+def p_fname(p):
+    'fname : ID'
+    p[0] = p[1]
+    p.set_lineno(0,p.lineno(1))
+</pre>
+</blockquote>
+
+PLY doesn't retain line number information from rules that have already been
+parsed.   If you are building an abstract syntax tree and need to have line numbers,
+you should make sure that the line numbers appear in the tree itself.
+
+<H3><a name="ply_nn34"></a>6.10 AST Construction</H3>
+
+
+<tt>yacc.py</tt> provides no special functions for constructing an
+abstract syntax tree.  However, such construction is easy enough to do
+on your own. 
+
+<p>A minimal way to construct a tree is to simply create and
+propagate a tuple or list in each grammar rule function.   There
+are many possible ways to do this, but one example would be something
+like this:
+
+<blockquote>
+<pre>
+def p_expression_binop(p):
+    '''expression : expression PLUS expression
+                  | expression MINUS expression
+                  | expression TIMES expression
+                  | expression DIVIDE expression'''
+
+    p[0] = ('binary-expression',p[2],p[1],p[3])
+
+def p_expression_group(p):
+    'expression : LPAREN expression RPAREN'
+    p[0] = ('group-expression',p[2])
+
+def p_expression_number(p):
+    'expression : NUMBER'
+    p[0] = ('number-expression',p[1])
+</pre>
+</blockquote>
+
+<p>
+Another approach is to create a set of data structure for different
+kinds of abstract syntax tree nodes and assign nodes to <tt>p[0]</tt>
+in each rule.  For example:
+
+<blockquote>
+<pre>
+class Expr: pass
+
+class BinOp(Expr):
+    def __init__(self,left,op,right):
+        self.type = "binop"
+        self.left = left
+        self.right = right
+        self.op = op
+
+class Number(Expr):
+    def __init__(self,value):
+        self.type = "number"
+        self.value = value
+
+def p_expression_binop(p):
+    '''expression : expression PLUS expression
+                  | expression MINUS expression
+                  | expression TIMES expression
+                  | expression DIVIDE expression'''
+
+    p[0] = BinOp(p[1],p[2],p[3])
+
+def p_expression_group(p):
+    'expression : LPAREN expression RPAREN'
+    p[0] = p[2]
+
+def p_expression_number(p):
+    'expression : NUMBER'
+    p[0] = Number(p[1])
+</pre>
+</blockquote>
+
+The advantage to this approach is that it may make it easier to attach more complicated
+semantics, type checking, code generation, and other features to the node classes.
+
+<p>
+To simplify tree traversal, it may make sense to pick a very generic
+tree structure for your parse tree nodes.  For example:
+
+<blockquote>
+<pre>
+class Node:
+    def __init__(self,type,children=None,leaf=None):
+         self.type = type
+         if children:
+              self.children = children
+         else:
+              self.children = [ ]
+         self.leaf = leaf
+	 
+def p_expression_binop(p):
+    '''expression : expression PLUS expression
+                  | expression MINUS expression
+                  | expression TIMES expression
+                  | expression DIVIDE expression'''
+
+    p[0] = Node("binop", [p[1],p[3]], p[2])
+</pre>
+</blockquote>
+
+<H3><a name="ply_nn35b"></a>6.11 Embedded Actions</H3>
+
+
+The parsing technique used by yacc only allows actions to be executed at the end of a rule.  For example,
+suppose you have a rule like this:
+
+<blockquote>
+<pre>
+def p_foo(p):
+    "foo : A B C D"
+    print("Parsed a foo", p[1],p[2],p[3],p[4])
+</pre>
+</blockquote>
+
+<p>
+In this case, the supplied action code only executes after all of the
+symbols <tt>A</tt>, <tt>B</tt>, <tt>C</tt>, and <tt>D</tt> have been
+parsed. Sometimes, however, it is useful to execute small code
+fragments during intermediate stages of parsing.  For example, suppose
+you wanted to perform some action immediately after <tt>A</tt> has
+been parsed. To do this, write an empty rule like this:
+
+<blockquote>
+<pre>
+def p_foo(p):
+    "foo : A seen_A B C D"
+    print("Parsed a foo", p[1],p[3],p[4],p[5])
+    print("seen_A returned", p[2])
+
+def p_seen_A(p):
+    "seen_A :"
+    print("Saw an A = ", p[-1])   # Access grammar symbol to left
+    p[0] = some_value            # Assign value to seen_A
+
+</pre>
+</blockquote>
+
+<p>
+In this example, the empty <tt>seen_A</tt> rule executes immediately
+after <tt>A</tt> is shifted onto the parsing stack.  Within this
+rule, <tt>p[-1]</tt> refers to the symbol on the stack that appears
+immediately to the left of the <tt>seen_A</tt> symbol.  In this case,
+it would be the value of <tt>A</tt> in the <tt>foo</tt> rule
+immediately above.  Like other rules, a value can be returned from an
+embedded action by simply assigning it to <tt>p[0]</tt>
+
+<p>
+The use of embedded actions can sometimes introduce extra shift/reduce conflicts.  For example,
+this grammar has no conflicts:
+
+<blockquote>
+<pre>
+def p_foo(p):
+    """foo : abcd
+           | abcx"""
+
+def p_abcd(p):
+    "abcd : A B C D"
+
+def p_abcx(p):
+    "abcx : A B C X"
+</pre>
+</blockquote>
+
+However, if you insert an embedded action into one of the rules like this,
+
+<blockquote>
+<pre>
+def p_foo(p):
+    """foo : abcd
+           | abcx"""
+
+def p_abcd(p):
+    "abcd : A B C D"
+
+def p_abcx(p):
+    "abcx : A B seen_AB C X"
+
+def p_seen_AB(p):
+    "seen_AB :"
+</pre>
+</blockquote>
+
+an extra shift-reduce conflict will be introduced.  This conflict is
+caused by the fact that the same symbol <tt>C</tt> appears next in
+both the <tt>abcd</tt> and <tt>abcx</tt> rules.  The parser can either
+shift the symbol (<tt>abcd</tt> rule) or reduce the empty
+rule <tt>seen_AB</tt> (<tt>abcx</tt> rule).
+
+<p>
+A common use of embedded rules is to control other aspects of parsing
+such as scoping of local variables.  For example, if you were parsing C code, you might
+write code like this:
+
+<blockquote>
+<pre>
+def p_statements_block(p):
+    "statements: LBRACE new_scope statements RBRACE"""
+    # Action code
+    ...
