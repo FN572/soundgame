@@ -3051,3 +3051,446 @@ def p_statements_block(p):
     "statements: LBRACE new_scope statements RBRACE"""
     # Action code
     ...
+    pop_scope()        # Return to previous scope
+
+def p_new_scope(p):
+    "new_scope :"
+    # Create a new scope for local variables
+    s = new_scope()
+    push_scope(s)
+    ...
+</pre>
+</blockquote>
+
+In this case, the embedded action <tt>new_scope</tt> executes
+immediately after a <tt>LBRACE</tt> (<tt>{</tt>) symbol is parsed.
+This might adjust internal symbol tables and other aspects of the
+parser.  Upon completion of the rule <tt>statements_block</tt>, code
+might undo the operations performed in the embedded action
+(e.g., <tt>pop_scope()</tt>).
+
+<H3><a name="ply_nn36"></a>6.12 Miscellaneous Yacc Notes</H3>
+
+
+<ul>
+
+<li>By default, <tt>yacc.py</tt> relies on <tt>lex.py</tt> for tokenizing.  However, an alternative tokenizer
+can be supplied as follows:
+
+<blockquote>
+<pre>
+parser = yacc.parse(lexer=x)
+</pre>
+</blockquote>
+in this case, <tt>x</tt> must be a Lexer object that minimally has a <tt>x.token()</tt> method for retrieving the next
+token.   If an input string is given to <tt>yacc.parse()</tt>, the lexer must also have an <tt>x.input()</tt> method.
+
+<p>
+<li>By default, the yacc generates tables in debugging mode (which produces the parser.out file and other output).
+To disable this, use
+
+<blockquote>
+<pre>
+parser = yacc.yacc(debug=False)
+</pre>
+</blockquote>
+
+<p>
+<li>To change the name of the <tt>parsetab.py</tt> file,  use:
+
+<blockquote>
+<pre>
+parser = yacc.yacc(tabmodule="foo")
+</pre>
+</blockquote>
+
+<P>
+Normally, the <tt>parsetab.py</tt> file is placed into the same directory as
+the module where the parser is defined. If you want it to go somewhere else, you can
+given an absolute package name for <tt>tabmodule</tt> instead.  In that case, the 
+tables will be written there.
+</p>
+
+<p>
+<li>To change the directory in which the <tt>parsetab.py</tt> file (and other output files) are written, use:
+<blockquote>
+<pre>
+parser = yacc.yacc(tabmodule="foo",outputdir="somedirectory")
+</pre>
+</blockquote>
+
+<p>
+Note: Be aware that unless the directory specified is also on Python's path (<tt>sys.path</tt>), subsequent
+imports of the table file will fail.   As a general rule, it's better to specify a destination using the
+<tt>tabmodule</tt> argument instead of directly specifying a directory using the <tt>outputdir</tt> argument.
+</p>
+
+<p>
+<li>To prevent yacc from generating any kind of parser table file, use:
+<blockquote>
+<pre>
+parser = yacc.yacc(write_tables=False)
+</pre>
+</blockquote>
+
+Note: If you disable table generation, yacc() will regenerate the parsing tables
+each time it runs (which may take awhile depending on how large your grammar is).
+
+<P>
+<li>To print copious amounts of debugging during parsing, use:
+
+<blockquote>
+<pre>
+parser.parse(input_text, debug=True)     
+</pre>
+</blockquote>
+
+<p>
+<li>Since the generation of the LALR tables is relatively expensive, previously generated tables are
+cached and reused if possible.  The decision to regenerate the tables is determined by taking an MD5
+checksum of all grammar rules and precedence rules.  Only in the event of a mismatch are the tables regenerated.
+
+<p>
+It should be noted that table generation is reasonably efficient, even for grammars that involve around a 100 rules
+and several hundred states. </li>
+
+
+<p>
+<li>Since LR parsing is driven by tables, the performance of the parser is largely independent of the
+size of the grammar.   The biggest bottlenecks will be the lexer and the complexity of the code in your grammar rules.
+</li>
+</p>
+
+<p>
+<li><tt>yacc()</tt> also allows parsers to be defined as classes and as closures (see the section on alternative specification of
+lexers).  However, be aware that only one parser may be defined in a single module (source file).  There are various 
+error checks and validation steps that may issue confusing error messages if you try to define multiple parsers
+in the same source file.
+</li>
+</p>
+
+<p>
+<li>Decorators of production rules have to update the wrapped function's line number.  <tt>wrapper.co_firstlineno = func.__code__.co_firstlineno</tt>:
+
+<blockquote>
+<pre>
+from functools import wraps
+from nodes import Collection
+
+
+def strict(*types):
+    def decorate(func):
+        @wraps(func)
+        def wrapper(p):
+            func(p)
+            if not isinstance(p[0], types):
+                raise TypeError
+
+        wrapper.co_firstlineno = func.__code__.co_firstlineno
+        return wrapper
+
+    return decorate
+
+@strict(Collection)
+def p_collection(p):
+    """
+    collection  : sequence
+                | map
+    """
+    p[0] = p[1]
+</pre>
+</blockquote>
+
+</li>
+</p>
+
+
+</ul>
+</p>
+
+
+<H2><a name="ply_nn37"></a>7. Multiple Parsers and Lexers</H2>
+
+
+In advanced parsing applications, you may want to have multiple
+parsers and lexers. 
+
+<p>
+As a general rules this isn't a problem.   However, to make it work,
+you need to carefully make sure everything gets hooked up correctly.
+First, make sure you save the objects returned by <tt>lex()</tt> and
+<tt>yacc()</tt>.  For example:
+
+<blockquote>
+<pre>
+lexer  = lex.lex()       # Return lexer object
+parser = yacc.yacc()     # Return parser object
+</pre>
+</blockquote>
+
+Next, when parsing, make sure you give the <tt>parse()</tt> function a reference to the lexer it
+should be using.  For example:
+
+<blockquote>
+<pre>
+parser.parse(text,lexer=lexer)
+</pre>
+</blockquote>
+
+If you forget to do this, the parser will use the last lexer
+created--which is not always what you want.
+
+<p>
+Within lexer and parser rule functions, these objects are also
+available.  In the lexer, the "lexer" attribute of a token refers to
+the lexer object that triggered the rule. For example:
+
+<blockquote>
+<pre>
+def t_NUMBER(t):
+   r'\d+'
+   ...
+   print(t.lexer)           # Show lexer object
+</pre>
+</blockquote>
+
+In the parser, the "lexer" and "parser" attributes refer to the lexer
+and parser objects respectively.
+
+<blockquote>
+<pre>
+def p_expr_plus(p):
+   'expr : expr PLUS expr'
+   ...
+   print(p.parser)          # Show parser object
+   print(p.lexer)           # Show lexer object
+</pre>
+</blockquote>
+
+If necessary, arbitrary attributes can be attached to the lexer or parser object.
+For example, if you wanted to have different parsing modes, you could attach a mode
+attribute to the parser object and look at it later.
+
+<H2><a name="ply_nn38b"></a>8. Using Python's Optimized Mode</H2>
+
+
+Because PLY uses information from doc-strings, parsing and lexing
+information must be gathered while running the Python interpreter in
+normal mode (i.e., not with the -O or -OO options).  However, if you
+specify optimized mode like this:
+
+<blockquote>
+<pre>
+lex.lex(optimize=1)
+yacc.yacc(optimize=1)
+</pre>
+</blockquote>
+
+then PLY can later be used when Python runs in optimized mode. To make this work,
+make sure you first run Python in normal mode.  Once the lexing and parsing tables
+have been generated the first time, run Python in optimized mode. PLY will use
+the tables without the need for doc strings.
+
+<p>
+Beware: running PLY in optimized mode disables a lot of error
+checking.  You should only do this when your project has stabilized
+and you don't need to do any debugging.   One of the purposes of
+optimized mode is to substantially decrease the startup time of
+your compiler (by assuming that everything is already properly
+specified and works).
+
+<H2><a name="ply_nn44"></a>9. Advanced Debugging</H2>
+
+
+<p>
+Debugging a compiler is typically not an easy task. PLY provides some
+advanced diagostic capabilities through the use of Python's
+<tt>logging</tt> module.   The next two sections describe this:
+
+<H3><a name="ply_nn45"></a>9.1 Debugging the lex() and yacc() commands</H3>
+
+
+<p>
+Both the <tt>lex()</tt> and <tt>yacc()</tt> commands have a debugging
+mode that can be enabled using the <tt>debug</tt> flag.  For example:
+
+<blockquote>
+<pre>
+lex.lex(debug=True)
+yacc.yacc(debug=True)
+</pre>
+</blockquote>
+
+Normally, the output produced by debugging is routed to either
+standard error or, in the case of <tt>yacc()</tt>, to a file
+<tt>parser.out</tt>.  This output can be more carefully controlled
+by supplying a logging object.  Here is an example that adds
+information about where different debugging messages are coming from:
+
+<blockquote>
+<pre>
+# Set up a logging object
+import logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    filename = "parselog.txt",
+    filemode = "w",
+    format = "%(filename)10s:%(lineno)4d:%(message)s"
+)
+log = logging.getLogger()
+
+lex.lex(debug=True,debuglog=log)
+yacc.yacc(debug=True,debuglog=log)
+</pre>
+</blockquote>
+
+If you supply a custom logger, the amount of debugging
+information produced can be controlled by setting the logging level.
+Typically, debugging messages are either issued at the <tt>DEBUG</tt>,
+<tt>INFO</tt>, or <tt>WARNING</tt> levels.
+
+<p>
+PLY's error messages and warnings are also produced using the logging
+interface.  This can be controlled by passing a logging object
+using the <tt>errorlog</tt> parameter.
+
+<blockquote>
+<pre>
+lex.lex(errorlog=log)
+yacc.yacc(errorlog=log)
+</pre>
+</blockquote>
+
+If you want to completely silence warnings, you can either pass in a
+logging object with an appropriate filter level or use the <tt>NullLogger</tt>
+object defined in either <tt>lex</tt> or <tt>yacc</tt>.  For example:
+
+<blockquote>
+<pre>
+yacc.yacc(errorlog=yacc.NullLogger())
+</pre>
+</blockquote>
+
+<H3><a name="ply_nn46"></a>9.2 Run-time Debugging</H3>
+
+
+<p>
+To enable run-time debugging of a parser, use the <tt>debug</tt> option to parse. This
+option can either be an integer (which simply turns debugging on or off) or an instance
+of a logger object. For example:
+
+<blockquote>
+<pre>
+log = logging.getLogger()
+parser.parse(input,debug=log)
+</pre>
+</blockquote>
+
+If a logging object is passed, you can use its filtering level to control how much
+output gets generated.   The <tt>INFO</tt> level is used to produce information
+about rule reductions.  The <tt>DEBUG</tt> level will show information about the
+parsing stack, token shifts, and other details.  The <tt>ERROR</tt> level shows information
+related to parsing errors.
+
+<p>
+For very complicated problems, you should pass in a logging object that
+redirects to a file where you can more easily inspect the output after
+execution.
+
+<H2><a name="ply_nn49"></a>10. Packaging Advice</H2>
+
+
+<p>
+If you are distributing a package that makes use of PLY, you should
+spend a few moments thinking about how you want to handle the files
+that are automatically generated.  For example, the <tt>parsetab.py</tt>
+file generated by the <tt>yacc()</tt> function.</p>
+
+<p>
+Starting in PLY-3.6, the table files are created in the same directory
+as the file where a parser is defined.   This means that the
+<tt>parsetab.py</tt> file will live side-by-side with your parser
+specification.  In terms of packaging, this is probably the easiest and
+most sane approach to manage.  You don't need to give <tt>yacc()</tt>
+any extra arguments and it should just "work."</p>
+
+<p>
+One concern is the management of the <tt>parsetab.py</tt> file itself.
+For example, should you have this file checked into version control (e.g., GitHub),
+should it be included in a package distribution as a normal file, or should you
+just let PLY generate it automatically for the user when they install your package?
+</p>
+
+<p>
+As of PLY-3.6, the <tt>parsetab.py</tt> file should be compatible across all versions
+of Python including Python 2 and 3.  Thus, a table file generated in Python 2 should
+work fine if it's used on Python 3.  Because of this, it should be relatively harmless 
+to distribute the <tt>parsetab.py</tt> file yourself if you need to. However, be aware
+that older/newer versions of PLY may try to regenerate the file if there are future 
+enhancements or changes to its format.
+</p>
+
+<p>
+To make the generation of table files easier for the purposes of installation, you might
+way to make your parser files executable using the <tt>-m</tt> option or similar.  For
+example:
+</p>
+
+<blockquote>
+<pre>
+# calc.py
+...
+...
+def make_parser():
+    parser = yacc.yacc()
+    return parser
+
+if __name__ == '__main__':
+    make_parser()
+</pre>
+</blockquote>
+
+<p>
+You can then use a command such as <tt>python -m calc.py</tt> to generate the tables. Alternatively,
+a <tt>setup.py</tt> script, can import the module and use <tt>make_parser()</tt> to create the
+parsing tables.
+</p>
+
+<p>
+If you're willing to sacrifice a little startup time, you can also instruct PLY to never write the
+tables using <tt>yacc.yacc(write_tables=False, debug=False)</tt>.   In this mode, PLY will regenerate
+the parsing tables from scratch each time.  For a small grammar, you probably won't notice.  For a 
+large grammar, you should probably reconsider--the parsing tables are meant to dramatically speed up this process.
+</p>
+
+<p>
+During operation, it is normal for PLY to produce diagnostic error
+messages (usually printed to standard error).  These are generated
+entirely using the <tt>logging</tt> module.  If you want to redirect
+these messages or silence them, you can provide your own logging
+object to <tt>yacc()</tt>.  For example:
+</p>
+
+<blockquote>
+<pre>
+import logging
+log = logging.getLogger('ply')
+...
+parser = yacc.yacc(errorlog=log)
+</pre>
+</blockquote>
+
+<H2><a name="ply_nn39"></a>11. Where to go from here?</H2>
+
+
+The <tt>examples</tt> directory of the PLY distribution contains several simple examples.   Please consult a
+compilers textbook for the theory and underlying implementation details or LR parsing.
+
+</body>
+</html>
+
+
+
+
+
+
