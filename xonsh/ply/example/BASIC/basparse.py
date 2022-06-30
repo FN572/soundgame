@@ -78,4 +78,70 @@ def p_statement_bad(p):
     '''statement : INTEGER error NEWLINE'''
     print("MALFORMED STATEMENT AT LINE %s" % p[1])
     p[0] = None
-    p.
+    p.parser.error = 1
+
+# Blank line
+
+
+def p_statement_newline(p):
+    '''statement : NEWLINE'''
+    p[0] = None
+
+# LET statement
+
+
+def p_command_let(p):
+    '''command : LET variable EQUALS expr'''
+    p[0] = ('LET', p[2], p[4])
+
+
+def p_command_let_bad(p):
+    '''command : LET variable EQUALS error'''
+    p[0] = "BAD EXPRESSION IN LET"
+
+# READ statement
+
+
+def p_command_read(p):
+    '''command : READ varlist'''
+    p[0] = ('READ', p[2])
+
+
+def p_command_read_bad(p):
+    '''command : READ error'''
+    p[0] = "MALFORMED VARIABLE LIST IN READ"
+
+# DATA statement
+
+
+def p_command_data(p):
+    '''command : DATA numlist'''
+    p[0] = ('DATA', p[2])
+
+
+def p_command_data_bad(p):
+    '''command : DATA error'''
+    p[0] = "MALFORMED NUMBER LIST IN DATA"
+
+# PRINT statement
+
+
+def p_command_print(p):
+    '''command : PRINT plist optend'''
+    p[0] = ('PRINT', p[2], p[3])
+
+
+def p_command_print_bad(p):
+    '''command : PRINT error'''
+    p[0] = "MALFORMED PRINT STATEMENT"
+
+# Optional ending on PRINT. Either a comma (,) or semicolon (;)
+
+
+def p_optend(p):
+    '''optend : COMMA 
+              | SEMI
+              |'''
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
