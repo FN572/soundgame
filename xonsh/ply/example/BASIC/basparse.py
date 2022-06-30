@@ -145,3 +145,60 @@ def p_optend(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
+        p[0] = None
+
+# PRINT statement with no arguments
+
+
+def p_command_print_empty(p):
+    '''command : PRINT'''
+    p[0] = ('PRINT', [], None)
+
+# GOTO statement
+
+
+def p_command_goto(p):
+    '''command : GOTO INTEGER'''
+    p[0] = ('GOTO', int(p[2]))
+
+
+def p_command_goto_bad(p):
+    '''command : GOTO error'''
+    p[0] = "INVALID LINE NUMBER IN GOTO"
+
+# IF-THEN statement
+
+
+def p_command_if(p):
+    '''command : IF relexpr THEN INTEGER'''
+    p[0] = ('IF', p[2], int(p[4]))
+
+
+def p_command_if_bad(p):
+    '''command : IF error THEN INTEGER'''
+    p[0] = "BAD RELATIONAL EXPRESSION"
+
+
+def p_command_if_bad2(p):
+    '''command : IF relexpr THEN error'''
+    p[0] = "INVALID LINE NUMBER IN THEN"
+
+# FOR statement
+
+
+def p_command_for(p):
+    '''command : FOR ID EQUALS expr TO expr optstep'''
+    p[0] = ('FOR', p[2], p[4], p[6], p[7])
+
+
+def p_command_for_bad_initial(p):
+    '''command : FOR ID EQUALS error TO expr optstep'''
+    p[0] = "BAD INITIAL VALUE IN FOR STATEMENT"
+
+
+def p_command_for_bad_final(p):
+    '''command : FOR ID EQUALS expr TO error optstep'''
+    p[0] = "BAD FINAL VALUE IN FOR STATEMENT"
+
+
+def p
