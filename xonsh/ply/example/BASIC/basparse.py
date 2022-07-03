@@ -267,4 +267,74 @@ def p_command_def_bad_arg(p):
     '''command : DEF ID LPAREN error RPAREN EQUALS expr'''
     p[0] = "BAD ARGUMENT IN DEF STATEMENT"
 
-# GOS
+# GOSUB statement
+
+
+def p_command_gosub(p):
+    '''command : GOSUB INTEGER'''
+    p[0] = ('GOSUB', int(p[2]))
+
+
+def p_command_gosub_bad(p):
+    '''command : GOSUB error'''
+    p[0] = "INVALID LINE NUMBER IN GOSUB"
+
+# RETURN statement
+
+
+def p_command_return(p):
+    '''command : RETURN'''
+    p[0] = ('RETURN',)
+
+# DIM statement
+
+
+def p_command_dim(p):
+    '''command : DIM dimlist'''
+    p[0] = ('DIM', p[2])
+
+
+def p_command_dim_bad(p):
+    '''command : DIM error'''
+    p[0] = "MALFORMED VARIABLE LIST IN DIM"
+
+# List of variables supplied to DIM statement
+
+
+def p_dimlist(p):
+    '''dimlist : dimlist COMMA dimitem
+               | dimitem'''
+    if len(p) == 4:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
+
+# DIM items
+
+
+def p_dimitem_single(p):
+    '''dimitem : ID LPAREN INTEGER RPAREN'''
+    p[0] = (p[1], eval(p[3]), 0)
+
+
+def p_dimitem_double(p):
+    '''dimitem : ID LPAREN INTEGER COMMA INTEGER RPAREN'''
+    p[0] = (p[1], eval(p[3]), eval(p[5]))
+
+# Arithmetic expressions
+
+
+def p_expr_binary(p):
+    '''expr : expr PLUS expr
+            | expr MINUS expr
+            | expr TIMES expr
+            | expr DIVIDE expr
+            | expr POWER expr'''
+
+    p[0] = ('BINOP', p[2], p[1], p[3])
+
+
+def p_expr_number(p):
+    '''expr : INTEGER
+            | F
