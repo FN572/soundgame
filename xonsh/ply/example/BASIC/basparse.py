@@ -201,4 +201,70 @@ def p_command_for_bad_final(p):
     p[0] = "BAD FINAL VALUE IN FOR STATEMENT"
 
 
-def p
+def p_command_for_bad_step(p):
+    '''command : FOR ID EQUALS expr TO expr STEP error'''
+    p[0] = "MALFORMED STEP IN FOR STATEMENT"
+
+# Optional STEP qualifier on FOR statement
+
+
+def p_optstep(p):
+    '''optstep : STEP expr
+               | empty'''
+    if len(p) == 3:
+        p[0] = p[2]
+    else:
+        p[0] = None
+
+# NEXT statement
+
+
+def p_command_next(p):
+    '''command : NEXT ID'''
+
+    p[0] = ('NEXT', p[2])
+
+
+def p_command_next_bad(p):
+    '''command : NEXT error'''
+    p[0] = "MALFORMED NEXT"
+
+# END statement
+
+
+def p_command_end(p):
+    '''command : END'''
+    p[0] = ('END',)
+
+# REM statement
+
+
+def p_command_rem(p):
+    '''command : REM'''
+    p[0] = ('REM', p[1])
+
+# STOP statement
+
+
+def p_command_stop(p):
+    '''command : STOP'''
+    p[0] = ('STOP',)
+
+# DEF statement
+
+
+def p_command_def(p):
+    '''command : DEF ID LPAREN ID RPAREN EQUALS expr'''
+    p[0] = ('FUNC', p[2], p[4], p[7])
+
+
+def p_command_def_bad_rhs(p):
+    '''command : DEF ID LPAREN ID RPAREN EQUALS error'''
+    p[0] = "BAD EXPRESSION IN DEF STATEMENT"
+
+
+def p_command_def_bad_arg(p):
+    '''command : DEF ID LPAREN error RPAREN EQUALS expr'''
+    p[0] = "BAD ARGUMENT IN DEF STATEMENT"
+
+# GOS
