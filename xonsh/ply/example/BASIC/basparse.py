@@ -397,4 +397,75 @@ def p_varlist(p):
 # Builds a list of numbers as a Python list
 
 def p_numlist(p):
-    '''numlist : numl
+    '''numlist : numlist COMMA number
+               | number'''
+
+    if len(p) > 2:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
+
+# A number. May be an integer or a float
+
+
+def p_number(p):
+    '''number  : INTEGER
+               | FLOAT'''
+    p[0] = eval(p[1])
+
+# A signed number.
+
+
+def p_number_signed(p):
+    '''number  : MINUS INTEGER
+               | MINUS FLOAT'''
+    p[0] = eval("-" + p[2])
+
+# List of targets for a print statement
+# Returns a list of tuples (label,expr)
+
+
+def p_plist(p):
+    '''plist   : plist COMMA pitem
+               | pitem'''
+    if len(p) > 3:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
+
+
+def p_item_string(p):
+    '''pitem : STRING'''
+    p[0] = (p[1][1:-1], None)
+
+
+def p_item_string_expr(p):
+    '''pitem : STRING expr'''
+    p[0] = (p[1][1:-1], p[2])
+
+
+def p_item_expr(p):
+    '''pitem : expr'''
+    p[0] = ("", p[1])
+
+# Empty
+
+
+def p_empty(p):
+    '''empty : '''
+
+# Catastrophic error handler
+
+
+def p_error(p):
+    if not p:
+        print("SYNTAX ERROR AT EOF")
+
+bparser = yacc.yacc()
+
+
+def parse(data, debug=0):
+    bparser.error = 0
+    p = bpar
