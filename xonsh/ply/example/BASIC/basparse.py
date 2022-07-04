@@ -337,4 +337,64 @@ def p_expr_binary(p):
 
 def p_expr_number(p):
     '''expr : INTEGER
-            | F
+            | FLOAT'''
+    p[0] = ('NUM', eval(p[1]))
+
+
+def p_expr_variable(p):
+    '''expr : variable'''
+    p[0] = ('VAR', p[1])
+
+
+def p_expr_group(p):
+    '''expr : LPAREN expr RPAREN'''
+    p[0] = ('GROUP', p[2])
+
+
+def p_expr_unary(p):
+    '''expr : MINUS expr %prec UMINUS'''
+    p[0] = ('UNARY', '-', p[2])
+
+# Relational expressions
+
+
+def p_relexpr(p):
+    '''relexpr : expr LT expr
+               | expr LE expr
+               | expr GT expr
+               | expr GE expr
+               | expr EQUALS expr
+               | expr NE expr'''
+    p[0] = ('RELOP', p[2], p[1], p[3])
+
+# Variables
+
+
+def p_variable(p):
+    '''variable : ID
+              | ID LPAREN expr RPAREN
+              | ID LPAREN expr COMMA expr RPAREN'''
+    if len(p) == 2:
+        p[0] = (p[1], None, None)
+    elif len(p) == 5:
+        p[0] = (p[1], p[3], None)
+    else:
+        p[0] = (p[1], p[3], p[5])
+
+# Builds a list of variable targets as a Python list
+
+
+def p_varlist(p):
+    '''varlist : varlist COMMA variable
+               | variable'''
+    if len(p) > 2:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
+
+
+# Builds a list of numbers as a Python list
+
+def p_numlist(p):
+    '''numlist : numl
