@@ -468,4 +468,7 @@ bparser = yacc.yacc()
 
 def parse(data, debug=0):
     bparser.error = 0
-    p = bpar
+    p = bparser.parse(data, debug=debug)
+    if bparser.error:
+        return None
+    return p
