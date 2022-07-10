@@ -1,8 +1,9 @@
+
 # -----------------------------------------------------------------------------
 # calc.py
 #
-# This example shows how to run the parser in a debugging mode
-# with output routed to a logging object.
+# A simple calculator with variables.  Asks the user for more input and
+# demonstrates the use of the t_eof() rule.
 # -----------------------------------------------------------------------------
 
 import sys
@@ -33,6 +34,15 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+
+
+def t_eof(t):
+    more = raw_input('... ')
+    if more:
+        t.lexer.input(more + '\n')
+        return t.lexer.token()
+    else:
+        return None
 
 
 def t_error(t):
@@ -113,12 +123,6 @@ def p_error(p):
 import ply.yacc as yacc
 yacc.yacc()
 
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    filename="parselog.txt"
-)
-
 while 1:
     try:
         s = raw_input('calc > ')
@@ -126,4 +130,4 @@ while 1:
         break
     if not s:
         continue
-    yacc.parse(s, debug=logging.getLogger())
+    yacc.parse(s + '\n')
