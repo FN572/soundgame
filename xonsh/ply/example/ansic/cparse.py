@@ -798,3 +798,252 @@ def p_exclusive_or_expression_2(t):
 
 # AND-expression
 
+
+def p_and_expression_1(t):
+    'and_expression : equality_expression'
+    pass
+
+
+def p_and_expression_2(t):
+    'and_expression : and_expression AND equality_expression'
+    pass
+
+
+# equality-expression:
+def p_equality_expression_1(t):
+    'equality_expression : relational_expression'
+    pass
+
+
+def p_equality_expression_2(t):
+    'equality_expression : equality_expression EQ relational_expression'
+    pass
+
+
+def p_equality_expression_3(t):
+    'equality_expression : equality_expression NE relational_expression'
+    pass
+
+
+# relational-expression:
+def p_relational_expression_1(t):
+    'relational_expression : shift_expression'
+    pass
+
+
+def p_relational_expression_2(t):
+    'relational_expression : relational_expression LT shift_expression'
+    pass
+
+
+def p_relational_expression_3(t):
+    'relational_expression : relational_expression GT shift_expression'
+    pass
+
+
+def p_relational_expression_4(t):
+    'relational_expression : relational_expression LE shift_expression'
+    pass
+
+
+def p_relational_expression_5(t):
+    'relational_expression : relational_expression GE shift_expression'
+    pass
+
+# shift-expression
+
+
+def p_shift_expression_1(t):
+    'shift_expression : additive_expression'
+    pass
+
+
+def p_shift_expression_2(t):
+    'shift_expression : shift_expression LSHIFT additive_expression'
+    pass
+
+
+def p_shift_expression_3(t):
+    'shift_expression : shift_expression RSHIFT additive_expression'
+    pass
+
+# additive-expression
+
+
+def p_additive_expression_1(t):
+    'additive_expression : multiplicative_expression'
+    pass
+
+
+def p_additive_expression_2(t):
+    'additive_expression : additive_expression PLUS multiplicative_expression'
+    pass
+
+
+def p_additive_expression_3(t):
+    'additive_expression : additive_expression MINUS multiplicative_expression'
+    pass
+
+# multiplicative-expression
+
+
+def p_multiplicative_expression_1(t):
+    'multiplicative_expression : cast_expression'
+    pass
+
+
+def p_multiplicative_expression_2(t):
+    'multiplicative_expression : multiplicative_expression TIMES cast_expression'
+    pass
+
+
+def p_multiplicative_expression_3(t):
+    'multiplicative_expression : multiplicative_expression DIVIDE cast_expression'
+    pass
+
+
+def p_multiplicative_expression_4(t):
+    'multiplicative_expression : multiplicative_expression MOD cast_expression'
+    pass
+
+# cast-expression:
+
+
+def p_cast_expression_1(t):
+    'cast_expression : unary_expression'
+    pass
+
+
+def p_cast_expression_2(t):
+    'cast_expression : LPAREN type_name RPAREN cast_expression'
+    pass
+
+# unary-expression:
+
+
+def p_unary_expression_1(t):
+    'unary_expression : postfix_expression'
+    pass
+
+
+def p_unary_expression_2(t):
+    'unary_expression : PLUSPLUS unary_expression'
+    pass
+
+
+def p_unary_expression_3(t):
+    'unary_expression : MINUSMINUS unary_expression'
+    pass
+
+
+def p_unary_expression_4(t):
+    'unary_expression : unary_operator cast_expression'
+    pass
+
+
+def p_unary_expression_5(t):
+    'unary_expression : SIZEOF unary_expression'
+    pass
+
+
+def p_unary_expression_6(t):
+    'unary_expression : SIZEOF LPAREN type_name RPAREN'
+    pass
+
+# unary-operator
+
+
+def p_unary_operator(t):
+    '''unary_operator : AND
+                    | TIMES
+                    | PLUS 
+                    | MINUS
+                    | NOT
+                    | LNOT '''
+    pass
+
+# postfix-expression:
+
+
+def p_postfix_expression_1(t):
+    'postfix_expression : primary_expression'
+    pass
+
+
+def p_postfix_expression_2(t):
+    'postfix_expression : postfix_expression LBRACKET expression RBRACKET'
+    pass
+
+
+def p_postfix_expression_3(t):
+    'postfix_expression : postfix_expression LPAREN argument_expression_list RPAREN'
+    pass
+
+
+def p_postfix_expression_4(t):
+    'postfix_expression : postfix_expression LPAREN RPAREN'
+    pass
+
+
+def p_postfix_expression_5(t):
+    'postfix_expression : postfix_expression PERIOD ID'
+    pass
+
+
+def p_postfix_expression_6(t):
+    'postfix_expression : postfix_expression ARROW ID'
+    pass
+
+
+def p_postfix_expression_7(t):
+    'postfix_expression : postfix_expression PLUSPLUS'
+    pass
+
+
+def p_postfix_expression_8(t):
+    'postfix_expression : postfix_expression MINUSMINUS'
+    pass
+
+# primary-expression:
+
+
+def p_primary_expression(t):
+    '''primary_expression :  ID
+                        |  constant
+                        |  SCONST
+                        |  LPAREN expression RPAREN'''
+    pass
+
+# argument-expression-list:
+
+
+def p_argument_expression_list(t):
+    '''argument_expression_list :  assignment_expression
+                              |  argument_expression_list COMMA assignment_expression'''
+    pass
+
+# constant:
+
+
+def p_constant(t):
+    '''constant : ICONST
+               | FCONST
+               | CCONST'''
+    pass
+
+
+def p_empty(t):
+    'empty : '
+    pass
+
+
+def p_error(t):
+    print("Whoa. We're hosed")
+
+import profile
+# Build the grammar
+
+yacc.yacc()
+#yacc.yacc(method='LALR',write_tables=False,debug=False)
+
+#profile.run("yacc.yacc(method='LALR')")
