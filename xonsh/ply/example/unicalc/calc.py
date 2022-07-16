@@ -116,4 +116,18 @@ def p_expression_name(p):
 
 def p_error(p):
     if p:
-        
+        print "Syntax error at '%s'" % p.value
+    else:
+        print "Syntax error at EOF"
+
+import ply.yacc as yacc
+yacc.yacc()
+
+while 1:
+    try:
+        s = raw_input('calc > ')
+    except EOFError:
+        break
+    if not s:
+        continue
+    yacc.parse(unicode(s))
