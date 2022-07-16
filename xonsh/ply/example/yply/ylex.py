@@ -37,4 +37,77 @@ def t_SECTION(t):
         t.value = t.lexer.lexdata[t.lexpos + 2:]
         t.lexer.lexpos = len(t.lexer.lexdata)
     else:
-        t.lexer.
+        t.lexer.lastsection = 0
+    return t
+
+# Comments
+
+
+def t_ccomment(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
+t_ignore_cppcomment = r'//.*'
+
+
+def t_LITERAL(t):
+    r'%\{(.|\n)*?%\}'
+    t.lexer.lineno += t.value.count("\n")
+    return t
+
+
+def t_NEWLINE(t):
+    r'\n'
+    t.lexer.lineno += 1
+
+
+def t_code(t):
+    r'\{'
+    t.lexer.codestart = t.lexpos
+    t.lexer.level = 1
+    t.lexer.begin('code')
+
+
+def t_code_ignore_string(t):
+    r'\"([^\\\n]|(\\.))*?\"'
+
+
+def t_code_ignore_char(t):
+    r'\'([^\\\n]|(\\.))*?\''
+
+
+def t_code_ignore_comment(t):
+    r'/\*(.|\n)*?\*/'
+
+
+def t_code_ignore_cppcom(t):
+    r'//.*'
+
+
+def t_code_lbrace(t):
+    r'\{'
+    t.lexer.level += 1
+
+
+def t_code_rbrace(t):
+    r'\}'
+    t.lexer.level -= 1
+    if t.lexer.level == 0:
+        t.type = 'CODE'
+        t.value = t.lexer.lexdata[t.lexer.codestart:t.lexpos + 1]
+        t.lexer.begin('INITIAL')
+        t.lexer.lineno += t.value.count('\n')
+        return t
+
+t_code_ignore_nonspace = r'[^\s\}\'\"\{]+'
+t_code_ignore_whitespace = r'\s+'
+t_code_ignore = ""
+
+
+def t_code_error(t):
+    raise RuntimeError
+
+
+def t_error(t):
+    print("%d: Illegal character '%s'" % (t.lexer.lineno, t.value[0]))
+    pr
