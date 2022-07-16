@@ -110,4 +110,10 @@ def t_code_error(t):
 
 def t_error(t):
     print("%d: Illegal character '%s'" % (t.lexer.lineno, t.value[0]))
-    pr
+    print(t.value)
+    t.lexer.skip(1)
+
+lex.lex()
+
+if __name__ == '__main__':
+    lex.runmain()
