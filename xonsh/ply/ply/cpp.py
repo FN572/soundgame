@@ -33,4 +33,47 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-# This module implements 
+# This module implements an ANSI-C style lexical preprocessor for PLY.
+# -----------------------------------------------------------------------------
+from __future__ import generators
+
+import sys
+
+# Some Python 3 compatibility shims
+if sys.version_info.major < 3:
+    STRING_TYPES = (str, unicode)
+else:
+    STRING_TYPES = str
+    xrange = range
+
+# -----------------------------------------------------------------------------
+# Default preprocessor lexer definitions.   These tokens are enough to get
+# a basic preprocessor working.   Other modules may import these if they want
+# -----------------------------------------------------------------------------
+
+tokens = (
+   'CPP_ID','CPP_INTEGER', 'CPP_FLOAT', 'CPP_STRING', 'CPP_CHAR', 'CPP_WS', 'CPP_COMMENT1', 'CPP_COMMENT2', 'CPP_POUND','CPP_DPOUND'
+)
+
+literals = "+-*/%|&~^<>=!?()[]{}.,;:\\\'\""
+
+# Whitespace
+def t_CPP_WS(t):
+    r'\s+'
+    t.lexer.lineno += t.value.count("\n")
+    return t
+
+t_CPP_POUND = r'\#'
+t_CPP_DPOUND = r'\#\#'
+
+# Identifier
+t_CPP_ID = r'[A-Za-z_][\w_]*'
+
+# Integer literal
+def CPP_INTEGER(t):
+    r'(((((0x)|(0X))[0-9a-fA-F]+)|(\d+))([uU][lL]|[lL][uU]|[uU]|[lL])?)'
+    return t
+
+t_CPP_INTEGER = CPP_INTEGER
+
+# Floating 
