@@ -76,4 +76,54 @@ def CPP_INTEGER(t):
 
 t_CPP_INTEGER = CPP_INTEGER
 
-# Floating 
+# Floating literal
+t_CPP_FLOAT = r'((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))([lL]|[fF])?'
+
+# String literal
+def t_CPP_STRING(t):
+    r'\"([^\\\n]|(\\(.|\n)))*?\"'
+    t.lexer.lineno += t.value.count("\n")
+    return t
+
+# Character constant 'c' or L'c'
+def t_CPP_CHAR(t):
+    r'(L)?\'([^\\\n]|(\\(.|\n)))*?\''
+    t.lexer.lineno += t.value.count("\n")
+    return t
+
+# Comment
+def t_CPP_COMMENT1(t):
+    r'(/\*(.|\n)*?\*/)'
+    ncr = t.value.count("\n")
+    t.lexer.lineno += ncr
+    # replace with one space or a number of '\n'
+    t.type = 'CPP_WS'; t.value = '\n' * ncr if ncr else ' '
+    return t
+
+# Line comment
+def t_CPP_COMMENT2(t):
+    r'(//.*?(\n|$))'
+    # replace with '/n'
+    t.type = 'CPP_WS'; t.value = '\n'
+    return t
+
+def t_error(t):
+    t.type = t.value[0]
+    t.value = t.value[0]
+    t.lexer.skip(1)
+    return t
+
+import re
+import copy
+import time
+import os.path
+
+# -----------------------------------------------------------------------------
+# trigraph()
+#
+# Given an input string, this function replaces all trigraph sequences.
+# The following mapping is used:
+#
+#     ??=    #
+#     ??/    \
+#     ??' 
