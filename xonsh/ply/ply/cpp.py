@@ -126,4 +126,47 @@ import os.path
 #
 #     ??=    #
 #     ??/    \
-#     ??' 
+#     ??'    ^
+#     ??(    [
+#     ??)    ]
+#     ??!    |
+#     ??<    {
+#     ??>    }
+#     ??-    ~
+# -----------------------------------------------------------------------------
+
+_trigraph_pat = re.compile(r'''\?\?[=/\'\(\)\!<>\-]''')
+_trigraph_rep = {
+    '=':'#',
+    '/':'\\',
+    "'":'^',
+    '(':'[',
+    ')':']',
+    '!':'|',
+    '<':'{',
+    '>':'}',
+    '-':'~'
+}
+
+def trigraph(input):
+    return _trigraph_pat.sub(lambda g: _trigraph_rep[g.group()[-1]],input)
+
+# ------------------------------------------------------------------
+# Macro object
+#
+# This object holds information about preprocessor macros
+#
+#    .name      - Macro name (string)
+#    .value     - Macro value (a list of tokens)
+#    .arglist   - List of argument names
+#    .variadic  - Boolean indicating whether or not variadic macro
+#    .vararg    - Name of the variadic parameter
+#
+# When a macro is created, the macro replacement token sequence is
+# pre-scanned and used to create patch lists that are later used
+# during macro expansion
+# ------------------------------------------------------------------
+
+class Macro(object):
+    def __init__(self,name,value,arglist=None,variadic=False):
+        self.n
