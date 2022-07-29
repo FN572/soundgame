@@ -169,4 +169,39 @@ def trigraph(input):
 
 class Macro(object):
     def __init__(self,name,value,arglist=None,variadic=False):
-        self.n
+        self.name = name
+        self.value = value
+        self.arglist = arglist
+        self.variadic = variadic
+        if variadic:
+            self.vararg = arglist[-1]
+        self.source = None
+
+# ------------------------------------------------------------------
+# Preprocessor object
+#
+# Object representing a preprocessor.  Contains macro definitions,
+# include directories, and other information
+# ------------------------------------------------------------------
+
+class Preprocessor(object):
+    def __init__(self,lexer=None):
+        if lexer is None:
+            lexer = lex.lexer
+        self.lexer = lexer
+        self.macros = { }
+        self.path = []
+        self.temp_path = []
+
+        # Probe the lexer for selected tokens
+        self.lexprobe()
+
+        tm = time.localtime()
+        self.define("__DATE__ \"%s\"" % time.strftime("%b %d %Y",tm))
+        self.define("__TIME__ \"%s\"" % time.strftime("%H:%M:%S",tm))
+        self.parser = None
+
+    # -----------------------------------------------------------------------------
+    # tokenize()
+    #
+    # Utility function. Given a string of text, tokenize into a list of tok
