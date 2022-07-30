@@ -237,4 +237,38 @@ class Preprocessor(object):
     def lexprobe(self):
 
         # Determine the token type for identifiers
-        self.lexer.input("iden
+        self.lexer.input("identifier")
+        tok = self.lexer.token()
+        if not tok or tok.value != "identifier":
+            print("Couldn't determine identifier type")
+        else:
+            self.t_ID = tok.type
+
+        # Determine the token type for integers
+        self.lexer.input("12345")
+        tok = self.lexer.token()
+        if not tok or int(tok.value) != 12345:
+            print("Couldn't determine integer type")
+        else:
+            self.t_INTEGER = tok.type
+            self.t_INTEGER_TYPE = type(tok.value)
+
+        # Determine the token type for strings enclosed in double quotes
+        self.lexer.input("\"filename\"")
+        tok = self.lexer.token()
+        if not tok or tok.value != "\"filename\"":
+            print("Couldn't determine string type")
+        else:
+            self.t_STRING = tok.type
+
+        # Determine the token type for whitespace--if any
+        self.lexer.input("  ")
+        tok = self.lexer.token()
+        if not tok or tok.value != "  ":
+            self.t_SPACE = None
+        else:
+            self.t_SPACE = tok.type
+
+        # Determine the token type for newlines
+        self.lexer.input("\n")
+       
