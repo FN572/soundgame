@@ -204,4 +204,37 @@ class Preprocessor(object):
     # -----------------------------------------------------------------------------
     # tokenize()
     #
-    # Utility function. Given a string of text, tokenize into a list of tok
+    # Utility function. Given a string of text, tokenize into a list of tokens
+    # -----------------------------------------------------------------------------
+
+    def tokenize(self,text):
+        tokens = []
+        self.lexer.input(text)
+        while True:
+            tok = self.lexer.token()
+            if not tok: break
+            tokens.append(tok)
+        return tokens
+
+    # ---------------------------------------------------------------------
+    # error()
+    #
+    # Report a preprocessor error/warning of some kind
+    # ----------------------------------------------------------------------
+
+    def error(self,file,line,msg):
+        print("%s:%d %s" % (file,line,msg))
+
+    # ----------------------------------------------------------------------
+    # lexprobe()
+    #
+    # This method probes the preprocessor lexer object to discover
+    # the token types of symbols that are important to the preprocessor.
+    # If this works right, the preprocessor will simply "work"
+    # with any suitable lexer regardless of how tokens have been named.
+    # ----------------------------------------------------------------------
+
+    def lexprobe(self):
+
+        # Determine the token type for identifiers
+        self.lexer.input("iden
