@@ -271,4 +271,35 @@ class Preprocessor(object):
 
         # Determine the token type for newlines
         self.lexer.input("\n")
-       
+        tok = self.lexer.token()
+        if not tok or tok.value != "\n":
+            self.t_NEWLINE = None
+            print("Couldn't determine token for newlines")
+        else:
+            self.t_NEWLINE = tok.type
+
+        self.t_WS = (self.t_SPACE, self.t_NEWLINE)
+
+        # Check for other characters used by the preprocessor
+        chars = [ '<','>','#','##','\\','(',')',',','.']
+        for c in chars:
+            self.lexer.input(c)
+            tok = self.lexer.token()
+            if not tok or tok.value != c:
+                print("Unable to lex '%s' required for preprocessor" % c)
+
+    # ----------------------------------------------------------------------
+    # add_path()
+    #
+    # Adds a search path to the preprocessor.
+    # ----------------------------------------------------------------------
+
+    def add_path(self,path):
+        self.path.append(path)
+
+    # ----------------------------------------------------------------------
+    # group_lines()
+    #
+    # Given an input string, this function splits it into lines.  Trailing whitespace
+    # is removed.   Any line ending with \ is grouped with the next line.  This
+    # function forms the lowest level of the
