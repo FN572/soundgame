@@ -339,4 +339,32 @@ class Preprocessor(object):
     # Remove leading/trailing whitespace tokens from a token list
     # ----------------------------------------------------------------------
 
-    def tokenstrip(sel
+    def tokenstrip(self,tokens):
+        i = 0
+        while i < len(tokens) and tokens[i].type in self.t_WS:
+            i += 1
+        del tokens[:i]
+        i = len(tokens)-1
+        while i >= 0 and tokens[i].type in self.t_WS:
+            i -= 1
+        del tokens[i+1:]
+        return tokens
+
+
+    # ----------------------------------------------------------------------
+    # collect_args()
+    #
+    # Collects comma separated arguments from a list of tokens.   The arguments
+    # must be enclosed in parenthesis.  Returns a tuple (tokencount,args,positions)
+    # where tokencount is the number of tokens consumed, args is a list of arguments,
+    # and positions is a list of integers containing the starting index of each
+    # argument.  Each argument is represented by a list of tokens.
+    #
+    # When collecting arguments, leading and trailing whitespace is removed
+    # from each argument.
+    #
+    # This function properly handles nested parenthesis and commas---these do not
+    # define new arguments.
+    # ----------------------------------------------------------------------
+
+    def collect_args(self,tokenlist
