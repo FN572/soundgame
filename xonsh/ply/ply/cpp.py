@@ -302,4 +302,41 @@ class Preprocessor(object):
     #
     # Given an input string, this function splits it into lines.  Trailing whitespace
     # is removed.   Any line ending with \ is grouped with the next line.  This
-    # function forms the lowest level of the
+    # function forms the lowest level of the preprocessor---grouping into text into
+    # a line-by-line format.
+    # ----------------------------------------------------------------------
+
+    def group_lines(self,input):
+        lex = self.lexer.clone()
+        lines = [x.rstrip() for x in input.splitlines()]
+        for i in xrange(len(lines)):
+            j = i+1
+            while lines[i].endswith('\\') and (j < len(lines)):
+                lines[i] = lines[i][:-1]+lines[j]
+                lines[j] = ""
+                j += 1
+
+        input = "\n".join(lines)
+        lex.input(input)
+        lex.lineno = 1
+
+        current_line = []
+        while True:
+            tok = lex.token()
+            if not tok:
+                break
+            current_line.append(tok)
+            if tok.type in self.t_WS and '\n' in tok.value:
+                yield current_line
+                current_line = []
+
+        if current_line:
+            yield current_line
+
+    # ----------------------------------------------------------------------
+    # tokenstrip()
+    #
+    # Remove leading/trailing whitespace tokens from a token list
+    # ----------------------------------------------------------------------
+
+    def tokenstrip(sel
