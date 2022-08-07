@@ -429,4 +429,27 @@ class Preprocessor(object):
             if macro.value[i].type == self.t_ID and macro.value[i].value in macro.arglist:
                 argnum = macro.arglist.index(macro.value[i].value)
                 # Conversion of argument to a string
-        
+                if i > 0 and macro.value[i-1].value == '#':
+                    macro.value[i] = copy.copy(macro.value[i])
+                    macro.value[i].type = self.t_STRING
+                    del macro.value[i-1]
+                    macro.str_patch.append((argnum,i-1))
+                    continue
+                # Concatenation
+                elif (i > 0 and macro.value[i-1].value == '##'):
+                    macro.patch.append(('c',argnum,i-1))
+                    del macro.value[i-1]
+                    i -= 1
+                    continue
+                elif ((i+1) < len(macro.value) and macro.value[i+1].value == '##'):
+                    macro.patch.append(('c',argnum,i))
+                    del macro.value[i + 1]
+                    continue
+                # Standard expansion
+                else:
+                    macro.patch.append(('e',argnum,i))
+            elif macro.value[i].value == '##':
+                if macro.variadic and (i > 0) and (macro.value[i-1].value == ',') and \
+                        ((i+1) < len(macro.value)) and (macro.value[i+1].type == self.t_ID) and \
+                        (macro.value[i+1].value == macro.vararg):
+      
