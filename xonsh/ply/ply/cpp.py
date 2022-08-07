@@ -403,4 +403,30 @@ class Preprocessor(object):
             elif t.value == ',' and nesting == 1:
                 args.append(self.tokenstrip(current_arg))
                 positions.append(i+1)
-                current_arg = 
+                current_arg = []
+            else:
+                current_arg.append(t)
+            i += 1
+
+        # Missing end argument
+        self.error(self.source,tokenlist[-1].lineno,"Missing ')' in macro arguments")
+        return 0, [],[]
+
+    # ----------------------------------------------------------------------
+    # macro_prescan()
+    #
+    # Examine the macro value (token sequence) and identify patch points
+    # This is used to speed up macro expansion later on---we'll know
+    # right away where to apply patches to the value to form the expansion
+    # ----------------------------------------------------------------------
+
+    def macro_prescan(self,macro):
+        macro.patch     = []             # Standard macro arguments
+        macro.str_patch = []             # String conversion expansion
+        macro.var_comma_patch = []       # Variadic macro comma patch
+        i = 0
+        while i < len(macro.value):
+            if macro.value[i].type == self.t_ID and macro.value[i].value in macro.arglist:
+                argnum = macro.arglist.index(macro.value[i].value)
+                # Conversion of argument to a string
+        
