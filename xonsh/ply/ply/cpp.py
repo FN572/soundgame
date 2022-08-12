@@ -452,4 +452,29 @@ class Preprocessor(object):
                 if macro.variadic and (i > 0) and (macro.value[i-1].value == ',') and \
                         ((i+1) < len(macro.value)) and (macro.value[i+1].type == self.t_ID) and \
                         (macro.value[i+1].value == macro.vararg):
-      
+                    macro.var_comma_patch.append(i-1)
+            i += 1
+        macro.patch.sort(key=lambda x: x[2],reverse=True)
+
+    # ----------------------------------------------------------------------
+    # macro_expand_args()
+    #
+    # Given a Macro and list of arguments (each a token list), this method
+    # returns an expanded version of a macro.  The return value is a token sequence
+    # representing the replacement macro tokens
+    # ----------------------------------------------------------------------
+
+    def macro_expand_args(self,macro,args,expanded):
+        # Make a copy of the macro token sequence
+        rep = [copy.copy(_x) for _x in macro.value]
+
+        # Make string expansion patches.  These do not alter the length of the replacement sequence
+
+        str_expansion = {}
+        for argnum, i in macro.str_patch:
+            if argnum not in str_expansion:
+                str_expansion[argnum] = ('"%s"' % "".join([x.value for x in args[argnum]])).replace("\\","\\\\")
+            rep[i] = copy.copy(rep[i])
+            rep[i].value = str_expansion[argnum]
+
+        # Make the variadic macro comma patch. 
