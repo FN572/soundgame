@@ -477,4 +477,34 @@ class Preprocessor(object):
             rep[i] = copy.copy(rep[i])
             rep[i].value = str_expansion[argnum]
 
-        # Make the variadic macro comma patch. 
+        # Make the variadic macro comma patch.  If the variadic macro argument is empty, we get rid
+        comma_patch = False
+        if macro.variadic and not args[-1]:
+            for i in macro.var_comma_patch:
+                rep[i] = None
+                comma_patch = True
+
+        # Make all other patches.   The order of these matters.  It is assumed that the patch list
+        # has been sorted in reverse order of patch location since replacements will cause the
+        # size of the replacement sequence to expand from the patch point.
+
+        expanded_args = { }
+        for ptype, argnum, i in macro.patch:
+            # Concatenation.   Argument is left unexpanded
+            if ptype == 'c':
+                rep[i:i+1] = args[argnum]
+            # Normal expansion.  Argument is macro expanded first
+            elif ptype == 'e':
+                if argnum not in expanded_args:
+                    expanded_args[argnum] = self.expand_macros(args[argnum],expanded)
+                rep[i:i+1] = expanded_args[argnum]
+
+        # Get rid of removed comma if necessary
+        if comma_patch:
+            rep = [_i for _i in rep if _i]
+
+        return rep
+
+
+    # ----------------------------------------------------------------------
+    # 
