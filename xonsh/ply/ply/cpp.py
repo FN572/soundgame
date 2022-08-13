@@ -536,4 +536,19 @@ class Preprocessor(object):
                     else:
                         # A macro with arguments
                         j = i + 1
-                        while
+                        while j < len(tokens) and tokens[j].type in self.t_WS:
+                            j += 1
+                        if j < len(tokens) and tokens[j].value == '(':
+                            tokcount,args,positions = self.collect_args(tokens[j:])
+                            if not m.variadic and len(args) !=  len(m.arglist):
+                                self.error(self.source,t.lineno,"Macro %s requires %d arguments" % (t.value,len(m.arglist)))
+                                i = j + tokcount
+                            elif m.variadic and len(args) < len(m.arglist)-1:
+                                if len(m.arglist) > 2:
+                                    self.error(self.source,t.lineno,"Macro %s must have at least %d arguments" % (t.value, len(m.arglist)-1))
+                                else:
+                                    self.error(self.source,t.lineno,"Macro %s must have at least %d argument" % (t.value, len(m.arglist)-1))
+                                i = j + tokcount
+                            else:
+                                if m.variadic:
+               
