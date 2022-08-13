@@ -507,4 +507,33 @@ class Preprocessor(object):
 
 
     # ----------------------------------------------------------------------
-    # 
+    # expand_macros()
+    #
+    # Given a list of tokens, this function performs macro expansion.
+    # The expanded argument is a dictionary that contains macros already
+    # expanded.  This is used to prevent infinite recursion.
+    # ----------------------------------------------------------------------
+
+    def expand_macros(self,tokens,expanded=None):
+        if expanded is None:
+            expanded = {}
+        i = 0
+        while i < len(tokens):
+            t = tokens[i]
+            if t.type == self.t_ID:
+                if t.value in self.macros and t.value not in expanded:
+                    # Yes, we found a macro match
+                    expanded[t.value] = True
+
+                    m = self.macros[t.value]
+                    if not m.arglist:
+                        # A simple macro
+                        ex = self.expand_macros([copy.copy(_x) for _x in m.value],expanded)
+                        for e in ex:
+                            e.lineno = t.lineno
+                        tokens[i:i+1] = ex
+                        i += len(ex)
+                    else:
+                        # A macro with arguments
+                        j = i + 1
+                        while
