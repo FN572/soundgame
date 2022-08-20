@@ -607,4 +607,31 @@ class Preprocessor(object):
                         if not needparen: break
                     elif tokens[j].value == '(':
                         needparen = True
-      
+                    elif tokens[j].value == ')':
+                        break
+                    else:
+                        self.error(self.source,tokens[i].lineno,"Malformed defined()")
+                    j += 1
+                tokens[i].type = self.t_INTEGER
+                tokens[i].value = self.t_INTEGER_TYPE(result)
+                del tokens[i+1:j+1]
+            i += 1
+        tokens = self.expand_macros(tokens)
+        return self.evalexpr_expanded(tokens)
+
+    # ----------------------------------------------------------------------
+    # evalexpr_expanded()
+    #
+    # Helper for evalexpr that evaluates the expression that had its macros
+    # and defined(...) expressions expanded by evalexpr
+    # ----------------------------------------------------------------------
+
+    def evalexpr_expanded(self, tokens):
+        for i,t in enumerate(tokens):
+            if t.type == self.t_ID:
+                tokens[i] = copy.copy(t)
+                tokens[i].type = self.t_INTEGER
+                tokens[i].value = self.t_INTEGER_TYPE("0")
+            elif t.type == self.t_INTEGER:
+                tokens[i] = copy.copy(t)
+                # 
