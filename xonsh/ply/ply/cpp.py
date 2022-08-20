@@ -551,4 +551,27 @@ class Preprocessor(object):
                                 i = j + tokcount
                             else:
                                 if m.variadic:
-               
+                                    if len(args) == len(m.arglist)-1:
+                                        args.append([])
+                                    else:
+                                        args[len(m.arglist)-1] = tokens[j+positions[len(m.arglist)-1]:j+tokcount-1]
+                                        del args[len(m.arglist):]
+
+                                # Get macro replacement text
+                                rep = self.macro_expand_args(m,args,expanded)
+                                rep = self.expand_macros(rep,expanded)
+                                for r in rep:
+                                    r.lineno = t.lineno
+                                tokens[i:j+tokcount] = rep
+                                i += len(rep)
+                        else:
+                            # This is not a macro. It is just a word which
+                            # equals to name of the macro. Hence, go to the
+                            # next token.
+                            i += 1
+
+                    del expanded[t.value]
+                    continue
+                elif t.value == '__LINE__':
+                    t.type = self.t_INTEGER
+          
