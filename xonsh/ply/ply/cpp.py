@@ -574,4 +574,37 @@ class Preprocessor(object):
                     continue
                 elif t.value == '__LINE__':
                     t.type = self.t_INTEGER
-          
+                    t.value = self.t_INTEGER_TYPE(t.lineno)
+
+            i += 1
+        return tokens
+
+    # ----------------------------------------------------------------------
+    # evalexpr()
+    #
+    # Evaluate an expression token sequence for the purposes of evaluating
+    # integral expressions.
+    # ----------------------------------------------------------------------
+
+    def evalexpr(self,tokens):
+        # tokens = tokenize(line)
+        # Search for defined macros
+        i = 0
+        while i < len(tokens):
+            if tokens[i].type == self.t_ID and tokens[i].value == 'defined':
+                j = i + 1
+                needparen = False
+                result = "0L"
+                while j < len(tokens):
+                    if tokens[j].type in self.t_WS:
+                        j += 1
+                        continue
+                    elif tokens[j].type == self.t_ID:
+                        if tokens[j].value in self.macros:
+                            result = "1L"
+                        else:
+                            result = "0L"
+                        if not needparen: break
+                    elif tokens[j].value == '(':
+                        needparen = True
+      
