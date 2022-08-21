@@ -634,4 +634,33 @@ class Preprocessor(object):
                 tokens[i].value = self.t_INTEGER_TYPE("0")
             elif t.type == self.t_INTEGER:
                 tokens[i] = copy.copy(t)
-                # 
+                # Strip off any trailing suffixes
+                tokens[i].value = str(tokens[i].value)
+                while tokens[i].value[-1] not in "0123456789abcdefABCDEF":
+                    tokens[i].value = tokens[i].value[:-1]
+
+        return self.evalexpr_string("".join([str(x.value) for x in tokens]))
+
+    # ----------------------------------------------------------------------
+    # evalexpr_string()
+    #
+    # Helper for evalexpr that evaluates a string expression
+    # This implementation does basic C->python conversion and then uses eval()
+    # ----------------------------------------------------------------------
+    def evalexpr_string(self, expr):
+        expr = expr.replace("&&"," and ")
+        expr = expr.replace("||"," or ")
+        expr = expr.replace("!"," not ")
+        expr = expr.replace(" not ="," !=")
+        try:
+            result = eval(expr)
+        except Exception:
+            self.error(self.source,tokens[0].lineno,"Couldn't evaluate expression")
+            result = 0
+        return result
+
+    # ----------------------------------------------------------------------
+    # parsegen()
+    #
+    # Parse an input string/
+    
