@@ -663,4 +663,42 @@ class Preprocessor(object):
     # parsegen()
     #
     # Parse an input string/
-    
+    # ----------------------------------------------------------------------
+    def parsegen(self,input,source=None):
+
+        # Replace trigraph sequences
+        t = trigraph(input)
+        lines = self.group_lines(t)
+
+        if not source:
+            source = ""
+
+        self.define("__FILE__ \"%s\"" % source)
+
+        self.source = source
+        chunk = []
+        enable = True
+        iftrigger = False
+        ifstack = []
+
+        for x in lines:
+            for i,tok in enumerate(x):
+                if tok.type not in self.t_WS: break
+            if tok.value == '#':
+                # Preprocessor directive
+
+                # insert necessary whitespace instead of eaten tokens
+                for tok in x:
+                    if tok.type in self.t_WS and '\n' in tok.value:
+                        chunk.append(tok)
+
+                dirtokens = self.tokenstrip(x[i+1:])
+                if dirtokens:
+                    name = dirtokens[0].value
+                    args = self.tokenstrip(dirtokens[1:])
+                else:
+                    name = ""
+                    args = []
+
+                if name == 'define':
+                
