@@ -701,4 +701,32 @@ class Preprocessor(object):
                     args = []
 
                 if name == 'define':
-                
+                    if enable:
+                        for tok in self.expand_macros(chunk):
+                            yield tok
+                        chunk = []
+                        self.define(args)
+                elif name == 'include':
+                    if enable:
+                        for tok in self.expand_macros(chunk):
+                            yield tok
+                        chunk = []
+                        oldfile = self.macros['__FILE__']
+                        for tok in self.include(args):
+                            yield tok
+                        self.macros['__FILE__'] = oldfile
+                        self.source = source
+                elif name == 'undef':
+                    if enable:
+                        for tok in self.expand_macros(chunk):
+                            yield tok
+                        chunk = []
+                        self.undef(args)
+                elif name == 'ifdef':
+                    ifstack.append((enable,iftrigger))
+                    if enable:
+                        if not args[0].value in self.macros:
+                            enable = False
+                            iftrigger = False
+                        else:
+           
