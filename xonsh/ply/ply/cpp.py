@@ -729,4 +729,27 @@ class Preprocessor(object):
                             enable = False
                             iftrigger = False
                         else:
-           
+                            iftrigger = True
+                elif name == 'ifndef':
+                    ifstack.append((enable,iftrigger))
+                    if enable:
+                        if args[0].value in self.macros:
+                            enable = False
+                            iftrigger = False
+                        else:
+                            iftrigger = True
+                elif name == 'if':
+                    ifstack.append((enable,iftrigger))
+                    if enable:
+                        result = self.evalexpr(args)
+                        if not result:
+                            enable = False
+                            iftrigger = False
+                        else:
+                            iftrigger = True
+                elif name == 'elif':
+                    if ifstack:
+                        if ifstack[-1][0]:     # We only pay attention if outer "if" allows this
+                            if enable:         # If already true, we flip enable False
+                                enable = False
+                            elif not iftrigger:   # If Fa
