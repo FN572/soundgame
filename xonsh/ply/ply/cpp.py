@@ -752,4 +752,30 @@ class Preprocessor(object):
                         if ifstack[-1][0]:     # We only pay attention if outer "if" allows this
                             if enable:         # If already true, we flip enable False
                                 enable = False
-                            elif not iftrigger:   # If Fa
+                            elif not iftrigger:   # If False, but not triggered yet, we'll check expression
+                                result = self.evalexpr(args)
+                                if result:
+                                    enable  = True
+                                    iftrigger = True
+                    else:
+                        self.error(self.source,dirtokens[0].lineno,"Misplaced #elif")
+
+                elif name == 'else':
+                    if ifstack:
+                        if ifstack[-1][0]:
+                            if enable:
+                                enable = False
+                            elif not iftrigger:
+                                enable = True
+                                iftrigger = True
+                    else:
+                        self.error(self.source,dirtokens[0].lineno,"Misplaced #else")
+
+                elif name == 'endif':
+                    if ifstack:
+                        enable,iftrigger = ifstack.pop()
+                    else:
+                        self.error(self.source,dirtokens[0].lineno,"Misplaced #endif")
+                else:
+                    # Unknown preprocessor directive
+    
