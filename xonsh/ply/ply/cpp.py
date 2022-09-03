@@ -814,4 +814,33 @@ class Preprocessor(object):
                     print("Malformed #include <...>")
                     return
                 filename = "".join([x.value for x in tokens[1:i]])
-                path = self.p
+                path = self.path + [""] + self.temp_path
+            elif tokens[0].type == self.t_STRING:
+                filename = tokens[0].value[1:-1]
+                path = self.temp_path + [""] + self.path
+            else:
+                print("Malformed #include statement")
+                return
+        for p in path:
+            iname = os.path.join(p,filename)
+            try:
+                data = self.read_include_file(iname)
+                dname = os.path.dirname(iname)
+                if dname:
+                    self.temp_path.insert(0,dname)
+                for tok in self.parsegen(data,filename):
+                    yield tok
+                if dname:
+                    del self.temp_path[0]
+                break
+            except IOError:
+                pass
+        else:
+            print("Couldn't find '%s'" % filename)
+
+    # ----------------------------------------------------------------------
+    # read_include_file()
+    #
+    # Reads a source file for inclusion using #include
+    # Could be overridden to e.g. customize encoding, limit access to
+    # certain paths on the filesystem, or provide the contents of system
