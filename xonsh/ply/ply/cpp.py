@@ -778,4 +778,40 @@ class Preprocessor(object):
                         self.error(self.source,dirtokens[0].lineno,"Misplaced #endif")
                 else:
                     # Unknown preprocessor directive
-    
+                    pass
+
+            else:
+                # Normal text
+                if enable:
+                    chunk.extend(x)
+
+        for tok in self.expand_macros(chunk):
+            yield tok
+        chunk = []
+
+    # ----------------------------------------------------------------------
+    # include()
+    #
+    # Implementation of file-inclusion
+    # ----------------------------------------------------------------------
+
+    def include(self,tokens):
+        # Try to extract the filename and then process an include file
+        if not tokens:
+            return
+        if tokens:
+            if tokens[0].value != '<' and tokens[0].type != self.t_STRING:
+                tokens = self.expand_macros(tokens)
+
+            if tokens[0].value == '<':
+                # Include <...>
+                i = 1
+                while i < len(tokens):
+                    if tokens[i].value == '>':
+                        break
+                    i += 1
+                else:
+                    print("Malformed #include <...>")
+                    return
+                filename = "".join([x.value for x in tokens[1:i]])
+                path = self.p
