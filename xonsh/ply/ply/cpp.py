@@ -844,3 +844,37 @@ class Preprocessor(object):
     # Reads a source file for inclusion using #include
     # Could be overridden to e.g. customize encoding, limit access to
     # certain paths on the filesystem, or provide the contents of system
+    # include files
+    # ----------------------------------------------------------------------
+
+    def read_include_file(self, filepath):
+        with open(filepath, 'r', encoding='utf-8', errors='surrogateescape') as file:
+            return file.read()
+
+    # ----------------------------------------------------------------------
+    # define()
+    #
+    # Define a new macro
+    # ----------------------------------------------------------------------
+
+    def define(self,tokens):
+        if isinstance(tokens,STRING_TYPES):
+            tokens = self.tokenize(tokens)
+
+        linetok = tokens
+        try:
+            name = linetok[0]
+            if len(linetok) > 1:
+                mtype = linetok[1]
+            else:
+                mtype = None
+            if not mtype:
+                m = Macro(name.value,[])
+                self.macros[name.value] = m
+            elif mtype.type in self.t_WS:
+                # A normal macro
+                m = Macro(name.value,self.tokenstrip(linetok[2:]))
+                self.macros[name.value] = m
+            elif mtype.value == '(':
+                # A macro with arguments
+                tokcount, args, positions =
