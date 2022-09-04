@@ -877,4 +877,29 @@ class Preprocessor(object):
                 self.macros[name.value] = m
             elif mtype.value == '(':
                 # A macro with arguments
-                tokcount, args, positions =
+                tokcount, args, positions = self.collect_args(linetok[1:])
+                variadic = False
+                for a in args:
+                    if variadic:
+                        print("No more arguments may follow a variadic argument")
+                        break
+                    astr = "".join([str(_i.value) for _i in a])
+                    if astr == "...":
+                        variadic = True
+                        a[0].type = self.t_ID
+                        a[0].value = '__VA_ARGS__'
+                        variadic = True
+                        del a[1:]
+                        continue
+                    elif astr[-3:] == "..." and a[0].type == self.t_ID:
+                        variadic = True
+                        del a[1:]
+                        # If, for some reason, "." is part of the identifier, strip off the name for the purposes
+                        # of macro expansion
+                        if a[0].value[-3:] == '...':
+                            a[0].value = a[0].value[:-3]
+                        continue
+                    if len(a) > 1 or a[0].type != self.t_ID:
+                        print("Invalid macro argument")
+                        break
+ 
