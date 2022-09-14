@@ -902,4 +902,31 @@ class Preprocessor(object):
                     if len(a) > 1 or a[0].type != self.t_ID:
                         print("Invalid macro argument")
                         break
- 
+                else:
+                    mvalue = self.tokenstrip(linetok[1+tokcount:])
+                    i = 0
+                    while i < len(mvalue):
+                        if i+1 < len(mvalue):
+                            if mvalue[i].type in self.t_WS and mvalue[i+1].value == '##':
+                                del mvalue[i]
+                                continue
+                            elif mvalue[i].value == '##' and mvalue[i+1].type in self.t_WS:
+                                del mvalue[i+1]
+                        i += 1
+                    m = Macro(name.value,mvalue,[x[0].value for x in args],variadic)
+                    self.macro_prescan(m)
+                    self.macros[name.value] = m
+            else:
+                print("Bad macro definition")
+        except LookupError:
+            print("Bad macro definition")
+
+    # ----------------------------------------------------------------------
+    # undef()
+    #
+    # Undefine a macro
+    # ----------------------------------------------------------------------
+
+    def undef(self,tokens):
+        id = tokens[0].value
+        try:
