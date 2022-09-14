@@ -970,4 +970,5 @@ if __name__ == '__main__':
     p.parse(input,sys.argv[1])
     while True:
         tok = p.token()
-        if not t
+        if not tok: break
+        print(p.source, tok)
