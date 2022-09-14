@@ -930,3 +930,44 @@ class Preprocessor(object):
     def undef(self,tokens):
         id = tokens[0].value
         try:
+            del self.macros[id]
+        except LookupError:
+            pass
+
+    # ----------------------------------------------------------------------
+    # parse()
+    #
+    # Parse input text.
+    # ----------------------------------------------------------------------
+    def parse(self,input,source=None,ignore={}):
+        self.ignore = ignore
+        self.parser = self.parsegen(input,source)
+
+    # ----------------------------------------------------------------------
+    # token()
+    #
+    # Method to return individual tokens
+    # ----------------------------------------------------------------------
+    def token(self):
+        try:
+            while True:
+                tok = next(self.parser)
+                if tok.type not in self.ignore: return tok
+        except StopIteration:
+            self.parser = None
+            return None
+
+if __name__ == '__main__':
+    import ply.lex as lex
+    lexer = lex.lex()
+
+    # Run a preprocessor
+    import sys
+    with open(sys.argv[1]) as f:
+        input = f.read()
+
+    p = Preprocessor(lexer)
+    p.parse(input,sys.argv[1])
+    while True:
+        tok = p.token()
+        if not t
