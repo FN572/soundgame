@@ -86,4 +86,42 @@ t_ARROW            = r'->'
 # ?
 t_TERNARY          = r'\?'
 
-# Delimeter
+# Delimeters
+t_LPAREN           = r'\('
+t_RPAREN           = r'\)'
+t_LBRACKET         = r'\['
+t_RBRACKET         = r'\]'
+t_LBRACE           = r'\{'
+t_RBRACE           = r'\}'
+t_COMMA            = r','
+t_PERIOD           = r'\.'
+t_SEMI             = r';'
+t_COLON            = r':'
+t_ELLIPSIS         = r'\.\.\.'
+
+# Identifiers
+t_ID = r'[A-Za-z_][A-Za-z0-9_]*'
+
+# Integer literal
+t_INTEGER = r'\d+([uU]|[lL]|[uU][lL]|[lL][uU])?'
+
+# Floating literal
+t_FLOAT = r'((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))([lL]|[fF])?'
+
+# String literal
+t_STRING = r'\"([^\\\n]|(\\.))*?\"'
+
+# Character constant 'c' or L'c'
+t_CHARACTER = r'(L)?\'([^\\\n]|(\\.))*?\''
+
+# Comment (C-Style)
+def t_COMMENT(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+    return t
+
+# Comment (C++-Style)
+def t_CPPCOMMENT(t):
+    r'//.*\n'
+    t.lexer.lineno += 1
+    return t
