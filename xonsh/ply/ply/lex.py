@@ -71,4 +71,45 @@ class LexToken(object):
         return str(self)
 
 
-# This object is a stand-in for a logging object cr
+# This object is a stand-in for a logging object created by the
+# logging module.
+
+class PlyLogger(object):
+    def __init__(self, f):
+        self.f = f
+
+    def critical(self, msg, *args, **kwargs):
+        self.f.write((msg % args) + '\n')
+
+    def warning(self, msg, *args, **kwargs):
+        self.f.write('WARNING: ' + (msg % args) + '\n')
+
+    def error(self, msg, *args, **kwargs):
+        self.f.write('ERROR: ' + (msg % args) + '\n')
+
+    info = critical
+    debug = critical
+
+
+# Null logger is used when no output is generated. Does nothing.
+class NullLogger(object):
+    def __getattribute__(self, name):
+        return self
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+
+# -----------------------------------------------------------------------------
+#                        === Lexing Engine ===
+#
+# The following Lexer class implements the lexer runtime.   There are only
+# a few public methods and attributes:
+#
+#    input()          -  Store a new string in the lexer
+#    token()          -  Get the next token
+#    clone()          -  Clone the lexer
+#
+#    lineno           -  Current line number
+#    lexpos           -  Current position in the input string
+# ----------------------------------------------
