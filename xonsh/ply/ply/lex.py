@@ -112,4 +112,21 @@ class NullLogger(object):
 #
 #    lineno           -  Current line number
 #    lexpos           -  Current position in the input string
-# ----------------------------------------------
+# -----------------------------------------------------------------------------
+
+class Lexer:
+    def __init__(self):
+        self.lexre = None             # Master regular expression. This is a list of
+                                      # tuples (re, findex) where re is a compiled
+                                      # regular expression and findex is a list
+                                      # mapping regex group numbers to rules
+        self.lexretext = None         # Current regular expression strings
+        self.lexstatere = {}          # Dictionary mapping lexer states to master regexs
+        self.lexstateretext = {}      # Dictionary mapping lexer states to regex strings
+        self.lexstaterenames = {}     # Dictionary mapping lexer states to symbol names
+        self.lexstate = 'INITIAL'     # Current lexer state
+        self.lexstatestack = []       # Stack of lexer states
+        self.lexstateinfo = None      # State information
+        self.lexstateignore = {}      # Dictionary of ignored characters for each state
+        self.lexstateerrorf = {}      # Dictionary of error functions for each state
+        self.lexstateeoff = {}        # Dictionary of eof functions
