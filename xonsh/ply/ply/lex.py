@@ -129,4 +129,29 @@ class Lexer:
         self.lexstateinfo = None      # State information
         self.lexstateignore = {}      # Dictionary of ignored characters for each state
         self.lexstateerrorf = {}      # Dictionary of error functions for each state
-        self.lexstateeoff = {}        # Dictionary of eof functions
+        self.lexstateeoff = {}        # Dictionary of eof functions for each state
+        self.lexreflags = 0           # Optional re compile flags
+        self.lexdata = None           # Actual input data (as a string)
+        self.lexpos = 0               # Current position in input text
+        self.lexlen = 0               # Length of the input text
+        self.lexerrorf = None         # Error rule (if any)
+        self.lexeoff = None           # EOF rule (if any)
+        self.lextokens = None         # List of valid tokens
+        self.lexignore = ''           # Ignored characters
+        self.lexliterals = ''         # Literal characters that can be passed through
+        self.lexmodule = None         # Module
+        self.lineno = 1               # Current line number
+        self.lexoptimize = False      # Optimized mode
+
+    def clone(self, object=None):
+        c = copy.copy(self)
+
+        # If the object parameter has been supplied, it means we are attaching the
+        # lexer to a new object.  In this case, we have to rebind all methods in
+        # the lexstatere and lexstateerrorf tables.
+
+        if object:
+            newtab = {}
+            for key, ritem in self.lexstatere.items():
+                newre = []
+                for cre, findex in
