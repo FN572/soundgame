@@ -154,4 +154,29 @@ class Lexer:
             newtab = {}
             for key, ritem in self.lexstatere.items():
                 newre = []
-                for cre, findex in
+                for cre, findex in ritem:
+                    newfindex = []
+                    for f in findex:
+                        if not f or not f[0]:
+                            newfindex.append(f)
+                            continue
+                        newfindex.append((getattr(object, f[0].__name__), f[1]))
+                newre.append((cre, newfindex))
+                newtab[key] = newre
+            c.lexstatere = newtab
+            c.lexstateerrorf = {}
+            for key, ef in self.lexstateerrorf.items():
+                c.lexstateerrorf[key] = getattr(object, ef.__name__)
+            c.lexmodule = object
+        return c
+
+    # ------------------------------------------------------------
+    # writetab() - Write lexer information to a table file
+    # ------------------------------------------------------------
+    def writetab(self, lextab, outputdir=''):
+        if isinstance(lextab, types.ModuleType):
+            raise IOError("Won't overwrite existing lextab module")
+        basetabmodule = lextab.split('.')[-1]
+        filename = os.path.join(outputdir, basetabmodule) + '.py'
+        with open(filename, 'w') as tf:
+            tf.write('# %s.py. This file
