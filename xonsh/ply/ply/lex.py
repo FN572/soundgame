@@ -198,4 +198,31 @@ class Lexer:
             tf.write('_lexstateignore = %s\n' % repr(self.lexstateignore))
 
             taberr = {}
-            for statename, ef in 
+            for statename, ef in self.lexstateerrorf.items():
+                taberr[statename] = ef.__name__ if ef else None
+            tf.write('_lexstateerrorf = %s\n' % repr(taberr))
+
+            tabeof = {}
+            for statename, ef in self.lexstateeoff.items():
+                tabeof[statename] = ef.__name__ if ef else None
+            tf.write('_lexstateeoff = %s\n' % repr(tabeof))
+
+    # ------------------------------------------------------------
+    # readtab() - Read lexer information from a tab file
+    # ------------------------------------------------------------
+    def readtab(self, tabfile, fdict):
+        if isinstance(tabfile, types.ModuleType):
+            lextab = tabfile
+        else:
+            exec('import %s' % tabfile)
+            lextab = sys.modules[tabfile]
+
+        if getattr(lextab, '_tabversion', '0.0') != __tabversion__:
+            raise ImportError('Inconsistent PLY version')
+
+        self.lextokens      = lextab._lextokens
+        self.lexreflags     = lextab._lexreflags
+        self.lexliterals    = lextab._lexliterals
+        self.lextokens_all  = self.lextokens | set(self.lexliterals)
+        self.lexstateinfo   = lextab._lexstateinfo
+        sel
