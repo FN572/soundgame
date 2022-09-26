@@ -225,4 +225,34 @@ class Lexer:
         self.lexliterals    = lextab._lexliterals
         self.lextokens_all  = self.lextokens | set(self.lexliterals)
         self.lexstateinfo   = lextab._lexstateinfo
-        sel
+        self.lexstateignore = lextab._lexstateignore
+        self.lexstatere     = {}
+        self.lexstateretext = {}
+        for statename, lre in lextab._lexstatere.items():
+            titem = []
+            txtitem = []
+            for pat, func_name in lre:
+                titem.append((re.compile(pat, lextab._lexreflags), _names_to_funcs(func_name, fdict)))
+
+            self.lexstatere[statename] = titem
+            self.lexstateretext[statename] = txtitem
+
+        self.lexstateerrorf = {}
+        for statename, ef in lextab._lexstateerrorf.items():
+            self.lexstateerrorf[statename] = fdict[ef]
+
+        self.lexstateeoff = {}
+        for statename, ef in lextab._lexstateeoff.items():
+            self.lexstateeoff[statename] = fdict[ef]
+
+        self.begin('INITIAL')
+
+    # ------------------------------------------------------------
+    # input() - Push a new string into the lexer
+    # ------------------------------------------------------------
+    def input(self, s):
+        # Pull off the first character to see if s looks like a string
+        c = s[:1]
+        if not isinstance(c, StringTypes):
+            raise ValueError('Expected a string')
+      
