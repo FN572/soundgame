@@ -255,4 +255,33 @@ class Lexer:
         c = s[:1]
         if not isinstance(c, StringTypes):
             raise ValueError('Expected a string')
-      
+        self.lexdata = s
+        self.lexpos = 0
+        self.lexlen = len(s)
+
+    # ------------------------------------------------------------
+    # begin() - Changes the lexing state
+    # ------------------------------------------------------------
+    def begin(self, state):
+        if state not in self.lexstatere:
+            raise ValueError('Undefined state')
+        self.lexre = self.lexstatere[state]
+        self.lexretext = self.lexstateretext[state]
+        self.lexignore = self.lexstateignore.get(state, '')
+        self.lexerrorf = self.lexstateerrorf.get(state, None)
+        self.lexeoff = self.lexstateeoff.get(state, None)
+        self.lexstate = state
+
+    # ------------------------------------------------------------
+    # push_state() - Changes the lexing state and saves old on stack
+    # ------------------------------------------------------------
+    def push_state(self, state):
+        self.lexstatestack.append(self.lexstate)
+        self.begin(state)
+
+    # ------------------------------------------------------------
+    # pop_state() - Restores the previous state
+    # ------------------------------------------------------------
+    def pop_state(self):
+        self.begin(self.lexstatestack.pop())
+
