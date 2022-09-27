@@ -313,4 +313,42 @@ class Lexer:
 
         while lexpos < lexlen:
             # This code provides some short-circuit code for whitespace, tabs, and other ignored characters
-            if lexdata[lexpos] in lexi
+            if lexdata[lexpos] in lexignore:
+                lexpos += 1
+                continue
+
+            # Look for a regular expression match
+            for lexre, lexindexfunc in self.lexre:
+                m = lexre.match(lexdata, lexpos)
+                if not m:
+                    continue
+
+                # Create a token for return
+                tok = LexToken()
+                tok.value = m.group()
+                tok.lineno = self.lineno
+                tok.lexpos = lexpos
+
+                i = m.lastindex
+                func, tok.type = lexindexfunc[i]
+
+                if not func:
+                    # If no token type was set, it's an ignored token
+                    if tok.type:
+                        self.lexpos = m.end()
+                        return tok
+                    else:
+                        lexpos = m.end()
+                        break
+
+                lexpos = m.end()
+
+                # If token is processed by a function, call it
+
+                tok.lexer = self      # Set additional attributes useful in token rules
+                self.lexmatch = m
+                self.lexpos = lexpos
+
+                newtok = func(tok)
+
+                # Ev
