@@ -285,3 +285,32 @@ class Lexer:
     def pop_state(self):
         self.begin(self.lexstatestack.pop())
 
+    # ------------------------------------------------------------
+    # current_state() - Returns the current lexing state
+    # ------------------------------------------------------------
+    def current_state(self):
+        return self.lexstate
+
+    # ------------------------------------------------------------
+    # skip() - Skip ahead n characters
+    # ------------------------------------------------------------
+    def skip(self, n):
+        self.lexpos += n
+
+    # ------------------------------------------------------------
+    # opttoken() - Return the next token from the Lexer
+    #
+    # Note: This function has been carefully implemented to be as fast
+    # as possible.  Don't make changes unless you really know what
+    # you are doing
+    # ------------------------------------------------------------
+    def token(self):
+        # Make local copies of frequently referenced attributes
+        lexpos    = self.lexpos
+        lexlen    = self.lexlen
+        lexignore = self.lexignore
+        lexdata   = self.lexdata
+
+        while lexpos < lexlen:
+            # This code provides some short-circuit code for whitespace, tabs, and other ignored characters
+            if lexdata[lexpos] in lexi
