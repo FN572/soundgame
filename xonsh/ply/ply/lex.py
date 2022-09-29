@@ -351,4 +351,25 @@ class Lexer:
 
                 newtok = func(tok)
 
-                # Ev
+                # Every function must return a token, if nothing, we just move to next token
+                if not newtok:
+                    lexpos    = self.lexpos         # This is here in case user has updated lexpos.
+                    lexignore = self.lexignore      # This is here in case there was a state change
+                    break
+
+                # Verify type of the token.  If not in the token map, raise an error
+                if not self.lexoptimize:
+                    if newtok.type not in self.lextokens_all:
+                        raise LexError("%s:%d: Rule '%s' returned an unknown token type '%s'" % (
+                            func.__code__.co_filename, func.__code__.co_firstlineno,
+                            func.__name__, newtok.type), lexdata[lexpos:])
+
+                return newtok
+            else:
+                # No match, see if in literals
+                if lexdata[lexpos] in self.lexliterals:
+                    tok = LexToken()
+                    tok.value = lexdata[lexpos]
+                    tok.lineno = self.lineno
+                    tok.type = tok.value
+                    tok.lexpos = lexpos
