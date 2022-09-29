@@ -373,3 +373,32 @@ class Lexer:
                     tok.lineno = self.lineno
                     tok.type = tok.value
                     tok.lexpos = lexpos
+                    self.lexpos = lexpos + 1
+                    return tok
+
+                # No match. Call t_error() if defined.
+                if self.lexerrorf:
+                    tok = LexToken()
+                    tok.value = self.lexdata[lexpos:]
+                    tok.lineno = self.lineno
+                    tok.type = 'error'
+                    tok.lexer = self
+                    tok.lexpos = lexpos
+                    self.lexpos = lexpos
+                    newtok = self.lexerrorf(tok)
+                    if lexpos == self.lexpos:
+                        # Error method didn't change text position at all. This is an error.
+                        raise LexError("Scanning error. Illegal character '%s'" % (lexdata[lexpos]), lexdata[lexpos:])
+                    lexpos = self.lexpos
+                    if not newtok:
+                        continue
+                    return newtok
+
+                self.lexpos = lexpos
+                raise LexError("Illegal character '%s' at index %d" % (lexdata[lexpos], lexpos), lexdata[lexpos:])
+
+        if self.lexeoff:
+            tok = LexToken()
+            tok.type = 'eof'
+            tok.value = ''
+ 
