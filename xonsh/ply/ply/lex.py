@@ -560,4 +560,45 @@ class LexerReflect(object):
     def __init__(self, ldict, log=None, reflags=0):
         self.ldict      = ldict
         self.error_func = None
-        self.tokens    
+        self.tokens     = []
+        self.reflags    = reflags
+        self.stateinfo  = {'INITIAL': 'inclusive'}
+        self.modules    = set()
+        self.error      = False
+        self.log        = PlyLogger(sys.stderr) if log is None else log
+
+    # Get all of the basic information
+    def get_all(self):
+        self.get_tokens()
+        self.get_literals()
+        self.get_states()
+        self.get_rules()
+
+    # Validate all of the information
+    def validate_all(self):
+        self.validate_tokens()
+        self.validate_literals()
+        self.validate_rules()
+        return self.error
+
+    # Get the tokens map
+    def get_tokens(self):
+        tokens = self.ldict.get('tokens', None)
+        if not tokens:
+            self.log.error('No token list is defined')
+            self.error = True
+            return
+
+        if not isinstance(tokens, (list, tuple)):
+            self.log.error('tokens must be a list or tuple')
+            self.error = True
+            return
+
+        if not tokens:
+            self.log.error('tokens is empty')
+            self.error = True
+            return
+
+        self.tokens = tokens
+
+    # Validate the tokens
