@@ -527,4 +527,37 @@ def _form_master_re(relist, reflags, ldict, toknames):
 # -----------------------------------------------------------------------------
 # def _statetoken(s,names)
 #
-# Given a dec
+# Given a declaration name s of the form "t_" and a dictionary whose keys are
+# state names, this function returns a tuple (states,tokenname) where states
+# is a tuple of state names and tokenname is the name of the token.  For example,
+# calling this with s = "t_foo_bar_SPAM" might return (('foo','bar'),'SPAM')
+# -----------------------------------------------------------------------------
+def _statetoken(s, names):
+    parts = s.split('_')
+    for i, part in enumerate(parts[1:], 1):
+        if part not in names and part != 'ANY':
+            break
+
+    if i > 1:
+        states = tuple(parts[1:i])
+    else:
+        states = ('INITIAL',)
+
+    if 'ANY' in states:
+        states = tuple(names)
+
+    tokenname = '_'.join(parts[i:])
+    return (states, tokenname)
+
+
+# -----------------------------------------------------------------------------
+# LexerReflect()
+#
+# This class represents information needed to build a lexer as extracted from a
+# user's input file.
+# -----------------------------------------------------------------------------
+class LexerReflect(object):
+    def __init__(self, ldict, log=None, reflags=0):
+        self.ldict      = ldict
+        self.error_func = None
+        self.tokens    
