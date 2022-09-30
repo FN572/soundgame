@@ -464,4 +464,39 @@ def get_caller_module_dict(levels):
 def _funcs_to_names(funclist, namelist):
     result = []
     for f, name in zip(funclist, namelist):
-        if f and 
+        if f and f[0]:
+            result.append((name, f[1]))
+        else:
+            result.append(f)
+    return result
+
+# -----------------------------------------------------------------------------
+# _names_to_funcs()
+#
+# Given a list of regular expression function names, this converts it back to
+# functions.
+# -----------------------------------------------------------------------------
+def _names_to_funcs(namelist, fdict):
+    result = []
+    for n in namelist:
+        if n and n[0]:
+            result.append((fdict[n[0]], n[1]))
+        else:
+            result.append(n)
+    return result
+
+# -----------------------------------------------------------------------------
+# _form_master_re()
+#
+# This function takes a list of all of the regex components and attempts to
+# form the master regular expression.  Given limitations in the Python re
+# module, it may be necessary to break the master regex into separate expressions.
+# -----------------------------------------------------------------------------
+def _form_master_re(relist, reflags, ldict, toknames):
+    if not relist:
+        return []
+    regex = '|'.join(relist)
+    try:
+        lexre = re.compile(regex, reflags)
+
+        
