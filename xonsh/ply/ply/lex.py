@@ -602,3 +602,36 @@ class LexerReflect(object):
         self.tokens = tokens
 
     # Validate the tokens
+    def validate_tokens(self):
+        terminals = {}
+        for n in self.tokens:
+            if not _is_identifier.match(n):
+                self.log.error("Bad token name '%s'", n)
+                self.error = True
+            if n in terminals:
+                self.log.warning("Token '%s' multiply defined", n)
+            terminals[n] = 1
+
+    # Get the literals specifier
+    def get_literals(self):
+        self.literals = self.ldict.get('literals', '')
+        if not self.literals:
+            self.literals = ''
+
+    # Validate literals
+    def validate_literals(self):
+        try:
+            for c in self.literals:
+                if not isinstance(c, StringTypes) or len(c) > 1:
+                    self.log.error('Invalid literal %s. Must be a single character', repr(c))
+                    self.error = True
+
+        except TypeError:
+            self.log.error('Invalid literals specification. literals must be a sequence of characters')
+            self.error = True
+
+    def get_states(self):
+        self.states = self.ldict.get('states', None)
+        # Build statemap
+        if self.states:
+            if not isinstance(self.states, (tu
