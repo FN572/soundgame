@@ -653,4 +653,34 @@ class LexerReflect(object):
                         self.error = True
                         continue
                     if name in self.stateinfo:
-                        self.log.error("State '%s
+                        self.log.error("State '%s' already defined", name)
+                        self.error = True
+                        continue
+                    self.stateinfo[name] = statetype
+
+    # Get all of the symbols with a t_ prefix and sort them into various
+    # categories (functions, strings, error functions, and ignore characters)
+
+    def get_rules(self):
+        tsymbols = [f for f in self.ldict if f[:2] == 't_']
+
+        # Now build up a list of functions and a list of strings
+        self.toknames = {}        # Mapping of symbols to token names
+        self.funcsym  = {}        # Symbols defined as functions
+        self.strsym   = {}        # Symbols defined as strings
+        self.ignore   = {}        # Ignore strings by state
+        self.errorf   = {}        # Error functions by state
+        self.eoff     = {}        # EOF functions by state
+
+        for s in self.stateinfo:
+            self.funcsym[s] = []
+            self.strsym[s] = []
+
+        if len(tsymbols) == 0:
+            self.log.error('No rules of the form t_rulename are defined')
+            self.error = True
+            return
+
+        for f in tsymbols:
+            t = self.ldict[f]
+     
