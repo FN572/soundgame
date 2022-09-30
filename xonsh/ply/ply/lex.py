@@ -437,4 +437,31 @@ class Lexer:
 #
 # Returns the regular expression assigned to a function either as a doc string
 # or as a .regex attribute attached by the @TOKEN decorator.
-# -----
+# -----------------------------------------------------------------------------
+def _get_regex(func):
+    return getattr(func, 'regex', func.__doc__)
+
+# -----------------------------------------------------------------------------
+# get_caller_module_dict()
+#
+# This function returns a dictionary containing all of the symbols defined within
+# a caller further down the call stack.  This is used to get the environment
+# associated with the yacc() call if none was provided.
+# -----------------------------------------------------------------------------
+def get_caller_module_dict(levels):
+    f = sys._getframe(levels)
+    ldict = f.f_globals.copy()
+    if f.f_globals != f.f_locals:
+        ldict.update(f.f_locals)
+    return ldict
+
+# -----------------------------------------------------------------------------
+# _funcs_to_names()
+#
+# Given a list of regular expression functions, this converts it to a list
+# suitable for output to a table file
+# -----------------------------------------------------------------------------
+def _funcs_to_names(funclist, namelist):
+    result = []
+    for f, name in zip(funclist, namelist):
+        if f and 
