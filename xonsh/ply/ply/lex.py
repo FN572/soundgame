@@ -634,4 +634,23 @@ class LexerReflect(object):
         self.states = self.ldict.get('states', None)
         # Build statemap
         if self.states:
-            if not isinstance(self.states, (tu
+            if not isinstance(self.states, (tuple, list)):
+                self.log.error('states must be defined as a tuple or list')
+                self.error = True
+            else:
+                for s in self.states:
+                    if not isinstance(s, tuple) or len(s) != 2:
+                        self.log.error("Invalid state specifier %s. Must be a tuple (statename,'exclusive|inclusive')", repr(s))
+                        self.error = True
+                        continue
+                    name, statetype = s
+                    if not isinstance(name, StringTypes):
+                        self.log.error('State name %s must be a string', repr(name))
+                        self.error = True
+                        continue
+                    if not (statetype == 'inclusive' or statetype == 'exclusive'):
+                        self.log.error("State type for state %s must be 'inclusive' or 'exclusive'", name)
+                        self.error = True
+                        continue
+                    if name in self.stateinfo:
+                        self.log.error("State '%s
