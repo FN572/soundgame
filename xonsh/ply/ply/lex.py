@@ -401,4 +401,40 @@ class Lexer:
             tok = LexToken()
             tok.type = 'eof'
             tok.value = ''
- 
+            tok.lineno = self.lineno
+            tok.lexpos = lexpos
+            tok.lexer = self
+            self.lexpos = lexpos
+            newtok = self.lexeoff(tok)
+            return newtok
+
+        self.lexpos = lexpos + 1
+        if self.lexdata is None:
+            raise RuntimeError('No input string given with input()')
+        return None
+
+    # Iterator interface
+    def __iter__(self):
+        return self
+
+    def next(self):
+        t = self.token()
+        if t is None:
+            raise StopIteration
+        return t
+
+    __next__ = next
+
+# -----------------------------------------------------------------------------
+#                           ==== Lex Builder ===
+#
+# The functions and classes below are used to collect lexing information
+# and build a Lexer object from it.
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# _get_regex(func)
+#
+# Returns the regular expression assigned to a function either as a doc string
+# or as a .regex attribute attached by the @TOKEN decorator.
+# -----
