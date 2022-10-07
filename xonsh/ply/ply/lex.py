@@ -709,4 +709,36 @@ class LexerReflect(object):
                         self.log.warning("%s contains a literal backslash '\\'", f)
 
                 elif tokname == 'error':
-                    self.log.error("Rule '%s' must be defined a
+                    self.log.error("Rule '%s' must be defined as a function", f)
+                    self.error = True
+                else:
+                    for s in states:
+                        self.strsym[s].append((f, t))
+            else:
+                self.log.error('%s not defined as a function or string', f)
+                self.error = True
+
+        # Sort the functions by line number
+        for f in self.funcsym.values():
+            f.sort(key=lambda x: x[1].__code__.co_firstlineno)
+
+        # Sort the strings by regular expression length
+        for s in self.strsym.values():
+            s.sort(key=lambda x: len(x[1]), reverse=True)
+
+    # Validate all of the t_rules collected
+    def validate_rules(self):
+        for state in self.stateinfo:
+            # Validate all rules defined by functions
+
+            for fname, f in self.funcsym[state]:
+                line = f.__code__.co_firstlineno
+                file = f.__code__.co_filename
+                module = inspect.getmodule(f)
+                self.modules.add(module)
+
+                tokname = self.toknames[fname]
+                if isinstance(f, types.MethodType):
+                    reqargs = 2
+                else:
+   
