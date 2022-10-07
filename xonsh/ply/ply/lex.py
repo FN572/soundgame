@@ -741,4 +741,27 @@ class LexerReflect(object):
                 if isinstance(f, types.MethodType):
                     reqargs = 2
                 else:
-   
+                    reqargs = 1
+                nargs = f.__code__.co_argcount
+                if nargs > reqargs:
+                    self.log.error("%s:%d: Rule '%s' has too many arguments", file, line, f.__name__)
+                    self.error = True
+                    continue
+
+                if nargs < reqargs:
+                    self.log.error("%s:%d: Rule '%s' requires an argument", file, line, f.__name__)
+                    self.error = True
+                    continue
+
+                if not _get_regex(f):
+                    self.log.error("%s:%d: No regular expression defined for rule '%s'", file, line, f.__name__)
+                    self.error = True
+                    continue
+
+                try:
+                    c = re.compile('(?P<%s>%s)' % (fname, _get_regex(f)), self.reflags)
+                    if c.match(''):
+                        self.log.error("%s:%d: Regular expression for rule '%s' matches empty string", file, line, f.__name__)
+                        self.error = True
+                except re.error as e:
+                    self.log.error("%s:%d: Invalid regular expression for rule '%s'. %s",
