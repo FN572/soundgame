@@ -683,4 +683,30 @@ class LexerReflect(object):
 
         for f in tsymbols:
             t = self.ldict[f]
-     
+            states, tokname = _statetoken(f, self.stateinfo)
+            self.toknames[f] = tokname
+
+            if hasattr(t, '__call__'):
+                if tokname == 'error':
+                    for s in states:
+                        self.errorf[s] = t
+                elif tokname == 'eof':
+                    for s in states:
+                        self.eoff[s] = t
+                elif tokname == 'ignore':
+                    line = t.__code__.co_firstlineno
+                    file = t.__code__.co_filename
+                    self.log.error("%s:%d: Rule '%s' must be defined as a string", file, line, t.__name__)
+                    self.error = True
+                else:
+                    for s in states:
+                        self.funcsym[s].append((f, t))
+            elif isinstance(t, StringTypes):
+                if tokname == 'ignore':
+                    for s in states:
+                        self.ignore[s] = t
+                    if '\\' in t:
+                        self.log.warning("%s contains a literal backslash '\\'", f)
+
+                elif tokname == 'error':
+                    self.log.error("Rule '%s' must be defined a
