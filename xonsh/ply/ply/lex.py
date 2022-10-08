@@ -764,4 +764,27 @@ class LexerReflect(object):
                         self.log.error("%s:%d: Regular expression for rule '%s' matches empty string", file, line, f.__name__)
                         self.error = True
                 except re.error as e:
-                    self.log.error("%s:%d: Invalid regular expression for rule '%s'. %s",
+                    self.log.error("%s:%d: Invalid regular expression for rule '%s'. %s", file, line, f.__name__, e)
+                    if '#' in _get_regex(f):
+                        self.log.error("%s:%d. Make sure '#' in rule '%s' is escaped with '\\#'", file, line, f.__name__)
+                    self.error = True
+
+            # Validate all rules defined by strings
+            for name, r in self.strsym[state]:
+                tokname = self.toknames[name]
+                if tokname == 'error':
+                    self.log.error("Rule '%s' must be defined as a function", name)
+                    self.error = True
+                    continue
+
+                if tokname not in self.tokens and tokname.find('ignore_') < 0:
+                    self.log.error("Rule '%s' defined for an unspecified token %s", name, tokname)
+                    self.error = True
+                    continue
+
+                try:
+                    c = re.compile('(?P<%s>%s)' % (name, r), self.reflags)
+                    if (c.match('')):
+                        self.log.error("Regular expression for rule '%s' matches empty string", name)
+                        self.error = True
+             
