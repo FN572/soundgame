@@ -787,4 +787,33 @@ class LexerReflect(object):
                     if (c.match('')):
                         self.log.error("Regular expression for rule '%s' matches empty string", name)
                         self.error = True
-             
+                except re.error as e:
+                    self.log.error("Invalid regular expression for rule '%s'. %s", name, e)
+                    if '#' in r:
+                        self.log.error("Make sure '#' in rule '%s' is escaped with '\\#'", name)
+                    self.error = True
+
+            if not self.funcsym[state] and not self.strsym[state]:
+                self.log.error("No rules defined for state '%s'", state)
+                self.error = True
+
+            # Validate the error function
+            efunc = self.errorf.get(state, None)
+            if efunc:
+                f = efunc
+                line = f.__code__.co_firstlineno
+                file = f.__code__.co_filename
+                module = inspect.getmodule(f)
+                self.modules.add(module)
+
+                if isinstance(f, types.MethodType):
+                    reqargs = 2
+                else:
+                    reqargs = 1
+                nargs = f.__code__.co_argcount
+                if nargs > reqargs:
+                    self.log.error("%s:%d: Rule '%s' has too many arguments", file, line, f.__name__)
+                    self.error = True
+
+                if nargs < reqargs:
+               
