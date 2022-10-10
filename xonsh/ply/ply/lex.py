@@ -816,4 +816,37 @@ class LexerReflect(object):
                     self.error = True
 
                 if nargs < reqargs:
-               
+                    self.log.error("%s:%d: Rule '%s' requires an argument", file, line, f.__name__)
+                    self.error = True
+
+        for module in self.modules:
+            self.validate_module(module)
+
+    # -----------------------------------------------------------------------------
+    # validate_module()
+    #
+    # This checks to see if there are duplicated t_rulename() functions or strings
+    # in the parser input file.  This is done using a simple regular expression
+    # match on each line in the source code of the given module.
+    # -----------------------------------------------------------------------------
+
+    def validate_module(self, module):
+        try:
+            lines, linen = inspect.getsourcelines(module)
+        except IOError:
+            return
+
+        fre = re.compile(r'\s*def\s+(t_[a-zA-Z_0-9]*)\(')
+        sre = re.compile(r'\s*(t_[a-zA-Z_0-9]*)\s*=')
+
+        counthash = {}
+        linen += 1
+        for line in lines:
+            m = fre.match(line)
+            if not m:
+                m = sre.match(line)
+            if m:
+                name = m.group(1)
+                prev = counthash.get(name)
+                if not prev:
+    
