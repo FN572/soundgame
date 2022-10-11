@@ -882,4 +882,38 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
         if debuglog is None:
             debuglog = PlyLogger(sys.stderr)
 
-    # Get the module dictionary 
+    # Get the module dictionary used for the lexer
+    if object:
+        module = object
+
+    # Get the module dictionary used for the parser
+    if module:
+        _items = [(k, getattr(module, k)) for k in dir(module)]
+        ldict = dict(_items)
+        # If no __file__ attribute is available, try to obtain it from the __module__ instead
+        if '__file__' not in ldict:
+            ldict['__file__'] = sys.modules[ldict['__module__']].__file__
+    else:
+        ldict = get_caller_module_dict(2)
+
+    # Determine if the module is package of a package or not.
+    # If so, fix the tabmodule setting so that tables load correctly
+    pkg = ldict.get('__package__')
+    if pkg and isinstance(lextab, str):
+        if '.' not in lextab:
+            lextab = pkg + '.' + lextab
+
+    # Collect parser information from the dictionary
+    linfo = LexerReflect(ldict, log=errorlog, reflags=reflags)
+    linfo.get_all()
+    if not optimize:
+        if linfo.validate_all():
+            raise SyntaxError("Can't build lexer")
+
+    if optimize and lextab:
+        try:
+            lexobj.readtab(lextab, ldict)
+            token = lexobj.token
+            input = lexobj.input
+            lexer = lexobj
+            ret
