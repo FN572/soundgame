@@ -980,4 +980,33 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
     for state, stype in stateinfo.items():
         if state != 'INITIAL' and stype == 'inclusive':
             lexobj.lexstatere[state].extend(lexobj.lexstatere['INITIAL'])
-            lexobj.lexstateretext[state].extend(
+            lexobj.lexstateretext[state].extend(lexobj.lexstateretext['INITIAL'])
+            lexobj.lexstaterenames[state].extend(lexobj.lexstaterenames['INITIAL'])
+
+    lexobj.lexstateinfo = stateinfo
+    lexobj.lexre = lexobj.lexstatere['INITIAL']
+    lexobj.lexretext = lexobj.lexstateretext['INITIAL']
+    lexobj.lexreflags = reflags
+
+    # Set up ignore variables
+    lexobj.lexstateignore = linfo.ignore
+    lexobj.lexignore = lexobj.lexstateignore.get('INITIAL', '')
+
+    # Set up error functions
+    lexobj.lexstateerrorf = linfo.errorf
+    lexobj.lexerrorf = linfo.errorf.get('INITIAL', None)
+    if not lexobj.lexerrorf:
+        errorlog.warning('No t_error rule is defined')
+
+    # Set up eof functions
+    lexobj.lexstateeoff = linfo.eoff
+    lexobj.lexeoff = linfo.eoff.get('INITIAL', None)
+
+    # Check state information for ignore and error rules
+    for s, stype in stateinfo.items():
+        if stype == 'exclusive':
+            if s not in linfo.errorf:
+                errorlog.warning("No error rule is defined for exclusive state '%s'", s)
+            if s not in linfo.ignore and lexobj.lexignore:
+                errorlog.warning("No ignore rule is defined for exclusive state '%s'", s)
+       
