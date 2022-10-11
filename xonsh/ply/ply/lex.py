@@ -849,4 +849,37 @@ class LexerReflect(object):
                 name = m.group(1)
                 prev = counthash.get(name)
                 if not prev:
-    
+                    counthash[name] = linen
+                else:
+                    filename = inspect.getsourcefile(module)
+                    self.log.error('%s:%d: Rule %s redefined. Previously defined on line %d', filename, linen, name, prev)
+                    self.error = True
+            linen += 1
+
+# -----------------------------------------------------------------------------
+# lex(module)
+#
+# Build all of the regular expression rules from definitions in the supplied module
+# -----------------------------------------------------------------------------
+def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
+        reflags=int(re.VERBOSE), nowarn=False, outputdir=None, debuglog=None, errorlog=None):
+
+    if lextab is None:
+        lextab = 'lextab'
+
+    global lexer
+
+    ldict = None
+    stateinfo  = {'INITIAL': 'inclusive'}
+    lexobj = Lexer()
+    lexobj.lexoptimize = optimize
+    global token, input
+
+    if errorlog is None:
+        errorlog = PlyLogger(sys.stderr)
+
+    if debug:
+        if debuglog is None:
+            debuglog = PlyLogger(sys.stderr)
+
+    # Get the module dictionary 
