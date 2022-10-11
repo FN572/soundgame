@@ -916,4 +916,40 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
             token = lexobj.token
             input = lexobj.input
             lexer = lexobj
-            ret
+            return lexobj
+
+        except ImportError:
+            pass
+
+    # Dump some basic debugging information
+    if debug:
+        debuglog.info('lex: tokens   = %r', linfo.tokens)
+        debuglog.info('lex: literals = %r', linfo.literals)
+        debuglog.info('lex: states   = %r', linfo.stateinfo)
+
+    # Build a dictionary of valid token names
+    lexobj.lextokens = set()
+    for n in linfo.tokens:
+        lexobj.lextokens.add(n)
+
+    # Get literals specification
+    if isinstance(linfo.literals, (list, tuple)):
+        lexobj.lexliterals = type(linfo.literals[0])().join(linfo.literals)
+    else:
+        lexobj.lexliterals = linfo.literals
+
+    lexobj.lextokens_all = lexobj.lextokens | set(lexobj.lexliterals)
+
+    # Get the stateinfo dictionary
+    stateinfo = linfo.stateinfo
+
+    regexs = {}
+    # Build the master regular expressions
+    for state in stateinfo:
+        regex_list = []
+
+        # Add rules defined by functions first
+        for fname, f in linfo.funcsym[state]:
+            regex_list.append('(?P<%s>%s)' % (fname, _get_regex(f)))
+            if debug:
+                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')", fname, _get_regex(f), st
