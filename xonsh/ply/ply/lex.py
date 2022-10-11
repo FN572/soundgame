@@ -952,4 +952,32 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
         for fname, f in linfo.funcsym[state]:
             regex_list.append('(?P<%s>%s)' % (fname, _get_regex(f)))
             if debug:
-                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')", fname, _get_regex(f), st
+                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')", fname, _get_regex(f), state)
+
+        # Now add all of the simple rules
+        for name, r in linfo.strsym[state]:
+            regex_list.append('(?P<%s>%s)' % (name, r))
+            if debug:
+                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')", name, r, state)
+
+        regexs[state] = regex_list
+
+    # Build the master regular expressions
+
+    if debug:
+        debuglog.info('lex: ==== MASTER REGEXS FOLLOW ====')
+
+    for state in regexs:
+        lexre, re_text, re_names = _form_master_re(regexs[state], reflags, ldict, linfo.toknames)
+        lexobj.lexstatere[state] = lexre
+        lexobj.lexstateretext[state] = re_text
+        lexobj.lexstaterenames[state] = re_names
+        if debug:
+            for i, text in enumerate(re_text):
+                debuglog.info("lex: state '%s' : regex[%d] = '%s'", state, i, text)
+
+    # For inclusive states, we need to add the regular expressions from the INITIAL state
+    for state, stype in stateinfo.items():
+        if state != 'INITIAL' and stype == 'inclusive':
+            lexobj.lexstatere[state].extend(lexobj.lexstatere['INITIAL'])
+            lexobj.lexstateretext[state].extend(
