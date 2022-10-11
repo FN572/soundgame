@@ -1036,4 +1036,42 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
                     parts = lextab.split('.')
                     pkgname = '.'.join(parts[:-1])
                     exec('import %s' % pkgname)
-          
+                    srcfile = getattr(sys.modules[pkgname], '__file__', '')
+            outputdir = os.path.dirname(srcfile)
+        try:
+            lexobj.writetab(lextab, outputdir)
+            if lextab in sys.modules:
+                del sys.modules[lextab]
+        except IOError as e:
+            errorlog.warning("Couldn't write lextab module %r. %s" % (lextab, e))
+
+    return lexobj
+
+# -----------------------------------------------------------------------------
+# runmain()
+#
+# This runs the lexer as a main program
+# -----------------------------------------------------------------------------
+
+def runmain(lexer=None, data=None):
+    if not data:
+        try:
+            filename = sys.argv[1]
+            with open(filename) as f:
+                data = f.read()
+        except IndexError:
+            sys.stdout.write('Reading from standard input (type EOF to end):\n')
+            data = sys.stdin.read()
+
+    if lexer:
+        _input = lexer.input
+    else:
+        _input = input
+    _input(data)
+    if lexer:
+        _token = lexer.token
+    else:
+        _token = token
+
+    while True:
+        
