@@ -1009,4 +1009,31 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
                 errorlog.warning("No error rule is defined for exclusive state '%s'", s)
             if s not in linfo.ignore and lexobj.lexignore:
                 errorlog.warning("No ignore rule is defined for exclusive state '%s'", s)
-       
+        elif stype == 'inclusive':
+            if s not in linfo.errorf:
+                linfo.errorf[s] = linfo.errorf.get('INITIAL', None)
+            if s not in linfo.ignore:
+                linfo.ignore[s] = linfo.ignore.get('INITIAL', '')
+
+    # Create global versions of the token() and input() functions
+    token = lexobj.token
+    input = lexobj.input
+    lexer = lexobj
+
+    # If in optimize mode, we write the lextab
+    if lextab and optimize:
+        if outputdir is None:
+            # If no output directory is set, the location of the output files
+            # is determined according to the following rules:
+            #     - If lextab specifies a package, files go into that package directory
+            #     - Otherwise, files go in the same directory as the specifying module
+            if isinstance(lextab, types.ModuleType):
+                srcfile = lextab.__file__
+            else:
+                if '.' not in lextab:
+                    srcfile = ldict['__file__']
+                else:
+                    parts = lextab.split('.')
+                    pkgname = '.'.join(parts[:-1])
+                    exec('import %s' % pkgname)
+          
