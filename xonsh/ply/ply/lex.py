@@ -1074,4 +1074,26 @@ def runmain(lexer=None, data=None):
         _token = token
 
     while True:
-        
+        tok = _token()
+        if not tok:
+            break
+        sys.stdout.write('(%s,%r,%d,%d)\n' % (tok.type, tok.value, tok.lineno, tok.lexpos))
+
+# -----------------------------------------------------------------------------
+# @TOKEN(regex)
+#
+# This decorator function can be used to set the regex expression on a function
+# when its docstring might need to be set in an alternative way
+# -----------------------------------------------------------------------------
+
+def TOKEN(r):
+    def set_regex(f):
+        if hasattr(r, '__call__'):
+            f.regex = _get_regex(r)
+        else:
+            f.regex = r
+        return f
+    return set_regex
+
+# Alternative spelling of the TOKEN decorator
+Token = TOKEN
