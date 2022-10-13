@@ -1,6 +1,6 @@
-# lex_doc1.py
+# lex_dup1.py
 #
-# Missing documentation string
+# Duplicated rule specifiers
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -15,11 +15,14 @@ tokens = [
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
-def t_NUMBER(t):
-    pass
+t_NUMBER = r'\d+'
+
+t_NUMBER = r'\d+'
 
 def t_error(t):
     pass
+
+
 
 lex.lex()
 
