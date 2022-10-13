@@ -2824,3 +2824,682 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 ''')
             else:
+                f.write('\n_lr_goto = { ')
+                for k, v in self.lr_goto.items():
+                    f.write('(%r,%r):%r,' % (k[0], k[1], v))
+                f.write('}\n')
+
+            # Write production table
+            f.write('_lr_productions = [\n')
+            for p in self.lr_productions:
+                if p.func:
+                    f.write('  (%r,%r,%d,%r,%r,%d),\n' % (p.str, p.name, p.len,
+                                                          p.func, os.path.basename(p.file), p.line))
+                else:
+                    f.write('  (%r,%r,%d,None,None,None),\n' % (str(p), p.name, p.len))
+            f.write(']\n')
+            f.close()
+
+        except IOError as e:
+            raise
+
+
+    # -----------------------------------------------------------------------------
+    # pickle_table()
+    #
+    # This function pickles the LR parsing tables to a supplied file object
+    # -----------------------------------------------------------------------------
+
+    def pickle_table(self, filename, signature=''):
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        with open(filename, 'wb') as outf:
+            pickle.dump(__tabversion__, outf, pickle_protocol)
+            pickle.dump(self.lr_method, outf, pickle_protocol)
+            pickle.dump(signature, outf, pickle_protocol)
+            pickle.dump(self.lr_action, outf, pickle_protocol)
+            pickle.dump(self.lr_goto, outf, pickle_protocol)
+
+            outp = []
+            for p in self.lr_productions:
+                if p.func:
+                    outp.append((p.str, p.name, p.len, p.func, os.path.basename(p.file), p.line))
+                else:
+                    outp.append((str(p), p.name, p.len, None, None, None))
+            pickle.dump(outp, outf, pickle_protocol)
+
+# -----------------------------------------------------------------------------
+#                            === INTROSPECTION ===
+#
+# The following functions and classes are used to implement the PLY
+# introspection features followed by the yacc() function itself.
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# get_caller_module_dict()
+#
+# This function returns a dictionary containing all of the symbols defined within
+# a caller further down the call stack.  This is used to get the environment
+# associated with the yacc() call if none was provided.
+# -----------------------------------------------------------------------------
+
+def get_caller_module_dict(levels):
+    f = sys._getframe(levels)
+    ldict = f.f_globals.copy()
+    if f.f_globals != f.f_locals:
+        ldict.update(f.f_locals)
+    return ldict
+
+# -----------------------------------------------------------------------------
+# parse_grammar()
+#
+# This takes a raw grammar rule string and parses it into production data
+# -----------------------------------------------------------------------------
+def parse_grammar(doc, file, line):
+    grammar = []
+    # Split the doc string into lines
+    pstrings = doc.splitlines()
+    lastp = None
+    dline = line
+    for ps in pstrings:
+        dline += 1
+        p = ps.split()
+        if not p:
+            continue
+        try:
+            if p[0] == '|':
+                # This is a continuation of a previous rule
+                if not lastp:
+                    raise SyntaxError("%s:%d: Misplaced '|'" % (file, dline))
+                prodname = lastp
+                syms = p[1:]
+            else:
+                prodname = p[0]
+                lastp = prodname
+                syms   = p[2:]
+                assign = p[1]
+                if assign != ':' and assign != '::=':
+                    raise SyntaxError("%s:%d: Syntax error. Expected ':'" % (file, dline))
+
+            grammar.append((file, dline, prodname, syms))
+        except SyntaxError:
+            raise
+        except Exception:
+            raise SyntaxError('%s:%d: Syntax error in rule %r' % (file, dline, ps.strip()))
+
+    return grammar
+
+# -----------------------------------------------------------------------------
+# ParserReflect()
+#
+# This class represents information extracted for building a parser including
+# start symbol, error function, tokens, precedence list, action functions,
+# etc.
+# -----------------------------------------------------------------------------
+class ParserReflect(object):
+    def __init__(self, pdict, log=None):
+        self.pdict      = pdict
+        self.start      = None
+        self.error_func = None
+        self.tokens     = None
+        self.modules    = set()
+        self.grammar    = []
+        self.error      = False
+
+        if log is None:
+            self.log = PlyLogger(sys.stderr)
+        else:
+            self.log = log
+
+    # Get all of the basic information
+    def get_all(self):
+        self.get_start()
+        self.get_error_func()
+        self.get_tokens()
+        self.get_precedence()
+        self.get_pfunctions()
+
+    # Validate all of the information
+    def validate_all(self):
+        self.validate_start()
+        self.validate_error_func()
+        self.validate_tokens()
+        self.validate_precedence()
+        self.validate_pfunctions()
+        self.validate_modules()
+        return self.error
+
+    # Compute a signature over the grammar
+    def signature(self):
+        parts = []
+        try:
+            if self.start:
+                parts.append(self.start)
+            if self.prec:
+                parts.append(''.join([''.join(p) for p in self.prec]))
+            if self.tokens:
+                parts.append(' '.join(self.tokens))
+            for f in self.pfuncs:
+                if f[3]:
+                    parts.append(f[3])
+        except (TypeError, ValueError):
+            pass
+        return ''.join(parts)
+
+    # -----------------------------------------------------------------------------
+    # validate_modules()
+    #
+    # This method checks to see if there are duplicated p_rulename() functions
+    # in the parser module file.  Without this function, it is really easy for
+    # users to make mistakes by cutting and pasting code fragments (and it's a real
+    # bugger to try and figure out why the resulting parser doesn't work).  Therefore,
+    # we just do a little regular expression pattern matching of def statements
+    # to try and detect duplicates.
+    # -----------------------------------------------------------------------------
+
+    def validate_modules(self):
+        # Match def p_funcname(
+        fre = re.compile(r'\s*def\s+(p_[a-zA-Z_0-9]*)\(')
+
+        for module in self.modules:
+            try:
+                lines, linen = inspect.getsourcelines(module)
+            except IOError:
+                continue
+
+            counthash = {}
+            for linen, line in enumerate(lines):
+                linen += 1
+                m = fre.match(line)
+                if m:
+                    name = m.group(1)
+                    prev = counthash.get(name)
+                    if not prev:
+                        counthash[name] = linen
+                    else:
+                        filename = inspect.getsourcefile(module)
+                        self.log.warning('%s:%d: Function %s redefined. Previously defined on line %d',
+                                         filename, linen, name, prev)
+
+    # Get the start symbol
+    def get_start(self):
+        self.start = self.pdict.get('start')
+
+    # Validate the start symbol
+    def validate_start(self):
+        if self.start is not None:
+            if not isinstance(self.start, string_types):
+                self.log.error("'start' must be a string")
+
+    # Look for error handler
+    def get_error_func(self):
+        self.error_func = self.pdict.get('p_error')
+
+    # Validate the error function
+    def validate_error_func(self):
+        if self.error_func:
+            if isinstance(self.error_func, types.FunctionType):
+                ismethod = 0
+            elif isinstance(self.error_func, types.MethodType):
+                ismethod = 1
+            else:
+                self.log.error("'p_error' defined, but is not a function or method")
+                self.error = True
+                return
+
+            eline = self.error_func.__code__.co_firstlineno
+            efile = self.error_func.__code__.co_filename
+            module = inspect.getmodule(self.error_func)
+            self.modules.add(module)
+
+            argcount = self.error_func.__code__.co_argcount - ismethod
+            if argcount != 1:
+                self.log.error('%s:%d: p_error() requires 1 argument', efile, eline)
+                self.error = True
+
+    # Get the tokens map
+    def get_tokens(self):
+        tokens = self.pdict.get('tokens')
+        if not tokens:
+            self.log.error('No token list is defined')
+            self.error = True
+            return
+
+        if not isinstance(tokens, (list, tuple)):
+            self.log.error('tokens must be a list or tuple')
+            self.error = True
+            return
+
+        if not tokens:
+            self.log.error('tokens is empty')
+            self.error = True
+            return
+
+        self.tokens = sorted(tokens)
+
+    # Validate the tokens
+    def validate_tokens(self):
+        # Validate the tokens.
+        if 'error' in self.tokens:
+            self.log.error("Illegal token name 'error'. Is a reserved word")
+            self.error = True
+            return
+
+        terminals = set()
+        for n in self.tokens:
+            if n in terminals:
+                self.log.warning('Token %r multiply defined', n)
+            terminals.add(n)
+
+    # Get the precedence map (if any)
+    def get_precedence(self):
+        self.prec = self.pdict.get('precedence')
+
+    # Validate and parse the precedence map
+    def validate_precedence(self):
+        preclist = []
+        if self.prec:
+            if not isinstance(self.prec, (list, tuple)):
+                self.log.error('precedence must be a list or tuple')
+                self.error = True
+                return
+            for level, p in enumerate(self.prec):
+                if not isinstance(p, (list, tuple)):
+                    self.log.error('Bad precedence table')
+                    self.error = True
+                    return
+
+                if len(p) < 2:
+                    self.log.error('Malformed precedence entry %s. Must be (assoc, term, ..., term)', p)
+                    self.error = True
+                    return
+                assoc = p[0]
+                if not isinstance(assoc, string_types):
+                    self.log.error('precedence associativity must be a string')
+                    self.error = True
+                    return
+                for term in p[1:]:
+                    if not isinstance(term, string_types):
+                        self.log.error('precedence items must be strings')
+                        self.error = True
+                        return
+                    preclist.append((term, assoc, level+1))
+        self.preclist = preclist
+
+    # Get all p_functions from the grammar
+    def get_pfunctions(self):
+        p_functions = []
+        for name, item in self.pdict.items():
+            if not name.startswith('p_') or name == 'p_error':
+                continue
+            if isinstance(item, (types.FunctionType, types.MethodType)):
+                line = getattr(item, 'co_firstlineno', item.__code__.co_firstlineno)
+                module = inspect.getmodule(item)
+                p_functions.append((line, module, name, item.__doc__))
+
+        # Sort all of the actions by line number; make sure to stringify
+        # modules to make them sortable, since `line` may not uniquely sort all
+        # p functions
+        p_functions.sort(key=lambda p_function: (
+            p_function[0],
+            str(p_function[1]),
+            p_function[2],
+            p_function[3]))
+        self.pfuncs = p_functions
+
+    # Validate all of the p_functions
+    def validate_pfunctions(self):
+        grammar = []
+        # Check for non-empty symbols
+        if len(self.pfuncs) == 0:
+            self.log.error('no rules of the form p_rulename are defined')
+            self.error = True
+            return
+
+        for line, module, name, doc in self.pfuncs:
+            file = inspect.getsourcefile(module)
+            func = self.pdict[name]
+            if isinstance(func, types.MethodType):
+                reqargs = 2
+            else:
+                reqargs = 1
+            if func.__code__.co_argcount > reqargs:
+                self.log.error('%s:%d: Rule %r has too many arguments', file, line, func.__name__)
+                self.error = True
+            elif func.__code__.co_argcount < reqargs:
+                self.log.error('%s:%d: Rule %r requires an argument', file, line, func.__name__)
+                self.error = True
+            elif not func.__doc__:
+                self.log.warning('%s:%d: No documentation string specified in function %r (ignored)',
+                                 file, line, func.__name__)
+            else:
+                try:
+                    parsed_g = parse_grammar(doc, file, line)
+                    for g in parsed_g:
+                        grammar.append((name, g))
+                except SyntaxError as e:
+                    self.log.error(str(e))
+                    self.error = True
+
+                # Looks like a valid grammar rule
+                # Mark the file in which defined.
+                self.modules.add(module)
+
+        # Secondary validation step that looks for p_ definitions that are not functions
+        # or functions that look like they might be grammar rules.
+
+        for n, v in self.pdict.items():
+            if n.startswith('p_') and isinstance(v, (types.FunctionType, types.MethodType)):
+                continue
+            if n.startswith('t_'):
+                continue
+            if n.startswith('p_') and n != 'p_error':
+                self.log.warning('%r not defined as a function', n)
+            if ((isinstance(v, types.FunctionType) and v.__code__.co_argcount == 1) or
+                   (isinstance(v, types.MethodType) and v.__func__.__code__.co_argcount == 2)):
+                if v.__doc__:
+                    try:
+                        doc = v.__doc__.split(' ')
+                        if doc[1] == ':':
+                            self.log.warning('%s:%d: Possible grammar rule %r defined without p_ prefix',
+                                             v.__code__.co_filename, v.__code__.co_firstlineno, n)
+                    except IndexError:
+                        pass
+
+        self.grammar = grammar
+
+# -----------------------------------------------------------------------------
+# yacc(module)
+#
+# Build a parser
+# -----------------------------------------------------------------------------
+
+def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, start=None,
+         check_recursion=True, optimize=False, write_tables=True, debugfile=debug_file,
+         outputdir=None, debuglog=None, errorlog=None, picklefile=None):
+
+    if tabmodule is None:
+        tabmodule = tab_module
+
+    # Reference to the parsing method of the last built parser
+    global parse
+
+    # If pickling is enabled, table files are not created
+    if picklefile:
+        write_tables = 0
+
+    if errorlog is None:
+        errorlog = PlyLogger(sys.stderr)
+
+    # Get the module dictionary used for the parser
+    if module:
+        _items = [(k, getattr(module, k)) for k in dir(module)]
+        pdict = dict(_items)
+        # If no __file__ or __package__ attributes are available, try to obtain them
+        # from the __module__ instead
+        if '__file__' not in pdict:
+            pdict['__file__'] = sys.modules[pdict['__module__']].__file__
+        if '__package__' not in pdict and '__module__' in pdict:
+            if hasattr(sys.modules[pdict['__module__']], '__package__'):
+                pdict['__package__'] = sys.modules[pdict['__module__']].__package__
+    else:
+        pdict = get_caller_module_dict(2)
+
+    if outputdir is None:
+        # If no output directory is set, the location of the output files
+        # is determined according to the following rules:
+        #     - If tabmodule specifies a package, files go into that package directory
+        #     - Otherwise, files go in the same directory as the specifying module
+        if isinstance(tabmodule, types.ModuleType):
+            srcfile = tabmodule.__file__
+        else:
+            if '.' not in tabmodule:
+                srcfile = pdict['__file__']
+            else:
+                parts = tabmodule.split('.')
+                pkgname = '.'.join(parts[:-1])
+                exec('import %s' % pkgname)
+                srcfile = getattr(sys.modules[pkgname], '__file__', '')
+        outputdir = os.path.dirname(srcfile)
+
+    # Determine if the module is package of a package or not.
+    # If so, fix the tabmodule setting so that tables load correctly
+    pkg = pdict.get('__package__')
+    if pkg and isinstance(tabmodule, str):
+        if '.' not in tabmodule:
+            tabmodule = pkg + '.' + tabmodule
+
+
+
+    # Set start symbol if it's specified directly using an argument
+    if start is not None:
+        pdict['start'] = start
+
+    # Collect parser information from the dictionary
+    pinfo = ParserReflect(pdict, log=errorlog)
+    pinfo.get_all()
+
+    if pinfo.error:
+        raise YaccError('Unable to build parser')
+
+    # Check signature against table files (if any)
+    signature = pinfo.signature()
+
+    # Read the tables
+    try:
+        lr = LRTable()
+        if picklefile:
+            read_signature = lr.read_pickle(picklefile)
+        else:
+            read_signature = lr.read_table(tabmodule)
+        if optimize or (read_signature == signature):
+            try:
+                lr.bind_callables(pinfo.pdict)
+                parser = LRParser(lr, pinfo.error_func)
+                parse = parser.parse
+                return parser
+            except Exception as e:
+                errorlog.warning('There was a problem loading the table file: %r', e)
+    except VersionError as e:
+        errorlog.warning(str(e))
+    except ImportError:
+        pass
+
+    if debuglog is None:
+        if debug:
+            try:
+                debuglog = PlyLogger(open(os.path.join(outputdir, debugfile), 'w'))
+            except IOError as e:
+                errorlog.warning("Couldn't open %r. %s" % (debugfile, e))
+                debuglog = NullLogger()
+        else:
+            debuglog = NullLogger()
+
+    debuglog.info('Created by PLY version %s (http://www.dabeaz.com/ply)', __version__)
+
+    errors = False
+
+    # Validate the parser information
+    if pinfo.validate_all():
+        raise YaccError('Unable to build parser')
+
+    if not pinfo.error_func:
+        errorlog.warning('no p_error() function is defined')
+
+    # Create a grammar object
+    grammar = Grammar(pinfo.tokens)
+
+    # Set precedence level for terminals
+    for term, assoc, level in pinfo.preclist:
+        try:
+            grammar.set_precedence(term, assoc, level)
+        except GrammarError as e:
+            errorlog.warning('%s', e)
+
+    # Add productions to the grammar
+    for funcname, gram in pinfo.grammar:
+        file, line, prodname, syms = gram
+        try:
+            grammar.add_production(prodname, syms, funcname, file, line)
+        except GrammarError as e:
+            errorlog.error('%s', e)
+            errors = True
+
+    # Set the grammar start symbols
+    try:
+        if start is None:
+            grammar.set_start(pinfo.start)
+        else:
+            grammar.set_start(start)
+    except GrammarError as e:
+        errorlog.error(str(e))
+        errors = True
+
+    if errors:
+        raise YaccError('Unable to build parser')
+
+    # Verify the grammar structure
+    undefined_symbols = grammar.undefined_symbols()
+    for sym, prod in undefined_symbols:
+        errorlog.error('%s:%d: Symbol %r used, but not defined as a token or a rule', prod.file, prod.line, sym)
+        errors = True
+
+    unused_terminals = grammar.unused_terminals()
+    if unused_terminals:
+        debuglog.info('')
+        debuglog.info('Unused terminals:')
+        debuglog.info('')
+        for term in unused_terminals:
+            errorlog.warning('Token %r defined, but not used', term)
+            debuglog.info('    %s', term)
+
+    # Print out all productions to the debug log
+    if debug:
+        debuglog.info('')
+        debuglog.info('Grammar')
+        debuglog.info('')
+        for n, p in enumerate(grammar.Productions):
+            debuglog.info('Rule %-5d %s', n, p)
+
+    # Find unused non-terminals
+    unused_rules = grammar.unused_rules()
+    for prod in unused_rules:
+        errorlog.warning('%s:%d: Rule %r defined, but not used', prod.file, prod.line, prod.name)
+
+    if len(unused_terminals) == 1:
+        errorlog.warning('There is 1 unused token')
+    if len(unused_terminals) > 1:
+        errorlog.warning('There are %d unused tokens', len(unused_terminals))
+
+    if len(unused_rules) == 1:
+        errorlog.warning('There is 1 unused rule')
+    if len(unused_rules) > 1:
+        errorlog.warning('There are %d unused rules', len(unused_rules))
+
+    if debug:
+        debuglog.info('')
+        debuglog.info('Terminals, with rules where they appear')
+        debuglog.info('')
+        terms = list(grammar.Terminals)
+        terms.sort()
+        for term in terms:
+            debuglog.info('%-20s : %s', term, ' '.join([str(s) for s in grammar.Terminals[term]]))
+
+        debuglog.info('')
+        debuglog.info('Nonterminals, with rules where they appear')
+        debuglog.info('')
+        nonterms = list(grammar.Nonterminals)
+        nonterms.sort()
+        for nonterm in nonterms:
+            debuglog.info('%-20s : %s', nonterm, ' '.join([str(s) for s in grammar.Nonterminals[nonterm]]))
+        debuglog.info('')
+
+    if check_recursion:
+        unreachable = grammar.find_unreachable()
+        for u in unreachable:
+            errorlog.warning('Symbol %r is unreachable', u)
+
+        infinite = grammar.infinite_cycles()
+        for inf in infinite:
+            errorlog.error('Infinite recursion detected for symbol %r', inf)
+            errors = True
+
+    unused_prec = grammar.unused_precedence()
+    for term, assoc in unused_prec:
+        errorlog.error('Precedence rule %r defined for unknown symbol %r', assoc, term)
+        errors = True
+
+    if errors:
+        raise YaccError('Unable to build parser')
+
+    # Run the LRGeneratedTable on the grammar
+    if debug:
+        errorlog.debug('Generating %s tables', method)
+
+    lr = LRGeneratedTable(grammar, method, debuglog)
+
+    if debug:
+        num_sr = len(lr.sr_conflicts)
+
+        # Report shift/reduce and reduce/reduce conflicts
+        if num_sr == 1:
+            errorlog.warning('1 shift/reduce conflict')
+        elif num_sr > 1:
+            errorlog.warning('%d shift/reduce conflicts', num_sr)
+
+        num_rr = len(lr.rr_conflicts)
+        if num_rr == 1:
+            errorlog.warning('1 reduce/reduce conflict')
+        elif num_rr > 1:
+            errorlog.warning('%d reduce/reduce conflicts', num_rr)
+
+    # Write out conflicts to the output file
+    if debug and (lr.sr_conflicts or lr.rr_conflicts):
+        debuglog.warning('')
+        debuglog.warning('Conflicts:')
+        debuglog.warning('')
+
+        for state, tok, resolution in lr.sr_conflicts:
+            debuglog.warning('shift/reduce conflict for %s in state %d resolved as %s',  tok, state, resolution)
+
+        already_reported = set()
+        for state, rule, rejected in lr.rr_conflicts:
+            if (state, id(rule), id(rejected)) in already_reported:
+                continue
+            debuglog.warning('reduce/reduce conflict in state %d resolved using rule (%s)', state, rule)
+            debuglog.warning('rejected rule (%s) in state %d', rejected, state)
+            errorlog.warning('reduce/reduce conflict in state %d resolved using rule (%s)', state, rule)
+            errorlog.warning('rejected rule (%s) in state %d', rejected, state)
+            already_reported.add((state, id(rule), id(rejected)))
+
+        warned_never = []
+        for state, rule, rejected in lr.rr_conflicts:
+            if not rejected.reduced and (rejected not in warned_never):
+                debuglog.warning('Rule (%s) is never reduced', rejected)
+                errorlog.warning('Rule (%s) is never reduced', rejected)
+                warned_never.append(rejected)
+
+    # Write the table file if requested
+    if write_tables:
+        try:
+            lr.write_table(tabmodule, outputdir, signature)
+            if tabmodule in sys.modules:
+                del sys.modules[tabmodule]
+        except IOError as e:
+            errorlog.warning("Couldn't create %r. %s" % (tabmodule, e))
+
+    # Write a pickled version of the tables
+    if picklefile:
+        try:
+            lr.pickle_table(picklefile, signature)
+        except IOError as e:
+            errorlog.warning("Couldn't create %r. %s" % (picklefile, e))
+
+    # Build the parser
+    lr.bind_callables(pinfo.pdict)
+    parser = LRParser(lr, pinfo.error_func)
+
+    parse = parser.parse
+    return parser
