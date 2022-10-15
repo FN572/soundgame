@@ -1,6 +1,6 @@
-# lex_empty.py
+# lex_error3.py
 #
-# No rules defined
+# t_error defined as function, but with wrong # args
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -12,6 +12,13 @@ tokens = [
     "MINUS",
     "NUMBER",
     ]
+
+t_PLUS = r'\+'
+t_MINUS = r'-'
+t_NUMBER = r'\d+'
+
+def t_error():
+    pass
 
 
 

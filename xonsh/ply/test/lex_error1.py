@@ -1,6 +1,7 @@
-# lex_empty.py
+
+# lex_error1.py
 #
-# No rules defined
+# Missing t_error() rule
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -13,8 +14,11 @@ tokens = [
     "NUMBER",
     ]
 
+t_PLUS = r'\+'
+t_MINUS = r'-'
+t_NUMBER = r'\d+'
+
 
 
 lex.lex()
-
 
