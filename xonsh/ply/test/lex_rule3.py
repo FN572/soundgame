@@ -1,6 +1,6 @@
-# lex_re3.py
+# lex_rule3.py
 #
-# Regular expression rule matches empty string
+# Rule function with incorrect number of arguments
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -11,18 +11,16 @@ tokens = [
     "PLUS",
     "MINUS",
     "NUMBER",
-    "POUND",
     ]
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
-t_NUMBER = r'(\d+)'
-t_POUND = r'#'
+def t_NUMBER(t,s):
+    r'\d+'
+    return t
 
 def t_error(t):
     pass
-
-
 
 lex.lex()
 

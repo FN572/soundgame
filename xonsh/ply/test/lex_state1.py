@@ -1,29 +1,25 @@
-# lex_re3.py
+# lex_state1.py
 #
-# Regular expression rule matches empty string
+# Bad state declaration
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
 
 import ply.lex as lex
 
-tokens = [
+tokens = [ 
     "PLUS",
     "MINUS",
     "NUMBER",
-    "POUND",
     ]
+
+states = 'comment'
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
-t_NUMBER = r'(\d+)'
-t_POUND = r'#'
+t_NUMBER = r'\d+'
 
-def t_error(t):
-    pass
-
-
-
-lex.lex()
-
-
+# Comments
+def t_comment(t):
+    r'/\*'
+    t.le
