@@ -1,4 +1,4 @@
-# lex_state1.py
+# lex_state4.py
 #
 # Bad state declaration
 
@@ -13,7 +13,8 @@ tokens = [
     "NUMBER",
     ]
 
-states = 'comment'
+
+states = (('comment', 'exclsive'),)
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -26,15 +27,4 @@ def t_comment(t):
     print("Entering comment state")
 
 def t_comment_body_part(t):
-    r'(.|\n)*\*/'
-    print("comment body %s" % t)
-    t.lexer.begin('INITIAL')
-
-def t_error(t):
-    pass
-
-
-
-lex.lex()
-
-
+ 

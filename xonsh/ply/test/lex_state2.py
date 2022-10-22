@@ -1,4 +1,4 @@
-# lex_state1.py
+# lex_state2.py
 #
 # Bad state declaration
 
@@ -13,7 +13,7 @@ tokens = [
     "NUMBER",
     ]
 
-states = 'comment'
+states = ('comment','example')
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
