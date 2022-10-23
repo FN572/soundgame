@@ -1,6 +1,6 @@
-# lex_state4.py
+# lex_state_noerror.py
 #
-# Bad state declaration
+# Declaration of a state for which no rules are defined
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -13,8 +13,7 @@ tokens = [
     "NUMBER",
     ]
 
-
-states = (('comment', 'exclsive'),)
+states = (('comment', 'exclusive'),)
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -33,7 +32,6 @@ def t_comment_body_part(t):
 
 def t_error(t):
     pass
-
 
 
 lex.lex()

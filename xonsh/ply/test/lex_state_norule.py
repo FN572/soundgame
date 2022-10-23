@@ -1,6 +1,6 @@
-# lex_state4.py
+# lex_state_norule.py
 #
-# Bad state declaration
+# Declaration of a state for which no rules are defined
 
 import sys
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -13,8 +13,8 @@ tokens = [
     "NUMBER",
     ]
 
-
-states = (('comment', 'exclsive'),)
+states = (('comment', 'exclusive'),
+          ('example', 'exclusive'))
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -27,15 +27,4 @@ def t_comment(t):
     print("Entering comment state")
 
 def t_comment_body_part(t):
-    r'(.|\n)*\*/'
-    print("comment body %s" % t)
-    t.lexer.begin('INITIAL')
-
-def t_error(t):
-    pass
-
-
-
-lex.lex()
-
-
+ 
