@@ -1,4 +1,5 @@
-# lex_state_norule.py
+
+# lex_state_try.py
 #
 # Declaration of a state for which no rules are defined
 
@@ -13,12 +14,13 @@ tokens = [
     "NUMBER",
     ]
 
-states = (('comment', 'exclusive'),
-          ('example', 'exclusive'))
+states = (('comment', 'exclusive'),)
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_NUMBER = r'\d+'
+
+t_ignore = " \t"
 
 # Comments
 def t_comment(t):
@@ -34,7 +36,11 @@ def t_comment_body_part(t):
 def t_error(t):
     pass
 
+t_comment_error = t_error
+t_comment_ignore = t_ignore
 
 lex.lex()
 
+data = "3 + 4 /* This is a comment */ + 10"
 
+lex.runmain(data=data)
