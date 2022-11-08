@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# yacc_badprec2.py
+# yacc_badprec3.py
 #
 # Bad precedence
 # -----------------------------------------------------------------------------
@@ -12,8 +12,8 @@ from calclex import tokens
 
 # Parsing rules
 precedence = (
-    42,
-    ('left','TIMES','DIVIDE'),
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDE','MINUS'),
     ('right','UMINUS'),
     )
 
@@ -36,33 +36,4 @@ def p_expression_binop(t):
     if t[2] == '+'  : t[0] = t[1] + t[3]
     elif t[2] == '-': t[0] = t[1] - t[3]
     elif t[2] == '*': t[0] = t[1] * t[3]
-    elif t[2] == '/': t[0] = t[1] / t[3]
-
-def p_expression_uminus(t):
-    'expression : MINUS expression %prec UMINUS'
-    t[0] = -t[2]
-
-def p_expression_group(t):
-    'expression : LPAREN expression RPAREN'
-    t[0] = t[2]
-
-def p_expression_number(t):
-    'expression : NUMBER'
-    t[0] = t[1]
-
-def p_expression_name(t):
-    'expression : NAME'
-    try:
-        t[0] = names[t[1]]
-    except LookupError:
-        print("Undefined name '%s'" % t[1])
-        t[0] = 0
-
-def p_error(t):
-    print("Syntax error at '%s'" % t.value)
-
-yacc.yacc()
-
-
-
-
+    elif t
