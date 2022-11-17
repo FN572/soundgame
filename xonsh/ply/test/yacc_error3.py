@@ -1,5 +1,6 @@
+
 # -----------------------------------------------------------------------------
-# yacc_error2.py
+# yacc_error3.py
 #
 # Bad p_error() function
 # -----------------------------------------------------------------------------
@@ -58,11 +59,9 @@ def p_expression_name(t):
         print("Undefined name '%s'" % t[1])
         t[0] = 0
 
-def p_error():
-    print("Syntax error at '%s'" % t.value)
+p_error = "blah"
 
 yacc.yacc()
-
 
 
 

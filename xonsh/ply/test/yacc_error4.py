@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_error2.py
+# yacc_error4.py
 #
-# Bad p_error() function
+# Attempt to define a rule named 'error'
 # -----------------------------------------------------------------------------
 import sys
 
@@ -58,11 +59,14 @@ def p_expression_name(t):
         print("Undefined name '%s'" % t[1])
         t[0] = 0
 
-def p_error():
-    print("Syntax error at '%s'" % t.value)
+def p_error_handler(t):
+    'error : NAME'
+    pass
+
+def p_error(t):
+    pass
 
 yacc.yacc()
-
 
 
 
