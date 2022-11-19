@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_error7.py
+# yacc_inf.py
 #
-# Panic mode recovery test using deprecated functionality
+# Infinite recursion
 # -----------------------------------------------------------------------------
 import sys
 
@@ -17,20 +18,15 @@ precedence = (
     ('right','UMINUS'),
     )
 
-def p_statements(t):
-    'statements : statements statement'
-    pass
+# dictionary of names
+names = { }
 
-def p_statements_1(t):
-    'statements : statement'
-    pass
-
-def p_statement_assign(p):
-    'statement : LPAREN NAME EQUALS expression RPAREN'
-    print("%s=%s" % (p[2],p[4]))
+def p_statement_assign(t):
+    'statement : NAME EQUALS expression'
+    names[t[1]] = t[3]
 
 def p_statement_expr(t):
-    'statement : LPAREN expression RPAREN'
+    'statement : expression'
     print(t[1])
 
 def p_expression_binop(t):
@@ -47,34 +43,14 @@ def p_expression_uminus(t):
     'expression : MINUS expression %prec UMINUS'
     t[0] = -t[2]
 
-def p_expression_number(t):
-    'expression : NUMBER'
-    t[0] = t[1]
+def p_expression_group(t):
+    'expression : LPAREN expression RPAREN'
+    t[0] = t[2]
 
-def p_error(p):
-    if p:
-        print("Line %d: Syntax error at '%s'" % (p.lineno, p.value))
-    # Scan ahead looking for a name token
-    while True:
-        tok = yacc.token()
-        if not tok or tok.type == 'RPAREN':
-            break
-    if tok:
-        yacc.restart()
-    return None
+def p_error(t):
+    print("Syntax error at '%s'" % t.value)
 
-parser = yacc.yacc()
-import calclex
-calclex.lexer.lineno=1
-
-parser.parse("""
-(a = 3 + 4)
-(b = 4 + * 5 - 6 + *)
-(c = 10 + 11)
-""")
-
-
-
+yacc.yacc()
 
 
 
