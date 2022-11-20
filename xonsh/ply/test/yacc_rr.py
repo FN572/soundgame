@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_prec1.py
+# yacc_rr.py
 #
-# Tests case where precedence specifier doesn't match up to terminals
+# A grammar with a reduce/reduce conflict
 # -----------------------------------------------------------------------------
 import sys
 
@@ -12,8 +13,8 @@ from calclex import tokens
 
 # Parsing rules
 precedence = (
-    ('left', '+', '-'),
-    ('left', '*', '/'),
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDE'),
     ('right','UMINUS'),
     )
 
@@ -22,6 +23,10 @@ names = { }
 
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
+    names[t[1]] = t[3]
+
+def p_statement_assign_2(t):
+    'statement : NAME EQUALS NUMBER'
     names[t[1]] = t[3]
 
 def p_statement_expr(t):
@@ -62,7 +67,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
