@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_missing1.py
+# yacc_nodoc.py
 #
-# Grammar with a missing rule
+# Rule with a missing doc-string
 # -----------------------------------------------------------------------------
 import sys
 
@@ -21,11 +22,10 @@ precedence = (
 names = { }
 
 def p_statement_assign(t):
-    'statement : location EQUALS expression'
+    'statement : NAME EQUALS expression'
     names[t[1]] = t[3]
 
 def p_statement_expr(t):
-    'statement : expression'
     print(t[1])
 
 def p_expression_binop(t):
@@ -62,7 +62,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
