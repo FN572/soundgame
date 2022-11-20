@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_nop.py
+# yacc_notfunc.py
 #
-# Possible grammar rule defined without p_ prefix
+# p_rule not defined as a function
 # -----------------------------------------------------------------------------
 import sys
 
@@ -20,11 +21,9 @@ precedence = (
 # dictionary of names
 names = { }
 
-def p_statement_assign(t):
-    'statement : NAME EQUALS expression'
-    names[t[1]] = t[3]
+p_statement_assign = "Blah"
 
-def statement_expr(t):
+def p_statement_expr(t):
     'statement : expression'
     print(t[1])
 
@@ -62,7 +61,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
