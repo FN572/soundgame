@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_term1.py
+# yacc_unused.py
 #
-# Terminal used on the left-hand-side
+# A grammar with an unused rule
 # -----------------------------------------------------------------------------
 import sys
 
@@ -21,7 +22,7 @@ precedence = (
 names = { }
 
 def p_statement_assign(t):
-    'NUMBER : NAME EQUALS expression'
+    'statement : NAME EQUALS expression'
     names[t[1]] = t[3]
 
 def p_statement_expr(t):
@@ -58,11 +59,19 @@ def p_expression_name(t):
         print("Undefined name '%s'" % t[1])
         t[0] = 0
 
+def p_expr_list(t):
+    'exprlist : exprlist COMMA expression'
+    pass
+
+def p_expr_list_2(t):
+    'exprlist : expression'
+    pass
+
+
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 

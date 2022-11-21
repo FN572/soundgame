@@ -1,8 +1,11 @@
+
 # -----------------------------------------------------------------------------
-# yacc_term1.py
+# yacc_unicode_literals
 #
-# Terminal used on the left-hand-side
+# Test for unicode literals on Python 2.x
 # -----------------------------------------------------------------------------
+from __future__ import unicode_literals
+
 import sys
 
 if ".." not in sys.path: sys.path.insert(0,"..")
@@ -21,7 +24,7 @@ precedence = (
 names = { }
 
 def p_statement_assign(t):
-    'NUMBER : NAME EQUALS expression'
+    'statement : NAME EQUALS expression'
     names[t[1]] = t[3]
 
 def p_statement_expr(t):
@@ -62,7 +65,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
