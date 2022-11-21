@@ -1,7 +1,8 @@
+
 # -----------------------------------------------------------------------------
-# yacc_simple.py
+# yacc_sr.py
 #
-# A simple, properly specifier grammar
+# A grammar with shift-reduce conflicts
 # -----------------------------------------------------------------------------
 import sys
 
@@ -11,11 +12,6 @@ import ply.yacc as yacc
 from calclex import tokens
 
 # Parsing rules
-precedence = (
-    ('left','PLUS','MINUS'),
-    ('left','TIMES','DIVIDE'),
-    ('right','UMINUS'),
-    )
 
 # dictionary of names
 names = { }
@@ -39,7 +35,7 @@ def p_expression_binop(t):
     elif t[2] == '/': t[0] = t[1] / t[3]
 
 def p_expression_uminus(t):
-    'expression : MINUS expression %prec UMINUS'
+    'expression : MINUS expression'
     t[0] = -t[2]
 
 def p_expression_group(t):
@@ -62,7 +58,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
