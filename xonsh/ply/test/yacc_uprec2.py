@@ -1,5 +1,6 @@
+
 # -----------------------------------------------------------------------------
-# yacc_uprec.py
+# yacc_uprec2.py
 #
 # A grammar with a bad %prec specifier
 # -----------------------------------------------------------------------------
@@ -34,7 +35,7 @@ def p_expression_binop(t):
     elif t[2] == '/': t[0] = t[1] / t[3]
 
 def p_expression_uminus(t):
-    'expression : MINUS expression %prec UMINUS'
+    'expression : MINUS expression %prec'
     t[0] = -t[2]
 
 def p_expression_group(t):
@@ -57,7 +58,6 @@ def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
-
 
 
 
