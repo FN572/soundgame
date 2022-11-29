@@ -2460,3 +2460,35 @@ class PrevProcCloser(threading.Thread):
         """Runs the closing algorithm."""
         pipeline = self.pipeline
         check_prev_done = len(pipeline.procs) == 1
+        if check_prev_done:
+            return
+        proc = pipeline.proc
+        prev_end_time = None
+        timeout = builtins.__xonsh__.env.get("XONSH_PROC_FREQUENCY")
+        sleeptime = min(timeout * 1000, 0.1)
+        while proc.poll() is None:
+            if not check_prev_done:
+                # In the case of pipelines with more than one command
+                # we should give the commands a little time
+                # to start up fully. This is particularly true for
+                # GNU Parallel, which has a long startup time.
+                pass
+            elif pipeline._prev_procs_done():
+                pipeline._close_prev_procs()
+                proc.prevs_are_closed = True
+                break
+            if not check_prev_done:
+                # if we are piping...
+                if prev_end_time is None:
+                    # or see if we already know that the next-to-last
+                    # proc in the pipeline has ended.
+                    if pipeline._prev_procs_done():
+                        # if it has, record the time
+                        prev_end_time = time.time()
+                elif time.time() - prev_end_time >= 0.1:
+                    # if we still don't have any output, even though the
+                    # next-to-last proc has finished, wait a bit to make
+                    # sure we have fully started up, etc.
+                    check_prev_done = True
+            # this is for CPU usage
+            time.sleep(sleeptime)
