@@ -46,4 +46,38 @@ def _check_output(*args, **kwargs):
             return out
         except subprocess.TimeoutExpired:
             # We use `.terminate()` (SIGTERM) instead of `.kill()` (SIGKILL) here
-            # because other
+            # because otherwise we guarantee that a `.git/index.lock` file will be
+            # left over, and subsequent git operations will fail.
+            # We don't want that.
+            # As a result, we must rely on git to exit properly on SIGTERM.
+            proc.terminate()
+            # We wait() to ensure that git has finished before the next
+            # `gitstatus` prompt is rendered (otherwise `index.lock` still exists,
+            # and it will fail).
+            # We don't technically have to call `wait()` here as the
+            # `with subprocess.Popen()` context manager above would do that
+            # for us, but we do it to be explicit that waiting is being done.
+            proc.wait()  # we ignore what git says after we sent it SIGTERM
+            raise
+
+
+@xl.lazyobject
+def _DEFS():
+    DEFS = {
+        "HASH": ":",
+        "BRANCH": "{CYAN}",
+        "OPERATION": "{CYAN}",
+        "STAGED": "{RED}●",
+        "CONFLICTS": "{RED}×",
+        "CHANGED": "{BLUE}+",
+        "UNTRACKED": "…",
+        "STASHED": "⚑",
+        "CLEAN": "{BOLD_GREEN}✓",
+        "AHEAD": "↑·",
+        "BEHIND": "↓·",
+    }
+    return DEFS
+
+
+def _get_def(key):
+    def_ = builtins.__xonsh__.env.get("XONSH_GITSTATUS_" + 
