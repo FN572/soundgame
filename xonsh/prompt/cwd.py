@@ -79,4 +79,13 @@ def _dynamically_collapsed_pwd():
     full = sep.join(parts)
     truncature_char = elision_char if elision_char else "..."
     # If even if displaying one letter per dir we are too long
-    if len
+    if len(full) > target_width:
+        # We truncate the left most part
+        full = truncature_char + full[int(-target_width) + len(truncature_char) :]
+        # if there is not even a single separator we still
+        # want to display at least the beginning of the directory
+        if full.find(sep) == -1:
+            full = (truncature_char + sep + last)[
+                0 : int(target_width) - len(truncature_char)
+            ] + truncature_char
+    return full
