@@ -143,4 +143,46 @@ def gitstatus():
             untracked += 1
         else:
             if len(line) > 1 and line[1] == "M":
-  
+                changed += 1
+
+            if len(line) > 0 and line[0] == "U":
+                conflicts += 1
+            elif len(line) > 0 and line[0] != " ":
+                staged += 1
+
+    gitdir = _check_output(["git", "rev-parse", "--git-dir"]).strip()
+    stashed = _get_stash(gitdir)
+    operations = _gitoperation(gitdir)
+
+    return GitStatus(
+        branch,
+        num_ahead,
+        num_behind,
+        untracked,
+        changed,
+        conflicts,
+        staged,
+        stashed,
+        operations,
+    )
+
+
+def gitstatus_prompt():
+    """Return str `BRANCH|OPERATOR|numbers`"""
+    try:
+        s = gitstatus()
+    except subprocess.SubprocessError:
+        return None
+
+    ret = _get_def("BRANCH") + s.branch
+    if s.num_ahead > 0:
+        ret += _get_def("AHEAD") + str(s.num_ahead)
+    if s.num_behind > 0:
+        ret += _get_def("BEHIND") + str(s.num_behind)
+    if s.operations:
+        ret += _get_def("OPERATION") + "|" + "|".join(s.operations)
+    ret += "|"
+    if s.staged > 0:
+        ret += _get_def("STAGED") + str(s.staged) + "{NO_COLOR}"
+    if s.conflicts > 0:
+        ret += _get_def("CONFLICTS") + str(s.conflicts) + 
