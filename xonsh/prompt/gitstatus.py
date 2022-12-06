@@ -80,4 +80,40 @@ def _DEFS():
 
 
 def _get_def(key):
-    def_ = builtins.__xonsh__.env.get("XONSH_GITSTATUS_" + 
+    def_ = builtins.__xonsh__.env.get("XONSH_GITSTATUS_" + key)
+    return def_ if def_ is not None else _DEFS[key]
+
+
+def _get_tag_or_hash():
+    tag_or_hash = _check_output(["git", "describe", "--always"]).strip()
+    hash_ = _check_output(["git", "rev-parse", "--short", "HEAD"]).strip()
+    have_tag_name = tag_or_hash != hash_
+    return tag_or_hash if have_tag_name else _get_def("HASH") + hash_
+
+
+def _get_stash(gitdir):
+    try:
+        with open(os.path.join(gitdir, "logs/refs/stash")) as f:
+            return sum(1 for _ in f)
+    except IOError:
+        return 0
+
+
+def _gitoperation(gitdir):
+    files = (
+        ("rebase-merge", "REBASE"),
+        ("rebase-apply", "AM/REBASE"),
+        ("MERGE_HEAD", "MERGING"),
+        ("CHERRY_PICK_HEAD", "CHERRY-PICKING"),
+        ("REVERT_HEAD", "REVERTING"),
+        ("BISECT_LOG", "BISECTING"),
+    )
+    return [f[1] for f in files if os.path.exists(os.path.join(gitdir, f[0]))]
+
+
+def gitstatus():
+    """Return namedtuple with fields:
+    branch name, number of ahead commit, number of behind commit,
+    untracked number, changed number, conflicts number,
+    staged number, stashed number, operation."""
+    status = _check_output(["git", "status", "--porcelain", "--br
