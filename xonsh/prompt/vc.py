@@ -156,4 +156,39 @@ def current_branch():
     return branch or None
 
 
-def _git_dirty_working_directory(q
+def _git_dirty_working_directory(q, include_untracked):
+    status = None
+    denv = builtins.__xonsh__.env.detype()
+    try:
+        cmd = ["git", "status", "--porcelain"]
+        if include_untracked:
+            cmd.append("--untracked-files=normal")
+        else:
+            cmd.append("--untracked-files=no")
+        status = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, env=denv)
+    except (subprocess.CalledProcessError, OSError, FileNotFoundError):
+        q.put(None)
+    if status is not None:
+        return q.put(bool(status))
+
+
+def git_dirty_working_directory(include_untracked=False):
+    """Returns whether or not the git directory is dirty. If this could not
+    be determined (timeout, file not found, etc.) then this returns None.
+    """
+    timeout = builtins.__xonsh__.env.get("VC_BRANCH_TIMEOUT")
+    q = queue.Queue()
+    t = threading.Thread(
+        target=_git_dirty_working_directory, args=(q, include_untracked)
+    )
+    t.start()
+    t.join(timeout=timeout)
+    try:
+        return q.get_nowait()
+    except queue.Empty:
+        return None
+
+
+def hg_dirty_working_directory():
+    """Computes whether or not the mercurial working directory is dirty or not.
+    If this cannot
