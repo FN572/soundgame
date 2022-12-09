@@ -59,4 +59,41 @@ def _get_hg_root(q):
     _curpwd = builtins.__xonsh__.env["PWD"]
     while True:
         if not os.path.isdir(_curpwd):
-            return F
+            return False
+        if any([b.name == ".hg" for b in xt.scandir(_curpwd)]):
+            q.put(_curpwd)
+            break
+        else:
+            _oldpwd = _curpwd
+            _curpwd = os.path.split(_curpwd)[0]
+            if _oldpwd == _curpwd:
+                return False
+
+
+def get_hg_branch(root=None):
+    """Try to get the mercurial branch of the current directory,
+    return None if not in a repo or subprocess.TimeoutExpired if timed out.
+    """
+    env = builtins.__xonsh__.env
+    timeout = env["VC_BRANCH_TIMEOUT"]
+    q = queue.Queue()
+    t = threading.Thread(target=_get_hg_root, args=(q,))
+    t.start()
+    t.join(timeout=timeout)
+    try:
+        root = q.get_nowait()
+    except queue.Empty:
+        return None
+    if env.get("VC_HG_SHOW_BRANCH"):
+        # get branch name
+        branch_path = os.path.sep.join([root, ".hg", "branch"])
+        if os.path.exists(branch_path):
+            with open(branch_path, "r") as branch_file:
+                branch = branch_file.read()
+        else:
+            branch = "default"
+    else:
+        branch = ""
+    # add bookmark, if we can
+    bookmark_path = os.path.sep.join([root, ".hg", "bookmarks.current"])
+    if os.path.exist
