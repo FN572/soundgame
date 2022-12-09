@@ -191,4 +191,40 @@ def git_dirty_working_directory(include_untracked=False):
 
 def hg_dirty_working_directory():
     """Computes whether or not the mercurial working directory is dirty or not.
-    If this cannot
+    If this cannot be determined, None is returned.
+    """
+    env = builtins.__xonsh__.env
+    cwd = env["PWD"]
+    denv = env.detype()
+    vcbt = env["VC_BRANCH_TIMEOUT"]
+    # Override user configurations settings and aliases
+    denv["HGRCPATH"] = ""
+    try:
+        s = subprocess.check_output(
+            ["hg", "identify", "--id"],
+            stderr=subprocess.PIPE,
+            cwd=cwd,
+            timeout=vcbt,
+            universal_newlines=True,
+            env=denv,
+        )
+        return s.strip(os.linesep).endswith("+")
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ):
+        return None
+
+
+def dirty_working_directory():
+    """Returns a boolean as to whether there are uncommitted files in version
+    control repository we are inside. If this cannot be determined, returns
+    None. Currently supports git and hg.
+    """
+    dwd = None
+    cmds = builtins.__xonsh__.commands_cache
+    if cmds.lazy_locate_binary("git", ignore_alias=True):
+        dwd = git_dirty_working_directory()
+    if cmds.lazy_locate_binary("hg", ignore_alias=True) and dwd is None:
+        
