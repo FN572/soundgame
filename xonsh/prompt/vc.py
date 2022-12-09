@@ -96,4 +96,33 @@ def get_hg_branch(root=None):
         branch = ""
     # add bookmark, if we can
     bookmark_path = os.path.sep.join([root, ".hg", "bookmarks.current"])
-    if os.path.exist
+    if os.path.exists(bookmark_path):
+        with open(bookmark_path, "r") as bookmark_file:
+            active_bookmark = bookmark_file.read()
+        if env.get("VC_HG_SHOW_BRANCH") is True:
+            branch = "{0}, {1}".format(
+                *(b.strip(os.linesep) for b in (branch, active_bookmark))
+            )
+        else:
+            branch = active_bookmark.strip(os.linesep)
+    else:
+        branch = branch.strip(os.linesep)
+    return branch
+
+
+_FIRST_BRANCH_TIMEOUT = True
+
+
+def _first_branch_timeout_message():
+    global _FIRST_BRANCH_TIMEOUT
+    sbtm = builtins.__xonsh__.env["SUPPRESS_BRANCH_TIMEOUT_MESSAGE"]
+    if not _FIRST_BRANCH_TIMEOUT or sbtm:
+        return
+    _FIRST_BRANCH_TIMEOUT = False
+    print(
+        "xonsh: branch timeout: computing the branch name, color, or both "
+        "timed out while formatting the prompt. You may avoid this by "
+        "increasing the value of $VC_BRANCH_TIMEOUT or by removing branch "
+        "fields, like {curr_branch}, from your $PROMPT. See the FAQ "
+        "for more details. This message will be suppressed for the remainder "
+        "of this
