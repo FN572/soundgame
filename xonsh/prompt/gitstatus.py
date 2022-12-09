@@ -185,4 +185,15 @@ def gitstatus_prompt():
     if s.staged > 0:
         ret += _get_def("STAGED") + str(s.staged) + "{NO_COLOR}"
     if s.conflicts > 0:
-        ret += _get_def("CONFLICTS") + str(s.conflicts) + 
+        ret += _get_def("CONFLICTS") + str(s.conflicts) + "{NO_COLOR}"
+    if s.changed > 0:
+        ret += _get_def("CHANGED") + str(s.changed) + "{NO_COLOR}"
+    if s.untracked > 0:
+        ret += _get_def("UNTRACKED") + str(s.untracked) + "{NO_COLOR}"
+    if s.stashed > 0:
+        ret += _get_def("STASHED") + str(s.stashed) + "{NO_COLOR}"
+    if s.staged + s.conflicts + s.changed + s.untracked + s.stashed == 0:
+        ret += _get_def("CLEAN") + "{NO_COLOR}"
+    ret += "{NO_COLOR}"
+
+    return ret
