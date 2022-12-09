@@ -125,4 +125,35 @@ def _first_branch_timeout_message():
         "increasing the value of $VC_BRANCH_TIMEOUT or by removing branch "
         "fields, like {curr_branch}, from your $PROMPT. See the FAQ "
         "for more details. This message will be suppressed for the remainder "
-        "of this
+        "of this session. To suppress this message permanently, set "
+        "$SUPPRESS_BRANCH_TIMEOUT_MESSAGE = True in your xonshrc file.",
+        file=sys.stderr,
+    )
+
+
+def current_branch():
+    """Gets the branch for a current working directory. Returns an empty string
+    if the cwd is not a repository.  This currently only works for git and hg
+    and should be extended in the future.  If a timeout occurred, the string
+    '<branch-timeout>' is returned.
+    """
+    branch = None
+    cmds = builtins.__xonsh__.commands_cache
+    # check for binary only once
+    if cmds.is_empty():
+        has_git = bool(cmds.locate_binary("git", ignore_alias=True))
+        has_hg = bool(cmds.locate_binary("hg", ignore_alias=True))
+    else:
+        has_git = bool(cmds.lazy_locate_binary("git", ignore_alias=True))
+        has_hg = bool(cmds.lazy_locate_binary("hg", ignore_alias=True))
+    if has_git:
+        branch = get_git_branch()
+    if not branch and has_hg:
+        branch = get_hg_branch()
+    if isinstance(branch, subprocess.TimeoutExpired):
+        branch = "<branch-timeout>"
+        _first_branch_timeout_message()
+    return branch or None
+
+
+def _git_dirty_working_directory(q
