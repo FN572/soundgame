@@ -227,4 +227,34 @@ def dirty_working_directory():
     if cmds.lazy_locate_binary("git", ignore_alias=True):
         dwd = git_dirty_working_directory()
     if cmds.lazy_locate_binary("hg", ignore_alias=True) and dwd is None:
-        
+        dwd = hg_dirty_working_directory()
+    return dwd
+
+
+def branch_color():
+    """Return red if the current branch is dirty, yellow if the dirtiness can
+    not be determined, and green if it clean. These are bold, intense colors
+    for the foreground.
+    """
+    dwd = dirty_working_directory()
+    if dwd is None:
+        color = "{YELLOW}"
+    elif dwd:
+        color = "{RED}"
+    else:
+        color = "{GREEN}"
+    return color
+
+
+def branch_bg_color():
+    """Return red if the current branch is dirty, yellow if the dirtiness can
+    not be determined, and green if it clean. These are background colors.
+    """
+    dwd = dirty_working_directory()
+    if dwd is None:
+        color = "{BACKGROUND_YELLOW}"
+    elif dwd:
+        color = "{BACKGROUND_RED}"
+    else:
+        color = "{BACKGROUND_GREEN}"
+    return color
