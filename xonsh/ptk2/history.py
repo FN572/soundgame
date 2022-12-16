@@ -47,4 +47,7 @@ def _cust_history_matches(self, i):
 
     This gets monkeypatched into the prompt_toolkit prompter if
     ``XONSH_HISTORY_MATCH_ANYWHERE=True``"""
-    return 
+    return (
+        self.history_search_text is None
+        or self.history_search_text in self._working_lines[i]
+    )
