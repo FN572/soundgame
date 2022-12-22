@@ -62,4 +62,7 @@ class XshFunction(pytest.Item):
         formatted_tb = _limited_traceback(excinfo)
         formatted_tb.insert(0, "xonsh execution failed\n")
         formatted_tb.append("{}: {}".format(excinfo.type.__name__, excinfo.value))
-        return "
+        return "".join(formatted_tb)
+
+    def reportinfo(self):
+        return self.fspath, 0, "xonsh test: {}".format(self.name)
