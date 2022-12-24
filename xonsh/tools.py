@@ -1600,3 +1600,850 @@ HISTORY_UNITS = LazyObject(
         "hr": ("s", _hour_to_sec),
         "hour": ("s", _hour_to_sec),
         "hours": ("s", _hour_to_sec),
+        "d": ("s", _day_to_sec),
+        "day": ("s", _day_to_sec),
+        "days": ("s", _day_to_sec),
+        "mon": ("s", _month_to_sec),
+        "month": ("s", _month_to_sec),
+        "months": ("s", _month_to_sec),
+        "y": ("s", _year_to_sec),
+        "yr": ("s", _year_to_sec),
+        "yrs": ("s", _year_to_sec),
+        "year": ("s", _year_to_sec),
+        "years": ("s", _year_to_sec),
+        "b": ("b", int),
+        "byte": ("b", int),
+        "bytes": ("b", int),
+        "kb": ("b", _kb_to_b),
+        "kilobyte": ("b", _kb_to_b),
+        "kilobytes": ("b", _kb_to_b),
+        "mb": ("b", _mb_to_b),
+        "meg": ("b", _mb_to_b),
+        "megs": ("b", _mb_to_b),
+        "megabyte": ("b", _mb_to_b),
+        "megabytes": ("b", _mb_to_b),
+        "gb": ("b", _gb_to_b),
+        "gig": ("b", _gb_to_b),
+        "gigs": ("b", _gb_to_b),
+        "gigabyte": ("b", _gb_to_b),
+        "gigabytes": ("b", _gb_to_b),
+        "tb": ("b", _tb_to_b),
+        "terabyte": ("b", _tb_to_b),
+        "terabytes": ("b", _tb_to_b),
+    },
+    globals(),
+    "HISTORY_UNITS",
+)
+"""Maps lowercase unit names to canonical name and conversion utilities."""
+
+
+def is_history_tuple(x):
+    """Tests if something is a proper history value, units tuple."""
+    if (
+        isinstance(x, cabc.Sequence)
+        and len(x) == 2
+        and isinstance(x[0], (int, float))
+        and x[1].lower() in CANON_HISTORY_UNITS
+    ):
+        return True
+    return False
+
+
+def is_history_backend(x):
+    """Tests if something is a valid history backend."""
+    return is_string(x) or is_class(x) or isinstance(x, object)
+
+
+def is_dynamic_cwd_width(x):
+    """ Determine if the input is a valid input for the DYNAMIC_CWD_WIDTH
+    environment variable.
+    """
+    return (
+        isinstance(x, tuple)
+        and len(x) == 2
+        and isinstance(x[0], float)
+        and x[1] in set("c%")
+    )
+
+
+def to_dynamic_cwd_tuple(x):
+    """Convert to a canonical cwd_width tuple."""
+    unit = "c"
+    if isinstance(x, str):
+        if x[-1] == "%":
+            x = x[:-1]
+            unit = "%"
+        else:
+            unit = "c"
+        return (float(x), unit)
+    else:
+        return (float(x[0]), x[1])
+
+
+def dynamic_cwd_tuple_to_str(x):
+    """Convert a canonical cwd_width tuple to a string."""
+    if x[1] == "%":
+        return str(x[0]) + "%"
+    else:
+        return str(x[0])
+
+
+RE_HISTORY_TUPLE = LazyObject(
+    lambda: re.compile(r"([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?)\s*([A-Za-z]*)"),
+    globals(),
+    "RE_HISTORY_TUPLE",
+)
+
+
+def to_history_tuple(x):
+    """Converts to a canonical history tuple."""
+    if not isinstance(x, (cabc.Sequence, float, int)):
+        raise ValueError("history size must be given as a sequence or number")
+    if isinstance(x, str):
+        m = RE_HISTORY_TUPLE.match(x.strip().lower())
+        return to_history_tuple((m.group(1), m.group(3)))
+    elif isinstance(x, (float, int)):
+        return to_history_tuple((x, "commands"))
+    units, converter = HISTORY_UNITS[x[1]]
+    value = converter(x[0])
+    return (value, units)
+
+
+def history_tuple_to_str(x):
+    """Converts a valid history tuple to a canonical string."""
+    return "{0} {1}".format(*x)
+
+
+def format_color(string, **kwargs):
+    """Formats strings that may contain colors. This simply dispatches to the
+    shell instances method of the same name. The results of this function should
+    be directly usable by print_color().
+    """
+    return builtins.__xonsh__.shell.shell.format_color(string, **kwargs)
+
+
+def print_color(string, **kwargs):
+    """Prints a string that may contain colors. This dispatched to the shell
+    method of the same name. Colors will be formatted if they have not already
+    been.
+    """
+    builtins.__xonsh__.shell.shell.print_color(string, **kwargs)
+
+
+def color_style_names():
+    """Returns an iterable of all available style names."""
+    return builtins.__xonsh__.shell.shell.color_style_names()
+
+
+def color_style():
+    """Returns the current color map."""
+    return builtins.__xonsh__.shell.shell.color_style()
+
+
+def _token_attr_from_stylemap(stylemap):
+    """yields tokens attr, and index from a stylemap """
+    import prompt_toolkit as ptk
+
+    if builtins.__xonsh__.shell.shell_type == "prompt_toolkit1":
+        style = ptk.styles.style_from_dict(stylemap)
+        for token in stylemap:
+            yield token, style.token_to_attrs[token]
+    else:
+        style = ptk.styles.style_from_pygments_dict(stylemap)
+        for token in stylemap:
+            style_str = "class:{}".format(
+                ptk.styles.pygments.pygments_token_to_classname(token)
+            )
+            yield (token, style.get_attrs_for_style_str(style_str))
+
+
+def _get_color_lookup_table():
+    """Returns the prompt_toolkit win32 ColorLookupTable """
+    if builtins.__xonsh__.shell.shell_type == "prompt_toolkit1":
+        from prompt_toolkit.terminal.win32_output import ColorLookupTable
+    else:
+        from prompt_toolkit.output.win32 import ColorLookupTable
+    return ColorLookupTable()
+
+
+def _get_color_indexes(style_map):
+    """Generates the color and windows color index for a style """
+    table = _get_color_lookup_table()
+    for token, attr in _token_attr_from_stylemap(style_map):
+        if attr.color:
+            index = table.lookup_fg_color(attr.color)
+            try:
+                rgb = (
+                    int(attr.color[0:2], 16),
+                    int(attr.color[2:4], 16),
+                    int(attr.color[4:6], 16),
+                )
+            except Exception:
+                rgb = None
+            yield token, index, rgb
+
+
+# Map of new PTK2 color names to PTK1 variants
+PTK_NEW_OLD_COLOR_MAP = LazyObject(
+    lambda: {
+        "black": "black",
+        "red": "darkred",
+        "green": "darkgreen",
+        "yellow": "brown",
+        "blue": "darkblue",
+        "magenta": "purple",
+        "cyan": "teal",
+        "gray": "lightgray",
+        "brightblack": "darkgray",
+        "brightred": "red",
+        "brightgreen": "green",
+        "brightyellow": "yellow",
+        "brightblue": "blue",
+        "brightmagenta": "fuchsia",
+        "brightcyan": "turquoise",
+        "white": "white",
+    },
+    globals(),
+    "PTK_NEW_OLD_COLOR_MAP",
+)
+
+# Map of new ansicolor names to old PTK1 names
+ANSICOLOR_NAMES_MAP = LazyObject(
+    lambda: {"ansi" + k: "#ansi" + v for k, v in PTK_NEW_OLD_COLOR_MAP.items()},
+    globals(),
+    "ANSICOLOR_NAMES_MAP",
+)
+
+
+def _win10_color_map():
+    cmap = {
+        "ansiblack": (12, 12, 12),
+        "ansiblue": (0, 55, 218),
+        "ansigreen": (19, 161, 14),
+        "ansicyan": (58, 150, 221),
+        "ansired": (197, 15, 31),
+        "ansimagenta": (136, 23, 152),
+        "ansiyellow": (193, 156, 0),
+        "ansigray": (204, 204, 204),
+        "ansibrightblack": (118, 118, 118),
+        "ansibrightblue": (59, 120, 255),
+        "ansibrightgreen": (22, 198, 12),
+        "ansibrightcyan": (97, 214, 214),
+        "ansibrightred": (231, 72, 86),
+        "ansibrightmagenta": (180, 0, 158),
+        "ansibrightyellow": (249, 241, 165),
+        "ansiwhite": (242, 242, 242),
+    }
+    return {
+        k: "#{0:02x}{1:02x}{2:02x}".format(r, g, b) for k, (r, g, b) in cmap.items()
+    }
+
+
+WIN10_COLOR_MAP = LazyObject(_win10_color_map, globals(), "WIN10_COLOR_MAP")
+
+
+def _win_bold_color_map():
+    """ Map dark ansi colors to lighter version. """
+    return {
+        "ansiblack": "ansibrightblack",
+        "ansiblue": "ansibrightblue",
+        "ansigreen": "ansibrightgreen",
+        "ansicyan": "ansibrightcyan",
+        "ansired": "ansibrightred",
+        "ansimagenta": "ansibrightmagenta",
+        "ansiyellow": "ansibrightyellow",
+        "ansigray": "ansiwhite",
+    }
+
+
+WIN_BOLD_COLOR_MAP = LazyObject(_win_bold_color_map, globals(), "WIN_BOLD_COLOR_MAP")
+
+
+def hardcode_colors_for_win10(style_map):
+    """Replace all ansi colors with hardcoded colors to avoid unreadable defaults
+       in conhost.exe
+    """
+    modified_style = {}
+    if not builtins.__xonsh__.env["PROMPT_TOOLKIT_COLOR_DEPTH"]:
+        builtins.__xonsh__.env["PROMPT_TOOLKIT_COLOR_DEPTH"] = "DEPTH_24_BIT"
+    # Replace all ansi colors with hardcoded colors to avoid unreadable defaults
+    # in conhost.exe
+    for token, style_str in style_map.items():
+        for ansicolor in WIN10_COLOR_MAP:
+            if ansicolor in style_str:
+                if "bold" in style_str and "nobold" not in style_str:
+                    # Win10  doesn't yet handle bold colors. Instead dark
+                    # colors are mapped to their lighter version. We simulate
+                    # the same here.
+                    style_str.replace("bold", "")
+                    hexcolor = WIN10_COLOR_MAP[
+                        WIN_BOLD_COLOR_MAP.get(ansicolor, ansicolor)
+                    ]
+                else:
+                    hexcolor = WIN10_COLOR_MAP[ansicolor]
+                style_str = style_str.replace(ansicolor, hexcolor)
+        modified_style[token] = style_str
+    return modified_style
+
+
+def ansicolors_to_ptk1_names(stylemap):
+    """Converts ansicolor names in a stylemap to old PTK1 color names
+    """
+    modified_stylemap = {}
+    for token, style_str in stylemap.items():
+        for color, ptk1_color in ANSICOLOR_NAMES_MAP.items():
+            if "#" + color not in style_str:
+                style_str = style_str.replace(color, ptk1_color)
+        modified_stylemap[token] = style_str
+    return modified_stylemap
+
+
+def intensify_colors_for_cmd_exe(style_map):
+    """Returns a modified style to where colors that maps to dark
+       colors are replaced with brighter versions.
+    """
+    modified_style = {}
+    replace_colors = {
+        1: "ansibrightcyan",  # subst blue with bright cyan
+        2: "ansibrightgreen",  # subst green with bright green
+        4: "ansibrightred",  # subst red with bright red
+        5: "ansibrightmagenta",  # subst magenta with bright magenta
+        6: "ansibrightyellow",  # subst yellow with bright yellow
+        9: "ansicyan",  # subst intense blue with dark cyan (more readable)
+    }
+    if builtins.__xonsh__.shell.shell_type == "prompt_toolkit1":
+        replace_colors = ansicolors_to_ptk1_names(replace_colors)
+    for token, idx, _ in _get_color_indexes(style_map):
+        if idx in replace_colors:
+            modified_style[token] = replace_colors[idx]
+    return modified_style
+
+
+def intensify_colors_on_win_setter(enable):
+    """Resets the style when setting the INTENSIFY_COLORS_ON_WIN
+    environment variable.
+    """
+    enable = to_bool(enable)
+    if builtins.__xonsh__.shell is not None:
+        if hasattr(builtins.__xonsh__.shell.shell.styler, "style_name"):
+            delattr(builtins.__xonsh__.shell.shell.styler, "style_name")
+    return enable
+
+
+def format_std_prepost(template, env=None):
+    """Formats a template prefix/postfix string for a standard buffer.
+    Returns a string suitable for prepending or appending.
+    """
+    if not template:
+        return ""
+    env = builtins.__xonsh__.env if env is None else env
+    shell = builtins.__xonsh__.shell.shell
+    try:
+        s = shell.prompt_formatter(template)
+    except Exception:
+        print_exception()
+    # \001\002 is there to fool pygments into not returning an empty string
+    # for potentially empty input. This happens when the template is just a
+    # color code with no visible text.
+    invis = "\001\002"
+    s = shell.format_color(invis + s + invis, force_string=True)
+    s = s.replace(invis, "")
+    return s
+
+
+_RE_STRING_START = "[bBprRuUf]*"
+_RE_STRING_TRIPLE_DOUBLE = '"""'
+_RE_STRING_TRIPLE_SINGLE = "'''"
+_RE_STRING_DOUBLE = '"'
+_RE_STRING_SINGLE = "'"
+_STRINGS = (
+    _RE_STRING_TRIPLE_DOUBLE,
+    _RE_STRING_TRIPLE_SINGLE,
+    _RE_STRING_DOUBLE,
+    _RE_STRING_SINGLE,
+)
+RE_BEGIN_STRING = LazyObject(
+    lambda: re.compile("(" + _RE_STRING_START + "(" + "|".join(_STRINGS) + "))"),
+    globals(),
+    "RE_BEGIN_STRING",
+)
+"""Regular expression matching the start of a string, including quotes and
+leading characters (r, b, or u)"""
+
+RE_STRING_START = LazyObject(
+    lambda: re.compile(_RE_STRING_START), globals(), "RE_STRING_START"
+)
+"""Regular expression matching the characters before the quotes when starting a
+string (r, b, or u, case insensitive)"""
+
+RE_STRING_CONT = LazyDict(
+    {
+        '"': lambda: re.compile(r'((\\(.|\n))|([^"\\]))*'),
+        "'": lambda: re.compile(r"((\\(.|\n))|([^'\\]))*"),
+        '"""': lambda: re.compile(r'((\\(.|\n))|([^"\\])|("(?!""))|\n)*'),
+        "'''": lambda: re.compile(r"((\\(.|\n))|([^'\\])|('(?!''))|\n)*"),
+    },
+    globals(),
+    "RE_STRING_CONT",
+)
+"""Dictionary mapping starting quote sequences to regular expressions that
+match the contents of a string beginning with those quotes (not including the
+terminating quotes)"""
+
+
+@lazyobject
+def RE_COMPLETE_STRING():
+    ptrn = (
+        "^"
+        + _RE_STRING_START
+        + "(?P<quote>"
+        + "|".join(_STRINGS)
+        + ")"
+        + ".*?(?P=quote)$"
+    )
+    return re.compile(ptrn, re.DOTALL)
+
+
+def strip_simple_quotes(s):
+    """Gets rid of single quotes, double quotes, single triple quotes, and
+    single double quotes from a string, if present front and back of a string.
+    Otherwiswe, does nothing.
+    """
+    starts_single = s.startswith("'")
+    starts_double = s.startswith('"')
+    if not starts_single and not starts_double:
+        return s
+    elif starts_single:
+        ends_single = s.endswith("'")
+        if not ends_single:
+            return s
+        elif s.startswith("'''") and s.endswith("'''") and len(s) >= 6:
+            return s[3:-3]
+        elif len(s) >= 2:
+            return s[1:-1]
+        else:
+            return s
+    else:
+        # starts double
+        ends_double = s.endswith('"')
+        if not ends_double:
+            return s
+        elif s.startswith('"""') and s.endswith('"""') and len(s) >= 6:
+            return s[3:-3]
+        elif len(s) >= 2:
+            return s[1:-1]
+        else:
+            return s
+
+
+def check_for_partial_string(x):
+    """Returns the starting index (inclusive), ending index (exclusive), and
+    starting quote string of the most recent Python string found in the input.
+
+    check_for_partial_string(x) -> (startix, endix, quote)
+
+    Parameters
+    ----------
+    x : str
+        The string to be checked (representing a line of terminal input)
+
+    Returns
+    -------
+    startix : int (or None)
+        The index where the most recent Python string found started
+        (inclusive), or None if no strings exist in the input
+
+    endix : int (or None)
+        The index where the most recent Python string found ended (exclusive),
+        or None if no strings exist in the input OR if the input ended in the
+        middle of a Python string
+
+    quote : str (or None)
+        A string containing the quote used to start the string (e.g., b", ",
+        '''), or None if no string was found.
+    """
+    string_indices = []
+    starting_quote = []
+    current_index = 0
+    match = re.search(RE_BEGIN_STRING, x)
+    while match is not None:
+        # add the start in
+        start = match.start()
+        quote = match.group(0)
+        lenquote = len(quote)
+        current_index += start
+        # store the starting index of the string, as well as the
+        # characters in the starting quotes (e.g., ", ', """, r", etc)
+        string_indices.append(current_index)
+        starting_quote.append(quote)
+        # determine the string that should terminate this string
+        ender = re.sub(RE_STRING_START, "", quote)
+        x = x[start + lenquote :]
+        current_index += lenquote
+        # figure out what is inside the string
+        continuer = RE_STRING_CONT[ender]
+        contents = re.match(continuer, x)
+        inside = contents.group(0)
+        leninside = len(inside)
+        current_index += contents.start() + leninside + len(ender)
+        # if we are not at the end of the input string, add the ending index of
+        # the string to string_indices
+        if contents.end() < len(x):
+            string_indices.append(current_index)
+        x = x[leninside + len(ender) :]
+        # find the next match
+        match = re.search(RE_BEGIN_STRING, x)
+    numquotes = len(string_indices)
+    if numquotes == 0:
+        return (None, None, None)
+    elif numquotes % 2:
+        return (string_indices[-1], None, starting_quote[-1])
+    else:
+        return (string_indices[-2], string_indices[-1], starting_quote[-1])
+
+
+# regular expressions for matching environment variables
+# i.e $FOO, ${'FOO'}
+@lazyobject
+def POSIX_ENVVAR_REGEX():
+    pat = r"""\$({(?P<quote>['"])|)(?P<envvar>\w+)((?P=quote)}|(?:\1\b))"""
+    return re.compile(pat)
+
+
+def expandvars(path):
+    """Expand shell variables of the forms $var, ${var} and %var%.
+    Unknown variables are left unchanged."""
+    env = builtins.__xonsh__.env
+    if isinstance(path, bytes):
+        path = path.decode(
+            encoding=env.get("XONSH_ENCODING"), errors=env.get("XONSH_ENCODING_ERRORS")
+        )
+    elif isinstance(path, pathlib.Path):
+        # get the path's string representation
+        path = str(path)
+    if "$" in path:
+        for match in POSIX_ENVVAR_REGEX.finditer(path):
+            name = match.group("envvar")
+            if name in env:
+                ensurer = env.get_ensurer(name)
+                val = env[name]
+                value = str(val) if ensurer.detype is None else ensurer.detype(val)
+                value = str(val) if value is None else value
+                path = POSIX_ENVVAR_REGEX.sub(value, path, count=1)
+    return path
+
+
+#
+# File handling tools
+#
+
+
+def backup_file(fname):
+    """Moves an existing file to a new name that has the current time right
+    before the extension.
+    """
+    # lazy imports
+    import shutil
+    from datetime import datetime
+
+    base, ext = os.path.splitext(fname)
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+    newfname = "%s.%s%s" % (base, timestamp, ext)
+    shutil.move(fname, newfname)
+
+
+def normabspath(p):
+    """Returns as normalized absolute path, namely, normcase(abspath(p))"""
+    return os.path.normcase(os.path.abspath(p))
+
+
+def expanduser_abs_path(inp):
+    """ Provides user expanded absolute path """
+    return os.path.abspath(expanduser(inp))
+
+
+WINDOWS_DRIVE_MATCHER = LazyObject(
+    lambda: re.compile(r"^\w:"), globals(), "WINDOWS_DRIVE_MATCHER"
+)
+
+
+def expand_case_matching(s):
+    """Expands a string to a case insensitive globable string."""
+    t = []
+    openers = {"[", "{"}
+    closers = {"]", "}"}
+    nesting = 0
+
+    drive_part = WINDOWS_DRIVE_MATCHER.match(s) if ON_WINDOWS else None
+
+    if drive_part:
+        drive_part = drive_part.group(0)
+        t.append(drive_part)
+        s = s[len(drive_part) :]
+
+    for c in s:
+        if c in openers:
+            nesting += 1
+        elif c in closers:
+            nesting -= 1
+        elif nesting > 0:
+            pass
+        elif c.isalpha():
+            folded = c.casefold()
+            if len(folded) == 1:
+                c = "[{0}{1}]".format(c.upper(), c.lower())
+            else:
+                newc = ["[{0}{1}]?".format(f.upper(), f.lower()) for f in folded[:-1]]
+                newc = "".join(newc)
+                newc += "[{0}{1}{2}]".format(folded[-1].upper(), folded[-1].lower(), c)
+                c = newc
+        t.append(c)
+    return "".join(t)
+
+
+def globpath(
+    s, ignore_case=False, return_empty=False, sort_result=None, include_dotfiles=None
+):
+    """Simple wrapper around glob that also expands home and env vars."""
+    o, s = _iglobpath(
+        s,
+        ignore_case=ignore_case,
+        sort_result=sort_result,
+        include_dotfiles=include_dotfiles,
+    )
+    o = list(o)
+    no_match = [] if return_empty else [s]
+    return o if len(o) != 0 else no_match
+
+
+def _dotglobstr(s):
+    modified = False
+    dotted_s = s
+    if "/*" in dotted_s:
+        dotted_s = dotted_s.replace("/*", "/.*")
+        dotted_s = dotted_s.replace("/.**/.*", "/**/.*")
+        modified = True
+    if dotted_s.startswith("*") and not dotted_s.startswith("**"):
+        dotted_s = "." + dotted_s
+        modified = True
+    return dotted_s, modified
+
+
+def _iglobpath(s, ignore_case=False, sort_result=None, include_dotfiles=None):
+    s = builtins.__xonsh__.expand_path(s)
+    if sort_result is None:
+        sort_result = builtins.__xonsh__.env.get("GLOB_SORTED")
+    if include_dotfiles is None:
+        include_dotfiles = builtins.__xonsh__.env.get("DOTGLOB")
+    if ignore_case:
+        s = expand_case_matching(s)
+    if sys.version_info > (3, 5):
+        if "**" in s and "**/*" not in s:
+            s = s.replace("**", "**/*")
+        if include_dotfiles:
+            dotted_s, dotmodified = _dotglobstr(s)
+        # `recursive` is only a 3.5+ kwarg.
+        if sort_result:
+            paths = glob.glob(s, recursive=True)
+            if include_dotfiles and dotmodified:
+                paths.extend(glob.iglob(dotted_s, recursive=True))
+            paths.sort()
+            paths = iter(paths)
+        else:
+            paths = glob.iglob(s, recursive=True)
+            if include_dotfiles and dotmodified:
+                paths = itertools.chain(glob.iglob(dotted_s, recursive=True), paths)
+        return paths, s
+    else:
+        if include_dotfiles:
+            dotted_s, dotmodified = _dotglobstr(s)
+        if sort_result:
+            paths = glob.glob(s)
+            if include_dotfiles and dotmodified:
+                paths.extend(glob.iglob(dotted_s))
+            paths.sort()
+            paths = iter(paths)
+        else:
+            paths = glob.iglob(s)
+            if include_dotfiles and dotmodified:
+                paths = itertools.chain(glob.iglob(dotted_s), paths)
+        return paths, s
+
+
+def iglobpath(s, ignore_case=False, sort_result=None, include_dotfiles=None):
+    """Simple wrapper around iglob that also expands home and env vars."""
+    try:
+        return _iglobpath(
+            s,
+            ignore_case=ignore_case,
+            sort_result=sort_result,
+            include_dotfiles=include_dotfiles,
+        )[0]
+    except IndexError:
+        # something went wrong in the actual iglob() call
+        return iter(())
+
+
+def ensure_timestamp(t, datetime_format=None):
+    if isinstance(t, (int, float)):
+        return t
+    try:
+        return float(t)
+    except (ValueError, TypeError):
+        pass
+    if datetime_format is None:
+        datetime_format = builtins.__xonsh__.env["XONSH_DATETIME_FORMAT"]
+    if isinstance(t, datetime.datetime):
+        t = t.timestamp()
+    else:
+        t = datetime.datetime.strptime(t, datetime_format).timestamp()
+    return t
+
+
+def format_datetime(dt):
+    """Format datetime object to string base on $XONSH_DATETIME_FORMAT Env."""
+    format_ = builtins.__xonsh__.env["XONSH_DATETIME_FORMAT"]
+    return dt.strftime(format_)
+
+
+def columnize(elems, width=80, newline="\n"):
+    """Takes an iterable of strings and returns a list of lines with the
+    elements placed in columns. Each line will be at most *width* columns.
+    The newline character will be appended to the end of each line.
+    """
+    sizes = [len(e) + 1 for e in elems]
+    total = sum(sizes)
+    nelem = len(elems)
+    if total - 1 <= width:
+        ncols = len(sizes)
+        nrows = 1
+        columns = [sizes]
+        last_longest_row = total
+        enter_loop = False
+    else:
+        ncols = 1
+        nrows = len(sizes)
+        columns = [sizes]
+        last_longest_row = max(sizes)
+        enter_loop = True
+    while enter_loop:
+        longest_row = sum(map(max, columns))
+        if longest_row - 1 <= width:
+            # we might be able to fit another column.
+            ncols += 1
+            nrows = nelem // ncols
+            columns = [sizes[i * nrows : (i + 1) * nrows] for i in range(ncols)]
+            last_longest_row = longest_row
+        else:
+            # we can't fit another column
+            ncols -= 1
+            nrows = nelem // ncols
+            break
+    pad = (width - last_longest_row + ncols) // ncols
+    pad = pad if pad > 1 else 1
+    data = [elems[i * nrows : (i + 1) * nrows] for i in range(ncols)]
+    colwidths = [max(map(len, d)) + pad for d in data]
+    colwidths[-1] -= pad
+    row_t = "".join(["{{row[{i}]: <{{w[{i}]}}}}".format(i=i) for i in range(ncols)])
+    row_t += newline
+    lines = [
+        row_t.format(row=row, w=colwidths)
+        for row in itertools.zip_longest(*data, fillvalue="")
+    ]
+    return lines
+
+
+ALIAS_KWARG_NAMES = frozenset(["args", "stdin", "stdout", "stderr", "spec", "stack"])
+
+
+def unthreadable(f):
+    """Decorator that specifies that a callable alias should be run only
+    on the main thread process. This is often needed for debuggers and
+    profilers.
+    """
+    f.__xonsh_threadable__ = False
+    return f
+
+
+def uncapturable(f):
+    """Decorator that specifies that a callable alias should not be run with
+    any capturing. This is often needed if the alias call interactive
+    subprocess, like pagers and text editors.
+    """
+    f.__xonsh_capturable__ = False
+    return f
+
+
+def carriage_return():
+    """Writes a carriage return to stdout, and nothing else."""
+    print("\r", flush=True, end="")
+
+
+def deprecated(deprecated_in=None, removed_in=None):
+    """Parametrized decorator that deprecates a function in a graceful manner.
+
+    Updates the decorated function's docstring to mention the version
+    that deprecation occurred in and the version it will be removed
+    in if both of these values are passed.
+
+    When removed_in is not a release equal to or less than the current
+    release, call ``warnings.warn`` with details, while raising
+    ``DeprecationWarning``.
+
+    When removed_in is a release equal to or less than the current release,
+    raise an ``AssertionError``.
+
+    Parameters
+    ----------
+    deprecated_in : str
+        The version number that deprecated this function.
+    removed_in : str
+        The version number that this function will be removed in.
+    """
+    message_suffix = _deprecated_message_suffix(deprecated_in, removed_in)
+    if not message_suffix:
+        message_suffix = ""
+
+    def decorated(func):
+        warning_message = "{} has been deprecated".format(func.__name__)
+        warning_message += message_suffix
+
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            _deprecated_error_on_expiration(func.__name__, removed_in)
+            func(*args, **kwargs)
+            warnings.warn(warning_message, DeprecationWarning)
+
+        wrapped.__doc__ = (
+            "{}\n\n{}".format(wrapped.__doc__, warning_message)
+            if wrapped.__doc__
+            else warning_message
+        )
+
+        return wrapped
+
+    return decorated
+
+
+def _deprecated_message_suffix(deprecated_in, removed_in):
+    if deprecated_in and removed_in:
+        message_suffix = " in version {} and will be removed in version {}".format(
+            deprecated_in, removed_in
+        )
+    elif deprecated_in and not removed_in:
+        message_suffix = " in version {}".format(deprecated_in)
+    elif not deprecated_in and removed_in:
+        message_suffix = " and will be removed in version {}".format(removed_in)
+    else:
+        message_suffix = None
+
+    return message_suffix
+
+
+def _deprecated_error_on_expiration(name, removed_in):
+    if not removed_in:
+        return
+    elif LooseVersion(__version__) >= LooseVersion(removed_in):
+        raise AssertionError(
+            "{} has passed its version {} expiry date!".format(name, removed_in)
+        )
