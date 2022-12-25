@@ -183,4 +183,37 @@ def _color(ns, args):
 
 @functools.lru_cache(1)
 def _tracer_create_parser():
-    """Creat
+    """Creates tracer argument parser"""
+    p = argparse.ArgumentParser(
+        prog="trace", description="tool for tracing xonsh code as it runs."
+    )
+    subp = p.add_subparsers(title="action", dest="action")
+    onp = subp.add_parser(
+        "on", aliases=["start", "add"], help="begins tracing selected files."
+    )
+    onp.add_argument(
+        "files",
+        nargs="*",
+        default=["__file__"],
+        help=(
+            'file paths to watch, use "__file__" (default) to select '
+            "the current file."
+        ),
+    )
+    off = subp.add_parser(
+        "off", aliases=["stop", "del", "rm"], help="removes selected files fom tracing."
+    )
+    off.add_argument(
+        "files",
+        nargs="*",
+        default=["__file__"],
+        help=(
+            'file paths to stop watching, use "__file__" (default) to '
+            "select the current file."
+        ),
+    )
+    col = subp.add_parser("color", help="output color management for tracer.")
+    col.add_argument(
+        "toggle", type=to_bool, help="true/false, y/n, etc. to toggle color usage."
+    )
+    retur
