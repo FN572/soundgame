@@ -216,4 +216,25 @@ def _tracer_create_parser():
     col.add_argument(
         "toggle", type=to_bool, help="true/false, y/n, etc. to toggle color usage."
     )
-    retur
+    return p
+
+
+_TRACER_MAIN_ACTIONS = {
+    "on": _on,
+    "add": _on,
+    "start": _on,
+    "rm": _off,
+    "off": _off,
+    "del": _off,
+    "stop": _off,
+    "color": _color,
+}
+
+
+def tracermain(args=None, stdin=None, stdout=None, stderr=None, spec=None):
+    """Main function for tracer command-line interface."""
+    parser = _tracer_create_parser()
+    ns = parser.parse_args(args)
+    usecolor = (spec.captured not in STDOUT_CAPTURE_KINDS) and sys.stdout.isatty()
+    tracer.color_output(usecolor)
+    return _TRACER_MAIN_ACTIONS[ns.action](ns, args)
