@@ -49,4 +49,30 @@ class TracerType(object):
             self.stop(f)
 
     def color_output(self, usecolor):
-        """Specify whether or not the tracer output shoul
+        """Specify whether or not the tracer output should be colored."""
+        # we have to use a function to set usecolor because of the way that
+        # lazyasd works. Namely, it cannot dispatch setattr to the target
+        # object without being unable to access its own __dict__. This makes
+        # setting an attr look like getting a function.
+        self.usecolor = usecolor
+
+    def start(self, filename):
+        """Starts tracing a file."""
+        files = self.files
+        if len(files) == 0:
+            self.prev_tracer = sys.gettrace()
+        files.add(normabspath(filename))
+        sys.settrace(self.trace)
+        curr = inspect.currentframe()
+        for frame, fname, *_ in getouterframes(curr, context=0):
+            if normabspath(fname) in files:
+                frame.f_trace = self.trace
+
+    def stop(self, filename):
+        """Stops tracing a file."""
+        filename = normabspath(filename)
+        self.files.discard(filename)
+        if len(self.files) == 0:
+            sys.settrace(self.prev_tracer)
+            curr = inspect.currentframe()
+            for frame, fname, 
