@@ -75,4 +75,39 @@ class TracerType(object):
         if len(self.files) == 0:
             sys.settrace(self.prev_tracer)
             curr = inspect.currentframe()
-            for frame, fname, 
+            for frame, fname, *_ in getouterframes(curr, context=0):
+                if normabspath(fname) == filename:
+                    frame.f_trace = self.prev_tracer
+            self.prev_tracer = DefaultNotGiven
+
+    def trace(self, frame, event, arg):
+        """Implements a line tracing function."""
+        if event not in self.valid_events:
+            return self.trace
+        fname = find_file(frame)
+        if fname in self.files:
+            lineno = frame.f_lineno
+            curr = (fname, lineno)
+            if curr != self._last:
+                line = linecache.getline(fname, lineno).rstrip()
+                s = tracer_format_line(
+                    fname,
+                    lineno,
+                    line,
+                    color=self.usecolor,
+                    lexer=self.lexer,
+                    formatter=self.formatter,
+                )
+                print_color(s)
+                self._last = curr
+        return self.trace
+
+
+tracer = LazyObject(TracerType, globals(), "tracer")
+
+COLORLESS_LINE = "{fname}:{lineno}:{line}"
+COLOR_LINE = "{{PURPLE}}{fname}{{BLUE}}:" "{{GREEN}}{lineno}{{BLUE}}:" "{{NO_COLOR}}"
+
+
+def tracer_format_line(fname, lineno, line, color=True, lexer=None, formatter=None):
+   
