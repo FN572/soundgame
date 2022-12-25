@@ -110,4 +110,35 @@ COLOR_LINE = "{{PURPLE}}{fname}{{BLUE}}:" "{{GREEN}}{lineno}{{BLUE}}:" "{{NO_COL
 
 
 def tracer_format_line(fname, lineno, line, color=True, lexer=None, formatter=None):
-   
+    """Formats a trace line suitable for printing."""
+    fname = min(fname, prompt._replace_home(fname), os.path.relpath(fname), key=len)
+    if not color:
+        return COLORLESS_LINE.format(fname=fname, lineno=lineno, line=line)
+    cline = COLOR_LINE.format(fname=fname, lineno=lineno)
+    if not HAS_PYGMENTS:
+        return cline + line
+    # OK, so we have pygments
+    tokens = pyghooks.partial_color_tokenize(cline)
+    lexer = lexer or pyghooks.XonshLexer()
+    tokens += pygments.lex(line, lexer=lexer)
+    if tokens[-1][1] == "\n":
+        del tokens[-1]
+    elif tokens[-1][1].endswith("\n"):
+        tokens[-1] = (tokens[-1][0], tokens[-1][1].rstrip())
+    return tokens
+
+
+#
+# Command line interface
+#
+
+
+def _find_caller(args):
+    """Somewhat hacky method of finding the __file__ based on the line executed."""
+    re_line = re.compile(r"[^;\s|&<>]+\s+" + r"\s+".join(args))
+    curr = inspect.currentframe()
+    for _, fname, lineno, _, lines, _ in getouterframes(curr, context=1)[3:]:
+        if lines is not None and re_line.search(lines[0]) is not None:
+            return fname
+        elif (
+            lineno == 1 and re_line.search(linecache.getline(fname
