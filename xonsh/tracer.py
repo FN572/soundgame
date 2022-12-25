@@ -141,4 +141,46 @@ def _find_caller(args):
         if lines is not None and re_line.search(lines[0]) is not None:
             return fname
         elif (
-            lineno == 1 and re_line.search(linecache.getline(fname
+            lineno == 1 and re_line.search(linecache.getline(fname, lineno)) is not None
+        ):
+            # There is a bug in CPython such that getouterframes(curr, context=1)
+            # will actually return the 2nd line in the code_context field, even though
+            # line number is itself correct. We manually fix that in this branch.
+            return fname
+    else:
+        msg = (
+            "xonsh: warning: __file__ name could not be found. You may be "
+            "trying to trace interactively. Please pass in the file names "
+            "you want to trace explicitly."
+        )
+        print(msg, file=sys.stderr)
+
+
+def _on(ns, args):
+    """Turns on tracing for files."""
+    for f in ns.files:
+        if f == "__file__":
+            f = _find_caller(args)
+        if f is None:
+            continue
+        tracer.start(f)
+
+
+def _off(ns, args):
+    """Turns off tracing for files."""
+    for f in ns.files:
+        if f == "__file__":
+            f = _find_caller(args)
+        if f is None:
+            continue
+        tracer.stop(f)
+
+
+def _color(ns, args):
+    """Manages color action for tracer CLI."""
+    tracer.color_output(ns.toggle)
+
+
+@functools.lru_cache(1)
+def _tracer_create_parser():
+    """Creat
