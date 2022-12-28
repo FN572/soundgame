@@ -148,4 +148,54 @@ def sudo(executable, args=None):
         hwnd=GetActiveWindow(),
         lpVerb=b"runas",
         lpFile=executable.encode("utf-8"),
-        lpParameters=subprocess.list2cmdline(args).
+        lpParameters=subprocess.list2cmdline(args).encode("utf-8"),
+        lpDirectory=None,
+        nShow=SW_SHOW,
+    )
+
+    if not ShellExecuteEx(byref(execute_info)):
+        raise ctypes.WinError()
+
+    wait_and_close_handle(execute_info.hProcess)
+
+
+#
+# The following has been refactored from
+# http://stackoverflow.com/a/37505496/2312428
+#
+
+# input flags
+ENABLE_PROCESSED_INPUT = 0x0001
+ENABLE_LINE_INPUT = 0x0002
+ENABLE_ECHO_INPUT = 0x0004
+ENABLE_WINDOW_INPUT = 0x0008
+ENABLE_MOUSE_INPUT = 0x0010
+ENABLE_INSERT_MODE = 0x0020
+ENABLE_QUICK_EDIT_MODE = 0x0040
+
+# output flags
+ENABLE_PROCESSED_OUTPUT = 0x0001
+ENABLE_WRAP_AT_EOL_OUTPUT = 0x0002
+ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004  # VT100 (Win 10)
+
+
+def check_zero(result, func, args):
+    if not result:
+        err = ctypes.get_last_error()
+        if err:
+            raise ctypes.WinError(err)
+    return args
+
+
+@lazyobject
+def GetStdHandle():
+    return lazyimps._winapi.GetStdHandle
+
+
+@lazyobject
+def STDHANDLES():
+    """Tuple of the Windows handles for (stdin, stdout, stderr)."""
+    hs = [
+        lazyimps._winapi.STD_INPUT_HANDLE,
+        lazyimps._winapi.STD_OUTPUT_HANDLE,
+        lazyimps._winapi.STD_ERROR_HAN
