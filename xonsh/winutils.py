@@ -10,4 +10,51 @@ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
 
-The above copyright notice and this permission notice shall be includ
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+import os
+import ctypes
+import subprocess
+from ctypes import c_ulong, c_char_p, c_int, c_void_p, POINTER, byref
+from ctypes.wintypes import (
+    HANDLE,
+    BOOL,
+    DWORD,
+    HWND,
+    HINSTANCE,
+    HKEY,
+    LPDWORD,
+    SHORT,
+    LPCWSTR,
+    WORD,
+    SMALL_RECT,
+    LPCSTR,
+)
+
+from xonsh.lazyasd import lazyobject
+from xonsh import lazyimps  # we aren't amalgamated in this module.
+from xonsh import platform
+
+
+__all__ = ("sudo",)
+
+
+@lazyobject
+def CloseHandle():
+    ch = ctypes.windll.kernel32.CloseHandle
+    ch.argtypes = (HANDLE,)
+    ch.restype = BOOL
+    return ch
+
+
+@lazyobject
+def GetActiveWindow():
+    gaw = ctypes.windll.u
