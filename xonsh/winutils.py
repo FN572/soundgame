@@ -103,4 +103,49 @@ def ShellExecuteEx():
 
 @lazyobject
 def WaitForSingleObject():
-    wfso = ctypes
+    wfso = ctypes.windll.kernel32.WaitForSingleObject
+    wfso.argtypes = (HANDLE, DWORD)
+    wfso.restype = DWORD
+    return wfso
+
+
+# SW_HIDE = 0
+SW_SHOW = 5
+SEE_MASK_NOCLOSEPROCESS = 0x00000040
+SEE_MASK_NO_CONSOLE = 0x00008000
+INFINITE = -1
+
+
+def wait_and_close_handle(process_handle):
+    """
+    Waits till spawned process finishes and closes the handle for it
+
+    Parameters
+    ----------
+    process_handle : HANDLE
+        The Windows handle for the process
+    """
+    WaitForSingleObject(process_handle, INFINITE)
+    CloseHandle(process_handle)
+
+
+def sudo(executable, args=None):
+    """
+    This will re-run current Python script requesting to elevate administrative rights.
+
+    Parameters
+    ----------
+    param executable : str
+        The path/name of the executable
+    args : list of str
+        The arguments to be passed to the executable
+    """
+    if not args:
+        args = []
+
+    execute_info = ShellExecuteInfo(
+        fMask=SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NO_CONSOLE,
+        hwnd=GetActiveWindow(),
+        lpVerb=b"runas",
+        lpFile=executable.encode("utf-8"),
+        lpParameters=subprocess.list2cmdline(args).
