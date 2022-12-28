@@ -57,4 +57,50 @@ def CloseHandle():
 
 @lazyobject
 def GetActiveWindow():
-    gaw = ctypes.windll.u
+    gaw = ctypes.windll.user32.GetActiveWindow
+    gaw.argtypes = ()
+    gaw.restype = HANDLE
+    return gaw
+
+
+TOKEN_READ = 0x20008
+
+
+class ShellExecuteInfo(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", DWORD),
+        ("fMask", c_ulong),
+        ("hwnd", HWND),
+        ("lpVerb", c_char_p),
+        ("lpFile", c_char_p),
+        ("lpParameters", c_char_p),
+        ("lpDirectory", c_char_p),
+        ("nShow", c_int),
+        ("hInstApp", HINSTANCE),
+        ("lpIDList", c_void_p),
+        ("lpClass", c_char_p),
+        ("hKeyClass", HKEY),
+        ("dwHotKey", DWORD),
+        ("hIcon", HANDLE),
+        ("hProcess", HANDLE),
+    ]
+
+    def __init__(self, **kw):
+        ctypes.Structure.__init__(self)
+        self.cbSize = ctypes.sizeof(self)
+        for field_name, field_value in kw.items():
+            setattr(self, field_name, field_value)
+
+
+@lazyobject
+def ShellExecuteEx():
+    see = ctypes.windll.Shell32.ShellExecuteExA
+    PShellExecuteInfo = ctypes.POINTER(ShellExecuteInfo)
+    see.argtypes = (PShellExecuteInfo,)
+    see.restype = BOOL
+    return see
+
+
+@lazyobject
+def WaitForSingleObject():
+    wfso = ctypes
