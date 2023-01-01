@@ -198,4 +198,49 @@ def STDHANDLES():
     hs = [
         lazyimps._winapi.STD_INPUT_HANDLE,
         lazyimps._winapi.STD_OUTPUT_HANDLE,
-        lazyimps._winapi.STD_ERROR_HAN
+        lazyimps._winapi.STD_ERROR_HANDLE,
+    ]
+    hcons = []
+    for h in hs:
+        hcon = GetStdHandle(int(h))
+        hcons.append(hcon)
+    return tuple(hcons)
+
+
+@lazyobject
+def GetConsoleMode():
+    gcm = ctypes.windll.kernel32.GetConsoleMode
+    gcm.errcheck = check_zero
+    gcm.argtypes = (HANDLE, LPDWORD)  # _In_  hConsoleHandle  # _Out_ lpMode
+    return gcm
+
+
+def get_console_mode(fd=1):
+    """Get the mode of the active console input, output, or error
+    buffer. Note that if the process isn't attached to a
+    console, this function raises an EBADF IOError.
+
+    Parameters
+    ----------
+    fd : int
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr
+    """
+    mode = DWORD()
+    hcon = STDHANDLES[fd]
+    GetConsoleMode(hcon, byref(mode))
+    return mode.value
+
+
+@lazyobject
+def SetConsoleMode():
+    scm = ctypes.windll.kernel32.SetConsoleMode
+    scm.errcheck = check_zero
+    scm.argtypes = (HANDLE, DWORD)  # _In_  hConsoleHandle  # _Out_ lpMode
+    return scm
+
+
+def set_console_mode(mode, fd=1):
+    """Set the mode of the active console input, output, or
+    error buffer. Note that if the process isn't attached to a
+    console, this function
