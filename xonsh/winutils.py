@@ -407,4 +407,53 @@ def CONSOLE_SCREEN_BUFFER_INFO():
         srWindow : SMALL_RECT
             Actual size of screen
         dwMaximumWindowSize : COORD
-            Maximum window s
+            Maximum window scrollback size.
+        """
+
+        _fields_ = [
+            ("dwSize", COORD),
+            ("dwCursorPosition", COORD),
+            ("wAttributes", WORD),
+            ("srWindow", SMALL_RECT),
+            ("dwMaximumWindowSize", COORD),
+        ]
+
+    return _CONSOLE_SCREEN_BUFFER_INFO
+
+
+@lazyobject
+def GetConsoleScreenBufferInfo():
+    """Returns the windows version of the get screen buffer."""
+    gcsbi = ctypes.windll.kernel32.GetConsoleScreenBufferInfo
+    gcsbi.errcheck = check_zero
+    gcsbi.argtypes = (HANDLE, POINTER(CONSOLE_SCREEN_BUFFER_INFO))
+    gcsbi.restype = BOOL
+    return gcsbi
+
+
+def get_console_screen_buffer_info(fd=1):
+    """Returns an screen buffer info object for the relevant stdbuf.
+
+    Parameters
+    ----------
+    fd : int, optional
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr.
+
+    Returns
+    -------
+    csbi : CONSOLE_SCREEN_BUFFER_INFO
+        Information about the console screen buffer.
+    """
+    hcon = STDHANDLES[fd]
+    csbi = CONSOLE_SCREEN_BUFFER_INFO()
+    GetConsoleScreenBufferInfo(hcon, byref(csbi))
+    return csbi
+
+
+#
+# end colorama forked section
+#
+
+
+def get
