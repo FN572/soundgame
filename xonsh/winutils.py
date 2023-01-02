@@ -286,4 +286,49 @@ def COORD():
             Row position
         """
 
-        _fie
+        _fields_ = [("X", SHORT), ("Y", SHORT)]
+
+    return _COORD
+
+
+@lazyobject
+def ReadConsoleOutputCharacterA():
+    rcoc = ctypes.windll.kernel32.ReadConsoleOutputCharacterA
+    rcoc.errcheck = check_zero
+    rcoc.argtypes = (
+        HANDLE,  # _In_  hConsoleOutput
+        LPCSTR,  # _Out_ LPTSTR lpMode
+        DWORD,  # _In_  nLength
+        COORD,  # _In_  dwReadCoord,
+        LPDWORD,
+    )  # _Out_ lpNumberOfCharsRead
+    rcoc.restype = BOOL
+    return rcoc
+
+
+@lazyobject
+def ReadConsoleOutputCharacterW():
+    rcoc = ctypes.windll.kernel32.ReadConsoleOutputCharacterW
+    rcoc.errcheck = check_zero
+    rcoc.argtypes = (
+        HANDLE,  # _In_  hConsoleOutput
+        LPCWSTR,  # _Out_ LPTSTR lpMode
+        DWORD,  # _In_  nLength
+        COORD,  # _In_  dwReadCoord,
+        LPDWORD,
+    )  # _Out_ lpNumberOfCharsRead
+    rcoc.restype = BOOL
+    return rcoc
+
+
+def read_console_output_character(x=0, y=0, fd=1, buf=None, bufsize=1024, raw=False):
+    """Reads characters from the console buffer.
+
+    Parameters
+    ----------
+    x : int, optional
+        Starting column.
+    y : int, optional
+        Starting row.
+    fd : int, optional
+        Standard buffer fi
