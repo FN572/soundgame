@@ -243,4 +243,47 @@ def SetConsoleMode():
 def set_console_mode(mode, fd=1):
     """Set the mode of the active console input, output, or
     error buffer. Note that if the process isn't attached to a
-    console, this function
+    console, this function raises an EBADF IOError.
+
+    Parameters
+    ----------
+    mode : int
+        Mode flags to set on the handle.
+    fd : int, optional
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr
+    """
+    hcon = STDHANDLES[fd]
+    SetConsoleMode(hcon, mode)
+
+
+def enable_virtual_terminal_processing():
+    """Enables virtual terminal processing on Windows.
+    This includes ANSI escape sequence interpretation.
+    See http://stackoverflow.com/a/36760881/2312428
+    """
+    SetConsoleMode(GetStdHandle(-11), 7)
+
+
+@lazyobject
+def COORD():
+    if platform.has_prompt_toolkit():
+        # turns out that PTK has a separate ctype wrapper
+        # for this struct and also wraps similar function calls
+        # we need to use the same struct to prevent clashes.
+        import prompt_toolkit.win32_types
+
+        return prompt_toolkit.win32_types.COORD
+
+    class _COORD(ctypes.Structure):
+        """Struct from the winapi, representing coordinates in the console.
+
+        Attributes
+        ----------
+        X : int
+            Column position
+        Y : int
+            Row position
+        """
+
+        _fie
