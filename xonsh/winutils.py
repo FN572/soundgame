@@ -331,4 +331,41 @@ def read_console_output_character(x=0, y=0, fd=1, buf=None, bufsize=1024, raw=Fa
     y : int, optional
         Starting row.
     fd : int, optional
-        Standard buffer fi
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr.
+    buf : ctypes.c_wchar_p if raw else ctypes.c_wchar_p, optional
+        An existing buffer to (re-)use.
+    bufsize : int, optional
+        The maximum read size.
+    raw : bool, optional
+        Whether to read in and return as bytes (True) or as a
+        unicode string (False, default).
+
+    Returns
+    -------
+    value : str
+        Result of what was read, may be shorter than bufsize.
+    """
+    hcon = STDHANDLES[fd]
+    if buf is None:
+        if raw:
+            buf = ctypes.c_char_p(b" " * bufsize)
+        else:
+            buf = ctypes.c_wchar_p(" " * bufsize)
+    coord = COORD(x, y)
+    n = DWORD()
+    if raw:
+        ReadConsoleOutputCharacterA(hcon, buf, bufsize, coord, byref(n))
+    else:
+        ReadConsoleOutputCharacterW(hcon, buf, bufsize, coord, byref(n))
+    return buf.value[: n.value]
+
+
+def pread_console(fd, buffersize, offset, buf=None):
+    """This is a console-based implementation of os.pread() for windows.
+    that uses read_console_output_character().
+    """
+    cols, rows = os.get_terminal_size(fd=fd)
+    x = offset % cols
+    y = offset // cols
+    return read_conso
