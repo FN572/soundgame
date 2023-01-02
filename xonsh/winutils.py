@@ -495,4 +495,55 @@ def SetConsoleScreenBufferSize():
 
 
 def set_console_screen_buffer_size(x, y, fd=1):
-    """Sets the console size for a sta
+    """Sets the console size for a standard buffer.
+
+    Parameters
+    ----------
+    x : int
+        Number of columns.
+    y : int
+        Number of rows.
+    fd : int, optional
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr.
+    """
+    coord = COORD()
+    coord.X = x
+    coord.Y = y
+    hcon = STDHANDLES[fd]
+    rtn = SetConsoleScreenBufferSize(hcon, coord)
+    return rtn
+
+
+@lazyobject
+def SetConsoleCursorPosition():
+    """Set cursor position in console."""
+    sccp = ctypes.windll.kernel32.SetConsoleCursorPosition
+    sccp.errcheck = check_zero
+    sccp.argtypes = (
+        HANDLE,  # _In_ HANDLE hConsoleOutput
+        COORD,  # _In_ COORD  dwCursorPosition
+    )
+    sccp.restype = BOOL
+    return sccp
+
+
+def set_console_cursor_position(x, y, fd=1):
+    """Sets the console cursor position for a standard buffer.
+
+    Parameters
+    ----------
+    x : int
+        Number of columns.
+    y : int
+        Number of rows.
+    fd : int, optional
+        Standard buffer file descriptor, 0 for stdin, 1 for stdout (default),
+        and 2 for stderr.
+    """
+    coord = COORD()
+    coord.X = x
+    coord.Y = y
+    hcon = STDHANDLES[fd]
+    rtn = SetConsoleCursorPosition(hcon, coord)
+    return
