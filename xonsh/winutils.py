@@ -368,4 +368,43 @@ def pread_console(fd, buffersize, offset, buf=None):
     cols, rows = os.get_terminal_size(fd=fd)
     x = offset % cols
     y = offset // cols
-    return read_conso
+    return read_console_output_character(
+        x=x, y=y, fd=fd, buf=buf, bufsize=buffersize, raw=True
+    )
+
+
+#
+# The following piece has been forked from colorama.win32
+# Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.
+#
+
+
+@lazyobject
+def CONSOLE_SCREEN_BUFFER_INFO():
+    if platform.has_prompt_toolkit():
+        # turns out that PTK has a separate ctype wrapper
+        # for this struct and also wraps kernel32.GetConsoleScreenBufferInfo
+        # we need to use the same struct to prevent clashes.
+        import prompt_toolkit.win32_types
+
+        return prompt_toolkit.win32_types.CONSOLE_SCREEN_BUFFER_INFO
+
+    # Otherwise we should wrap it ourselves
+    COORD()  # force COORD to load
+
+    class _CONSOLE_SCREEN_BUFFER_INFO(ctypes.Structure):
+        """Struct from in wincon.h. See Windows API docs
+        for more details.
+
+        Attributes
+        ----------
+        dwSize : COORD
+            Size of
+        dwCursorPosition : COORD
+            Current cursor location.
+        wAttributes : WORD
+            Flags for screen buffer.
+        srWindow : SMALL_RECT
+            Actual size of screen
+        dwMaximumWindowSize : COORD
+            Maximum window s
