@@ -456,4 +456,43 @@ def get_console_screen_buffer_info(fd=1):
 #
 
 
-def get
+def get_cursor_position(fd=1):
+    """Gets the current cursor position as an (x, y) tuple."""
+    csbi = get_console_screen_buffer_info(fd=fd)
+    coord = csbi.dwCursorPosition
+    return (coord.X, coord.Y)
+
+
+def get_cursor_offset(fd=1):
+    """Gets the current cursor position as a total offset value."""
+    csbi = get_console_screen_buffer_info(fd=fd)
+    pos = csbi.dwCursorPosition
+    size = csbi.dwSize
+    return (pos.Y * size.X) + pos.X
+
+
+def get_position_size(fd=1):
+    """Gets the current cursor position and screen size tuple:
+    (x, y, columns, lines).
+    """
+    info = get_console_screen_buffer_info(fd)
+    return (
+        info.dwCursorPosition.X,
+        info.dwCursorPosition.Y,
+        info.dwSize.X,
+        info.dwSize.Y,
+    )
+
+
+@lazyobject
+def SetConsoleScreenBufferSize():
+    """Set screen buffer dimensions."""
+    scsbs = ctypes.windll.kernel32.SetConsoleScreenBufferSize
+    scsbs.errcheck = check_zero
+    scsbs.argtypes = (HANDLE, COORD)  # _In_ HANDLE hConsoleOutput  # _In_ COORD  dwSize
+    scsbs.restype = BOOL
+    return scsbs
+
+
+def set_console_screen_buffer_size(x, y, fd=1):
+    """Sets the console size for a sta
