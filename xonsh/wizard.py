@@ -53,4 +53,47 @@ class Message(Node):
 
 
 class Question(Node):
-    """Asks a question and then chooses the next node based on th
+    """Asks a question and then chooses the next node based on the response.
+    """
+
+    attrs = ("question", "responses", "converter", "path")
+
+    def __init__(self, question, responses, converter=None, path=None):
+        """
+        Parameters
+        ----------
+        question : str
+            The question itself.
+        responses : dict with str keys and Node values
+            Mapping from user-input responses to nodes.
+        converter : callable, optional
+            Converts the string the user typed into another object
+            that serves as a key to the responses dict.
+        path : str or sequence of str, optional
+            A path within the storage object.
+        """
+        self.question = question
+        self.responses = responses
+        self.converter = converter
+        self.path = path
+
+
+class Input(Node):
+    """Gets input from the user."""
+
+    attrs = ("prompt", "converter", "show_conversion", "confirm", "path")
+
+    def __init__(
+        self,
+        prompt=">>> ",
+        converter=None,
+        show_conversion=False,
+        confirm=False,
+        retry=False,
+        path=None,
+    ):
+        """
+        Parameters
+        ----------
+        prompt : str, optional
+            Prompt 
