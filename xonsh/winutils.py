@@ -546,4 +546,4 @@ def set_console_cursor_position(x, y, fd=1):
     coord.Y = y
     hcon = STDHANDLES[fd]
     rtn = SetConsoleCursorPosition(hcon, coord)
-    return
+    return rtn
