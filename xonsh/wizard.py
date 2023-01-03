@@ -96,4 +96,32 @@ class Input(Node):
         Parameters
         ----------
         prompt : str, optional
-            Prompt 
+            Prompt string prior to input
+        converter : callable, optional
+            Converts the string the user typed into another object
+            prior to storage.
+        show_conversion : bool, optional
+            Flag for whether or not to show the results of the conversion
+            function if the conversion function was meaningfully executed.
+            Default False.
+        confirm : bool, optional
+            Whether the input should be confirmed until true or broken,
+            default False.
+        retry : bool, optional
+            In the event that the conversion operation fails, should
+            users be re-prompted until they provide valid input. Default False.
+        path : str or sequence of str, optional
+            A path within the storage object.
+        """
+        self.prompt = prompt
+        self.converter = converter
+        self.show_conversion = show_conversion
+        self.confirm = confirm
+        self.retry = retry
+        self.path = path
+
+
+class While(Node):
+    """Computes a body while a condition function evaluates to true.
+
+    The condition functio
