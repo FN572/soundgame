@@ -124,4 +124,32 @@ class Input(Node):
 class While(Node):
     """Computes a body while a condition function evaluates to true.
 
-    The condition functio
+    The condition function has the form ``cond(visitor=None, node=None)`` and
+    must return an object that responds to the Python magic method ``__bool__``.
+    The beg attribute specifies the number to start the loop iteration at.
+    """
+
+    attrs = ("cond", "body", "idxname", "beg", "path")
+
+    def __init__(self, cond, body, idxname="idx", beg=0, path=None):
+        """
+        Parameters
+        ----------
+        cond : callable
+            Function that determines if the next loop iteration should
+            be executed.
+        body : sequence of nodes
+            A list of node to execute on each iteration. The condition function
+            has the form ``cond(visitor=None, node=None)`` and must return an
+            object that responds to the Python magic method ``__bool__``.
+        idxname : str, optional
+            The variable name for the index.
+        beg : int, optional
+            The first index value when evaluating path format strings.
+        path : str or sequence of str, optional
+            A path within the storage object.
+        """
+        self.cond = cond
+        self.body = body
+        self.idxname = idxname
+        self
