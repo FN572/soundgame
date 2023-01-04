@@ -197,4 +197,46 @@ class TrueFalse(Input):
 class TrueFalseBreak(Input):
     """Input node the returns a True, False, or 'break' value."""
 
-    def __init_
+    def __init__(self, prompt="yes, no, or break [default: no]? ", path=None):
+        super().__init__(
+            prompt=prompt,
+            converter=to_bool_or_break,
+            show_conversion=False,
+            confirm=False,
+            path=path,
+        )
+
+
+class StoreNonEmpty(Input):
+    """Stores the user input only if the input was not an empty string.
+    This works by wrapping the converter function.
+    """
+
+    def __init__(
+        self,
+        prompt=">>> ",
+        converter=None,
+        show_conversion=False,
+        confirm=False,
+        retry=False,
+        path=None,
+        store_raw=False,
+    ):
+        def nonempty_converter(x):
+            """Converts non-empty values and converts empty inputs to
+            Unstorable.
+            """
+            if len(x) == 0:
+                x = Unstorable
+            elif converter is None:
+                pass
+            elif store_raw:
+                converter(x)  # make sure str is valid, even if storing raw
+            else:
+                x = converter(x)
+            return x
+
+        super().__init__(
+            prompt=prompt,
+            converter=nonempty_converter,
+   
