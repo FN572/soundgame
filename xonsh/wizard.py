@@ -239,4 +239,36 @@ class StoreNonEmpty(Input):
         super().__init__(
             prompt=prompt,
             converter=nonempty_converter,
-   
+            show_conversion=show_conversion,
+            confirm=confirm,
+            path=path,
+            retry=retry,
+        )
+
+
+class StateFile(Input):
+    """Node for representing the state as a file under a default or user
+    given file name. This node type is likely not useful on its own.
+    """
+
+    attrs = ("default_file", "check", "ask_filename")
+
+    def __init__(self, default_file=None, check=True, ask_filename=True):
+        """
+        Parameters
+        ----------
+        default_file : str, optional
+            The default filename to save the file as.
+        check : bool, optional
+            Whether to print the current state and ask if it should be
+            saved/loaded prior to asking for the file name and saving the
+            file, default=True.
+        ask_filename : bool, optional
+            Whether to ask for the filename (if ``False``, always use the
+            default filename)
+        """
+        self._df = None
+        super().__init__(prompt="filename: ", converter=None, confirm=False, path=None)
+        self.ask_filename = ask_filename
+        self.default_file = default_file
+       
