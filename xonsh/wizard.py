@@ -152,4 +152,49 @@ class While(Node):
         self.cond = cond
         self.body = body
         self.idxname = idxname
-        self
+        self.beg = beg
+        self.path = path
+
+
+#
+# Helper nodes
+#
+
+
+class YesNo(Question):
+    """Represents a simple yes/no question."""
+
+    def __init__(self, question, yes, no, path=None):
+        """
+        Parameters
+        ----------
+        question : str
+            The question itself.
+        yes : Node
+            Node to execute if the response is True.
+        no : Node
+            Node to execute if the response is False.
+        path : str or sequence of str, optional
+            A path within the storage object.
+        """
+        responses = {True: yes, False: no}
+        super().__init__(question, responses, converter=to_bool, path=path)
+
+
+class TrueFalse(Input):
+    """Input node the returns a True or False value."""
+
+    def __init__(self, prompt="yes or no [default: no]? ", path=None):
+        super().__init__(
+            prompt=prompt,
+            converter=to_bool,
+            show_conversion=False,
+            confirm=False,
+            path=path,
+        )
+
+
+class TrueFalseBreak(Input):
+    """Input node the returns a True, False, or 'break' value."""
+
+    def __init_
