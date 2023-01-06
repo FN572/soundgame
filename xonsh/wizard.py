@@ -271,4 +271,52 @@ class StateFile(Input):
         super().__init__(prompt="filename: ", converter=None, confirm=False, path=None)
         self.ask_filename = ask_filename
         self.default_file = default_file
-       
+        self.check = check
+
+    @property
+    def default_file(self):
+        return self._df
+
+    @default_file.setter
+    def default_file(self, val):
+        self._df = val
+        if val is None:
+            self.prompt = "filename: "
+        else:
+            self.prompt = "filename [default={0!r}]: ".format(val)
+
+
+class SaveJSON(StateFile):
+    """Node for saving the state as a JSON file under a default or user
+    given file name.
+    """
+
+
+class LoadJSON(StateFile):
+    """Node for loading the state as a JSON file under a default or user
+    given file name.
+    """
+
+
+class FileInserter(StateFile):
+    """Node for inserting the state into a file in between a prefix and suffix.
+    The state is converted according to some dumper rules.
+    """
+
+    attrs = ("prefix", "suffix", "dump_rules", "default_file", "check", "ask_filename")
+
+    def __init__(
+        self,
+        prefix,
+        suffix,
+        dump_rules,
+        default_file=None,
+        check=True,
+        ask_filename=True,
+    ):
+        """
+        Parameters
+        ----------
+        prefix : str
+            Starting unique string in file to find and begin the insertion at,
+           
