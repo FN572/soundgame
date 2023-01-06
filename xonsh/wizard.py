@@ -343,4 +343,39 @@ class FileInserter(StateFile):
         default_file : str, optional
             The default filename to save the file as.
         check : bool, optional
-            Wheth
+            Whether to print the current state and ask if it should be
+            saved/loaded prior to asking for the file name and saving the
+            file, default=True.
+        ask_filename : bool, optional
+            Whether to ask for the filename (if ``False``, always use the
+            default filename)
+        """
+        self._dr = None
+        super().__init__(
+            default_file=default_file, check=check, ask_filename=ask_filename
+        )
+        self.prefix = prefix
+        self.suffix = suffix
+        self.dump_rules = self.string_rules = dump_rules
+
+    @property
+    def dump_rules(self):
+        return self._dr
+
+    @dump_rules.setter
+    def dump_rules(self, value):
+        dr = {}
+        for key, func in value.items():
+            key_trans = fnmatch.translate(key)
+            r = re.compile(key_trans)
+            dr[r] = func
+        self._dr = dr
+
+    @staticmethod
+    def _find_rule_key(x):
+        """Key function for sorting regular expression rules"""
+        return (x[0], len(x[1].pattern))
+
+    def find_rule(self, path):
+        """For a path, find the key and conversion function that should be used to
+       
