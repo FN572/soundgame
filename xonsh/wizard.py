@@ -319,4 +319,28 @@ class FileInserter(StateFile):
         ----------
         prefix : str
             Starting unique string in file to find and begin the insertion at,
-           
+            e.g. '# XONSH WIZARD START\n'
+        suffix : str
+            Ending unique string to find in the file and end the replacement at,
+            e.g. '\n# XONSH WIZARD END'
+        dump_rules : dict of strs to functions
+            This is a dictionary that maps the path-like match strings to functions
+            that take the flat path and the value as arguments and convert the state
+            value at a path to a string. The keys here may use wildcards (as seen in
+            the standard library fnmatch module). For example::
+
+                dump_rules = {
+                    '/path/to/exact': lambda path, x: str(x),
+                    '/otherpath/*': lambda path, x: x,
+                    '*ending': lambda path x: repr(x),
+                    '/': None,
+                    }
+
+            If a wildcard is not used in a path, then that rule will be used
+            used on an exact match. If wildcards are used, the deepest and longest
+            match is used.  If None is given instead of a the function, it means to
+            skip generating that key.
+        default_file : str, optional
+            The default filename to save the file as.
+        check : bool, optional
+            Wheth
