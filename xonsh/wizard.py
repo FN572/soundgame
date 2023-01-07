@@ -378,4 +378,39 @@ class FileInserter(StateFile):
 
     def find_rule(self, path):
         """For a path, find the key and conversion function that should be used to
-       
+        dump a value.
+        """
+        if path in self.string_rules:
+            return path, self.string_rules[path]
+        len_funcs = []
+        for rule, func in self.dump_rules.items():
+            m = rule.match(path)
+            if m is None:
+                continue
+            i, j = m.span()
+            len_funcs.append((j - i, rule, func))
+        if len(len_funcs) == 0:
+            # No dump rule function for path
+            return path, None
+        len_funcs.sort(reverse=True, key=self._find_rule_key)
+        _, rule, func = len_funcs[0]
+        return rule, func
+
+    def dumps(self, flat):
+        """Dumps a flat mapping of (string path keys, values) pairs and returns
+        a formatted string.
+        """
+        lines = [self.prefix]
+        for path, value in sorted(flat.items()):
+            rule, func = self.find_rule(path)
+            if func is None:
+                continue
+            line = func(path, value)
+            lines.append(line)
+        lines.append(self.suffix)
+        new = "\n".join(lines) + "\n"
+        return new
+
+
+def create_truefalse_cond(prompt="yes or no [default: no]? ", path=None):
+    """This creates a basic condition function
