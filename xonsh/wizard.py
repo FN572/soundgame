@@ -546,4 +546,42 @@ class PrettyFormatter(Visitor):
     def visit_statefile(self, node):
         s = "{0}(default_file={1!r}, check={2}, ask_filename={3})"
         s = s.format(
-            node.__class__.__name__, node.default_file, node.check, node.ask_f
+            node.__class__.__name__, node.default_file, node.check, node.ask_filename
+        )
+        return s
+
+    def visit_while(self, node):
+        s = "{0}(cond={1!r}".format(node.__class__.__name__, node.cond)
+        s += ",\n" + self.indent + "body=["
+        if len(node.body) > 0:
+            s += "\n"
+            self.level += 1
+            s += textwrap.indent(",\n".join(map(self.visit, node.body)), self.indent)
+            self.level -= 1
+            s += "\n" + self.indent
+        s += "]"
+        s += ",\n" + self.indent + "idxname={0!r}".format(node.idxname)
+        s += ",\n" + self.indent + "beg={0!r}".format(node.beg)
+        if node.path is not None:
+            s += ",\n" + self.indent + "path={0!r}".format(node.path)
+        s += "\n)"
+        return s
+
+
+def ensure_str_or_int(x):
+    """Creates a string or int."""
+    if isinstance(x, int):
+        return x
+    x = x if isinstance(x, str) else str(x)
+    try:
+        x = ast.literal_eval(x)
+    except (ValueError, SyntaxError):
+        pass
+    if not isinstance(x, (int, str)):
+        msg = "{0!r} could not be converted to int or str".format(x)
+        raise ValueError(msg)
+    return x
+
+
+def canon_path(path, indices=None):
+ 
