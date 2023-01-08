@@ -522,4 +522,28 @@ class PrettyFormatter(Visitor):
             s += textwrap.indent(",\n".join(t), 2 * self.indent)
             s += "\n" + self.indent + "}"
         if node.converter is not None:
-            s += ",\n" 
+            s += ",\n" + self.indent + "converter={0!r}".format(node.converter)
+        if node.path is not None:
+            s += ",\n" + self.indent + "path={0!r}".format(node.path)
+        self.level -= 1
+        s += "\n)"
+        return s
+
+    def visit_input(self, node):
+        s = "{0}(prompt={1!r}".format(node.__class__.__name__, node.prompt)
+        if node.converter is None and node.path is None:
+            return s + "\n)"
+        if node.converter is not None:
+            s += ",\n" + self.indent + "converter={0!r}".format(node.converter)
+        s += ",\n" + self.indent + "show_conversion={0!r}".format(node.show_conversion)
+        s += ",\n" + self.indent + "confirm={0!r}".format(node.confirm)
+        s += ",\n" + self.indent + "retry={0!r}".format(node.retry)
+        if node.path is not None:
+            s += ",\n" + self.indent + "path={0!r}".format(node.path)
+        s += "\n)"
+        return s
+
+    def visit_statefile(self, node):
+        s = "{0}(default_file={1!r}, check={2}, ask_filename={3})"
+        s = s.format(
+            node.__class__.__name__, node.default_file, node.check, node.ask_f
