@@ -584,4 +584,38 @@ def ensure_str_or_int(x):
 
 
 def canon_path(path, indices=None):
- 
+    """Returns the canonical form of a path, which is a tuple of str or ints.
+    Indices may be optionally passed in.
+    """
+    if not isinstance(path, str):
+        return tuple(map(ensure_str_or_int, path))
+    if indices is not None:
+        path = path.format(**indices)
+    path = path[1:] if path.startswith("/") else path
+    path = path[:-1] if path.endswith("/") else path
+    if len(path) == 0:
+        return ()
+    return tuple(map(ensure_str_or_int, path.split("/")))
+
+
+class UnstorableType(object):
+    """Represents an unstorable return value for when no input was given
+    or such input was skipped. Typically represented by the Unstorable
+    singleton.
+    """
+
+    _inst = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._inst is None:
+            cls._inst = super(UnstorableType, cls).__new__(cls, *args, **kwargs)
+        return cls._inst
+
+
+Unstorable = UnstorableType()
+
+
+class StateVisitor(Visitor):
+    """This class visits the nodes and stores the results in a top-level
+    dict of data according to the state path of the node. The the node
+    does not hav
