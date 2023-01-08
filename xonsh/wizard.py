@@ -618,4 +618,33 @@ Unstorable = UnstorableType()
 class StateVisitor(Visitor):
     """This class visits the nodes and stores the results in a top-level
     dict of data according to the state path of the node. The the node
-    does not hav
+    does not have a path or the path does not exist, the storage is skipped.
+    This class can be optionally initialized with an existing state.
+    """
+
+    def __init__(self, tree=None, state=None, indices=None):
+        super().__init__(tree=tree)
+        self.state = {} if state is None else state
+        self.indices = {} if indices is None else indices
+
+    def visit(self, node=None):
+        if node is None:
+            node = self.tree
+        if node is None:
+            raise RuntimeError("no node or tree given!")
+        rtn = super().visit(node)
+        path = getattr(node, "path", None)
+        if callable(path):
+            path = path(visitor=self, node=node, val=rtn)
+        if path is not None and rtn is not Unstorable:
+            self.store(path, rtn, indices=self.indices)
+        return rtn
+
+    def store(self, path, val, indices=None):
+        """Stores a value at the path location."""
+        path = canon_path(path, indices=indices)
+        loc = self.state
+        for p, n in zip(path[:-1], path[1:]):
+            if isinstance(p, str) and p not in loc:
+                loc[p] = {} if isinstance(n, str) else []
+            elif isinstance(p, int)
