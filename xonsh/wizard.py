@@ -454,4 +454,40 @@ class Visitor(object):
         for clsname in map(_lowername, type.mro(node.__class__)):
             meth = getattr(self, "visit_" + clsname, None)
             if callable(meth):
-       
+                rtn = meth(node)
+                break
+        else:
+            msg = "could not find valid visitor method for {0} on {1}"
+            nodename = node.__class__.__name__
+            selfname = self.__class__.__name__
+            raise AttributeError(msg.format(nodename, selfname))
+        return rtn
+
+
+class PrettyFormatter(Visitor):
+    """Formats a tree of nodes into a pretty string"""
+
+    def __init__(self, tree=None, indent=" "):
+        super().__init__(tree=tree)
+        self.level = 0
+        self.indent = indent
+
+    def visit_node(self, node):
+        s = node.__class__.__name__ + "("
+        if len(node.attrs) == 0:
+            return s + ")"
+        s += "\n"
+        self.level += 1
+        t = []
+        for aname in node.attrs:
+            a = getattr(node, aname)
+            t.append(self.visit(a) if isinstance(a, Node) else pprint.pformat(a))
+        t = ["{0}={1}".format(n, x) for n, x in zip(node.attrs, t)]
+        s += textwrap.indent(",\n".join(t), self.indent)
+        self.level -= 1
+        s += "\n)"
+        return s
+
+    def visit_wizard(self, node):
+        s = "Wizard(children=["
+        if len(no
