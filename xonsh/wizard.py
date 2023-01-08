@@ -490,4 +490,36 @@ class PrettyFormatter(Visitor):
 
     def visit_wizard(self, node):
         s = "Wizard(children=["
-        if len(no
+        if len(node.children) == 0:
+            if node.path is None:
+                return s + "])"
+            else:
+                return s + "], path={0!r})".format(node.path)
+        s += "\n"
+        self.level += 1
+        s += textwrap.indent(",\n".join(map(self.visit, node.children)), self.indent)
+        self.level -= 1
+        if node.path is None:
+            s += "\n])"
+        else:
+            s += "{0}],\n{0}path={1!r}\n)".format(self.indent, node.path)
+        return s
+
+    def visit_message(self, node):
+        return "Message({0!r})".format(node.message)
+
+    def visit_question(self, node):
+        s = node.__class__.__name__ + "(\n"
+        self.level += 1
+        s += self.indent + "question={0!r},\n".format(node.question)
+        s += self.indent + "responses={"
+        if len(node.responses) == 0:
+            s += "}"
+        else:
+            s += "\n"
+            t = sorted(node.responses.items())
+            t = ["{0!r}: {1}".format(k, self.visit(v)) for k, v in t]
+            s += textwrap.indent(",\n".join(t), 2 * self.indent)
+            s += "\n" + self.indent + "}"
+        if node.converter is not None:
+            s += ",\n" 
