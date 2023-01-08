@@ -413,4 +413,45 @@ class FileInserter(StateFile):
 
 
 def create_truefalse_cond(prompt="yes or no [default: no]? ", path=None):
-    """This creates a basic condition function
+    """This creates a basic condition function for use with nodes like While
+    or other conditions. The condition function creates and visits a TrueFalse
+    node and returns the result. This TrueFalse node takes the prompt and
+    path that is passed in here.
+    """
+
+    def truefalse_cond(visitor, node=None):
+        """Prompts the user for a true/false condition."""
+        tf = TrueFalse(prompt=prompt, path=path)
+        rtn = visitor.visit(tf)
+        return rtn
+
+    return truefalse_cond
+
+
+#
+# Tools for trees of nodes.
+#
+
+
+def _lowername(cls):
+    return cls.__name__.lower()
+
+
+class Visitor(object):
+    """Super-class for all classes that should walk over a tree of nodes.
+    This implements the visit() method.
+    """
+
+    def __init__(self, tree=None):
+        self.tree = tree
+
+    def visit(self, node=None):
+        """Walks over a node.  If no node is provided, the tree is used."""
+        if node is None:
+            node = self.tree
+        if node is None:
+            raise RuntimeError("no node or tree given!")
+        for clsname in map(_lowername, type.mro(node.__class__)):
+            meth = getattr(self, "visit_" + clsname, None)
+            if callable(meth):
+       
