@@ -647,4 +647,32 @@ class StateVisitor(Visitor):
         for p, n in zip(path[:-1], path[1:]):
             if isinstance(p, str) and p not in loc:
                 loc[p] = {} if isinstance(n, str) else []
-            elif isinstance(p, int)
+            elif isinstance(p, int) and abs(p) + (p >= 0) > len(loc):
+                i = abs(p) + (p >= 0) - len(loc)
+                if isinstance(n, str):
+                    ex = [{} for _ in range(i)]
+                else:
+                    ex = [[] for _ in range(i)]
+                loc.extend(ex)
+            loc = loc[p]
+        p = path[-1]
+        if isinstance(p, int) and abs(p) + (p >= 0) > len(loc):
+            i = abs(p) + (p >= 0) - len(loc)
+            ex = [None] * i
+            loc.extend(ex)
+        loc[p] = val
+
+    def flatten(self, path="/", value=None, flat=None):
+        """Returns a dict version of the store whose keys are paths.
+        Note that list and dict entries will always end in '/', allowing
+        disambiquation in dump_rules.
+        """
+        value = self.state if value is None else value
+        flat = {} if flat is None else flat
+        if isinstance(value, cabc.Mapping):
+            path = path if path.endswith("/") else path + "/"
+            flat[path] = value
+            for k, v in value.items():
+                p = path + k
+                self.flatten(path=p, value=v, flat=flat)
+        elif isinstance(value, (str, byt
