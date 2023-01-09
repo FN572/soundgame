@@ -841,4 +841,29 @@ class PromptVisitor(StateVisitor):
         if node.check:
             msg = "The current state to insert is:\n\n{0}\n"
             print(msg.format(textwrap.indent(new, "    ")))
-   
+            ap = "Would you like to write out the current state, " + YN
+            asker = TrueFalse(prompt=ap)
+            do_save = self.visit(asker)
+            if not do_save:
+                return Unstorable
+        # get and backup the file.
+        fname = None
+        if node.ask_filename:
+            fname = self.visit_input(node)
+        if fname is None or len(fname) == 0:
+            fname = node.default_file
+        if os.path.isfile(fname):
+            with open(fname, "r") as f:
+                s = f.read()
+            before, _, s = s.partition(node.prefix)
+            _, _, after = s.partition(node.suffix)
+            backup_file(fname)
+        else:
+            before = after = ""
+            dname = os.path.dirname(fname)
+            if dname:
+                os.makedirs(dname, exist_ok=True)
+        # write out the file
+        with open(fname, "w") as f:
+            f.write(before + new + after)
+        return fname
