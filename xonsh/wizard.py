@@ -809,4 +809,36 @@ class PromptVisitor(StateVisitor):
         else:
             os.makedirs(os.path.dirname(fname), exist_ok=True)
         with open(fname, "w") as f:
-            f.wr
+            f.write(jstate)
+        return fname
+
+    def visit_loadjson(self, node):
+        if node.check:
+            ap = "Would you like to load an existing file, " + YN
+            asker = TrueFalse(prompt=ap)
+            do_load = self.visit(asker)
+            if not do_load:
+                return Unstorable
+        fname = self.visit_input(node)
+        if fname is None or len(fname) == 0:
+            fname = node.default_file
+        if os.path.isfile(fname):
+            with open(fname, "r") as f:
+                self.state = json.load(f)
+            print_color("{{GREEN}}{0!r} loaded.{{NO_COLOR}}".format(fname))
+        else:
+            print_color(
+                ("{{RED}}{0!r} could not be found, " "continuing.{{NO_COLOR}}").format(
+                    fname
+                )
+            )
+        return fname
+
+    def visit_fileinserter(self, node):
+        # perform the dumping operation.
+        new = node.dumps(self.flatten())
+        # check if we should write this out
+        if node.check:
+            msg = "The current state to insert is:\n\n{0}\n"
+            print(msg.format(textwrap.indent(new, "    ")))
+   
