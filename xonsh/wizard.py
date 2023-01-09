@@ -711,4 +711,40 @@ class PromptVisitor(StateVisitor):
             singleline() method. See BaseShell for mor details.
         """
         super().__init__(tree=tree, state=state)
-   
+        self.env = builtins.__xonsh__.env
+        self.shell = builtins.__xonsh__.shell.shell
+        self.shell_kwargs = kwargs
+
+    def visit_wizard(self, node):
+        for child in node.children:
+            self.visit(child)
+
+    def visit_pass(self, node):
+        pass
+
+    def visit_message(self, node):
+        print_color(node.message)
+
+    def visit_question(self, node):
+        self.env["PROMPT"] = node.question
+        r = self.shell.singleline(**self.shell_kwargs)
+        if callable(node.converter):
+            r = node.converter(r)
+        self.visit(node.responses[r])
+        return r
+
+    def visit_input(self, node):
+        need_input = True
+        while need_input:
+            self.env["PROMPT"] = node.prompt
+            raw = self.shell.singleline(**self.shell_kwargs)
+            if callable(node.converter):
+                try:
+                    x = node.converter(raw)
+                except KeyboardInterrupt:
+                    raise
+                except Exception:
+                    if node.retry:
+                        msg = (
+                            "{{BOLD_RED}}Invalid{{NO_COLOR}} input {0!r}, "
+              
