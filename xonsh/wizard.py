@@ -776,4 +776,37 @@ class PromptVisitor(StateVisitor):
         rtns = []
         origidx = self.indices.get(node.idxname, None)
         self.indices[node.idxname] = idx = node.beg
-        whi
+        while node.cond(visitor=self, node=node):
+            rtn = list(map(self.visit, node.body))
+            rtns.append(rtn)
+            idx += 1
+            self.indices[node.idxname] = idx
+        if origidx is None:
+            del self.indices[node.idxname]
+        else:
+            self.indices[node.idxname] = origidx
+        return rtns
+
+    def visit_savejson(self, node):
+        jstate = json.dumps(
+            self.state, indent=1, sort_keys=True, default=serialize_xonsh_json
+        )
+        if node.check:
+            msg = "The current state is:\n\n{0}\n"
+            print(msg.format(textwrap.indent(jstate, "    ")))
+            ap = "Would you like to save this state, " + YN
+            asker = TrueFalse(prompt=ap)
+            do_save = self.visit(asker)
+            if not do_save:
+                return Unstorable
+        fname = None
+        if node.ask_filename:
+            fname = self.visit_input(node)
+        if fname is None or len(fname) == 0:
+            fname = node.default_file
+        if os.path.isfile(fname):
+            backup_file(fname)
+        else:
+            os.makedirs(os.path.dirname(fname), exist_ok=True)
+        with open(fname, "w") as f:
+            f.wr
