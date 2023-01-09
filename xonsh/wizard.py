@@ -747,4 +747,33 @@ class PromptVisitor(StateVisitor):
                     if node.retry:
                         msg = (
                             "{{BOLD_RED}}Invalid{{NO_COLOR}} input {0!r}, "
-              
+                            "please retry."
+                        )
+                        print_color(msg.format(raw))
+                        continue
+                    else:
+                        raise
+                if node.show_conversion and x is not Unstorable and str(x) != raw:
+                    msg = "{{BOLD_PURPLE}}Converted{{NO_COLOR}} input {0!r} to {1!r}."
+                    print_color(msg.format(raw, x))
+            else:
+                x = raw
+            if node.confirm:
+                msg = "Would you like to keep the input: {0}"
+                print(msg.format(pprint.pformat(x)))
+                confirmer = TrueFalseBreak(prompt=YNB)
+                status = self.visit(confirmer)
+                if isinstance(status, str) and status == "break":
+                    x = Unstorable
+                    break
+                else:
+                    need_input = not status
+            else:
+                need_input = False
+        return x
+
+    def visit_while(self, node):
+        rtns = []
+        origidx = self.indices.get(node.idxname, None)
+        self.indices[node.idxname] = idx = node.beg
+        whi
