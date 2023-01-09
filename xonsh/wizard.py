@@ -675,4 +675,40 @@ class StateVisitor(Visitor):
             for k, v in value.items():
                 p = path + k
                 self.flatten(path=p, value=v, flat=flat)
-        elif isinstance(value, (str, byt
+        elif isinstance(value, (str, bytes)):
+            flat[path] = value
+        elif isinstance(value, cabc.Sequence):
+            path = path if path.endswith("/") else path + "/"
+            flat[path] = value
+            for i, v in enumerate(value):
+                p = path + str(i)
+                self.flatten(path=p, value=v, flat=flat)
+        else:
+            flat[path] = value
+        return flat
+
+
+YN = "{GREEN}yes{NO_COLOR} or {RED}no{NO_COLOR} [default: no]? "
+YNB = (
+    "{GREEN}yes{NO_COLOR}, {RED}no{NO_COLOR}, or "
+    "{YELLOW}break{NO_COLOR} [default: no]? "
+)
+
+
+class PromptVisitor(StateVisitor):
+    """Visits the nodes in the tree via the a command-line prompt."""
+
+    def __init__(self, tree=None, state=None, **kwargs):
+        """
+        Parameters
+        ----------
+        tree : Node, optional
+            Tree of nodes to start visitor with.
+        state : dict, optional
+            Initial state to begin with.
+        kwargs : optional
+            Options that are passed through to the prompt via the shell's
+            singleline() method. See BaseShell for mor details.
+        """
+        super().__init__(tree=tree, state=state)
+   
