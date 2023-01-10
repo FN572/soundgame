@@ -198,3 +198,46 @@
    },
   "xontrib-prompt-ret-code": {
    "license": "MIT",
+   "url": "https://github.com/Siecje/xontrib-prompt-ret-code",
+   "install": {
+    "pip": "xpip install xontrib-prompt-ret-code"
+   }
+  },
+  "xonsh-apt-tabcomplete": {
+   "license": "BSD 2-clause",
+   "url": "https://github.com/DangerOnTheRanger/xonsh-apt-tabcomplete",
+   "install": {
+    "pip": "xpip install xonsh-apt-tabcomplete"
+   }
+  },
+  "xonsh-direnv": {
+   "license": "MIT",
+   "url": "https://github.com/74th/xonsh-direnv",
+   "install": {
+    "pip": "xpip install xonsh-direnv"
+   }
+  },
+  "xonsh-docker-tabcomplete": {
+   "license": "MIT",
+   "url": "https://github.com/xsteadfastx/xonsh-docker-tabcomplete",
+   "install": {
+    "pip": "xpip install xonsh-docker-tabcomplete"
+   }
+  },
+  "xonsh-scrapy-tabcomplete": {
+   "license": "GPLv3",
+   "url": "https://github.com/Granitas/xonsh-scrapy-tabcomplete",
+   "install": {
+    "pip": "xpip install xonsh-scrapy-tabcomplete"
+    }
+   },
+  "xonsh-vox-tabcomplete": {
+   "license": "GPLv3",
+   "url": "https://github.com/Granitosaurus/xonsh-vox-tabcomplete",
+   "install": {
+    "pip": "xpip install xonsh-vox-tabcomplete"
+   }
+  },
+  "xonsh-click-tabcomplete": {
+   "license": "GPLv3",
+   "url": "https:/
