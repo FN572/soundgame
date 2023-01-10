@@ -69,4 +69,36 @@
     "function 'dsubmit()' for creating DSubmitter and Executor instances ",
     "at the same time. Thus users may submit distributed jobs with::\n\n",
     "    with dsubmit('127.0.0.1:8786', rtn='x') as dsub:\n",
-    "        x =
+    "        x = $(echo I am elsewhere)\n\n",
+    "    res = dsub.future.result()\n",
+    "    print(res)\n\n",
+    "This is useful for long running or non-blocking jobs."]
+  },
+ {"name": "docker_tabcomplete",
+  "package": "xonsh-docker-tabcomplete",
+  "url": "https://github.com/xsteadfastx/xonsh-docker-tabcomplete",
+  "description": ["Adds tabcomplete functionality to docker inside of xonsh."]
+ },
+ {"name": "jedi",
+  "package": "xonsh",
+  "url": "http://xon.sh",
+  "description": ["Jedi tab completion hooks for xonsh."]
+  },
+ {"name": "mpl",
+  "package": "xonsh",
+  "url": "http://xon.sh",
+  "description": ["Matplotlib hooks for xonsh, including the new 'mpl' alias ",
+                  "that displays the current figure on the screen."]
+  },
+ {"name": "prompt_ret_code",
+  "package": "xonsh",
+  "url": "http://xon.sh",
+  "description": ["Adds return code info to the prompt"]
+  },
+  {"name": "free_cwd",
+    "package": "xonsh",
+    "url": "http://xon.sh",
+    "description": [
+      "Windows only xontrib, to release the lock on the current directory ",
+      "whenever the prompt is shown. Enabling this will allow the other ",
+      "programs or Windows Explorer to delete or rename the curr
