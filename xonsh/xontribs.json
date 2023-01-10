@@ -130,3 +130,34 @@
   "url": "https://github.com/Granitosaurus/xonsh-vox-tabcomplete",
   "description": ["Adds tabcomplete functionality to vox inside of xonsh."]
  },
+ {"name": "xo",
+  "package": "exofrills",
+  "url": "https://github.com/scopatz/xo",
+  "description": ["Adds an 'xo' alias to run the exofrills text editor in the ",
+                  "current Python interpreter session. This shaves off a ",
+                  "bit of the startup time when running your favorite, minimal ",
+                  "text editor."]
+  },
+ {"name": "xonda",
+  "package": "xonda",
+  "url": "https://github.com/gforsyth/xonda",
+  "description": ["A thin wrapper around conda with tab completion"]
+ },
+ {"name": "avox",
+  "package": "xontrib-avox",
+  "url": "https://github.com/astronouth7303/xontrib-avox",
+  "description": ["Automatic (de)activation of virtual environments as you cd around"]
+ },
+ {"name": "z",
+  "package": "xontrib-z",
+  "url": "https://github.com/astronouth7303/xontrib-z",
+  "description": ["Tracks your most used directories, based on 'frecency'."]
+ },
+ {"name": "powerline",
+  "package": "xontrib-powerline",
+  "url": "https://github.com/santagada/xontrib-powerline",
+  "description": ["Powerline for Xonsh shell"]
+ },
+ {"name": "prompt_vi_mode",
+  "package": "xontrib-prompt-vi-mode",
+  "url": "https://github.com/t184256
