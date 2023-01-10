@@ -240,4 +240,53 @@
   },
   "xonsh-click-tabcomplete": {
    "license": "GPLv3",
-   "url": "https:/
+   "url": "https://github.com/Granitosaurus/xonsh-click-tabcomplete",
+   "install": {
+    "pip": "xpip install xonsh-click-tabcomplete"
+   }
+  },
+  "xonsh-autoxsh": {
+   "license": "GPLv3",
+   "url": "https://github.com/Granitas/xonsh-autoxsh",
+   "install": {
+    "pip": "xpip install xonsh-autoxsh"
+   }
+  },
+  "xonda": {
+   "license": "MIT",
+   "url": "https://github.com/gforsyth/xonda",
+   "install": {
+    "pip": "xpip install xonda"
+   }
+  },
+  "xontrib-avox": {
+   "license": "GPLv3",
+   "url": "https://github.com/astronouth7303/xontrib-avox",
+   "install": {
+    "pip": "xpip install xontrib-avox"
+   }
+  },
+  "xontrib-z": {
+   "license": "GPLv3",
+   "url": "https://github.com/astronouth7303/xontrib-z",
+   "install": {
+    "pip": "xpip install xontrib-z"
+   }
+  },
+  "xontrib-powerline": {
+   "license": "MIT",
+   "url": "https://github.com/santagada/xontrib-powerline",
+   "install": {
+    "pip": "xpip install xontrib-powerline"
+   }
+  },
+  "xontrib-thefuck": {
+   "license": "MIT",
+   "url": "https://github.com/meatballs/xontrib-thefuck",
+   "install": {
+    "pip": "xpip install xontrib-thefuck"
+   }
+  },
+  "xontrib-prompt-vi-mode": {
+   "license": "MIT",
+   "url": "https://github.com/t184256/xon
