@@ -289,4 +289,24 @@
   },
   "xontrib-prompt-vi-mode": {
    "license": "MIT",
-   "url": "https://github.com/t184256/xon
+   "url": "https://github.com/t184256/xontrib-prompt-vi-mode",
+   "install": {
+    "pip": "xpip install xontrib-prompt-vi-mode"
+   }
+  },
+  "xontrib-fzf-widgets": {
+   "license": "GPLv3",
+   "url": "https://github.com/shahinism/xontrib-fzf-widgets",
+   "install": {
+    "pip": "xpip install xontrib-fzf-widgets"
+   }
+  },
+  "xontrib-schedule": {
+   "license": "MIT",
+   "url": "https://github.com/astronouth7303/xontrib-schedule",
+   "install": {
+    "pip": "xpip install xontrib-schedule"
+   }
+  }
+ }
+}
