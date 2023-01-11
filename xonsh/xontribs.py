@@ -66,4 +66,46 @@ def update_context(name, ctx=None):
         ctx = builtins.__xonsh__.ctx
     if not hasattr(update_context, "bad_imports"):
         update_context.bad_imports = []
-    modctx = xontr
+    modctx = xontrib_context(name)
+    if modctx is None:
+        update_context.bad_imports.append(name)
+        return ctx
+    return ctx.update(modctx)
+
+
+@functools.lru_cache()
+def xontrib_metadata():
+    """Loads and returns the xontribs.json file."""
+    with open(xontribs_json(), "r") as f:
+        md = json.load(f)
+    return md
+
+
+def xontribs_load(names, verbose=False):
+    """Load xontribs from a list of names"""
+    ctx = builtins.__xonsh__.ctx
+    for name in names:
+        if verbose:
+            print("loading xontrib {0!r}".format(name))
+        update_context(name, ctx=ctx)
+    if update_context.bad_imports:
+        prompt_xontrib_install(update_context.bad_imports)
+        del update_context.bad_imports
+
+
+def _load(ns):
+    """load xontribs"""
+    xontribs_load(ns.names, verbose=ns.verbose)
+
+
+def _list(ns):
+    """Lists xontribs."""
+    meta = xontrib_metadata()
+    data = []
+    nname = 6  # ensures some buffer space.
+    names = None if len(ns.names) == 0 else set(ns.names)
+    for md in meta["xontribs"]:
+        name = md["name"]
+        if names is not None and md["name"] not in names:
+            continue
+        nname 
