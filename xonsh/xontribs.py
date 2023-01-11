@@ -108,4 +108,41 @@ def _list(ns):
         name = md["name"]
         if names is not None and md["name"] not in names:
             continue
-        nname 
+        nname = max(nname, len(name))
+        spec = find_xontrib(name)
+        if spec is None:
+            installed = loaded = False
+        else:
+            installed = True
+            loaded = spec.name in sys.modules
+        d = {"name": name, "installed": installed, "loaded": loaded}
+        data.append(d)
+    if ns.json:
+        jdata = {d.pop("name"): d for d in data}
+        s = json.dumps(jdata)
+        print(s)
+    else:
+        s = ""
+        for d in data:
+            name = d["name"]
+            lname = len(name)
+            s += "{PURPLE}" + name + "{NO_COLOR}  " + " " * (nname - lname)
+            if d["installed"]:
+                s += "{GREEN}installed{NO_COLOR}      "
+            else:
+                s += "{RED}not-installed{NO_COLOR}  "
+            if d["loaded"]:
+                s += "{GREEN}loaded{NO_COLOR}"
+            else:
+                s += "{RED}not-loaded{NO_COLOR}"
+            s += "\n"
+        print_color(s[:-1])
+
+
+@functools.lru_cache()
+def _create_xontrib_parser():
+    # parse command line args
+    parser = argparse.ArgumentParser(
+        prog="xontrib", description="Manages xonsh extensions"
+    )
+    subp = parser.add_subparsers(
