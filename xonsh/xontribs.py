@@ -145,4 +145,34 @@ def _create_xontrib_parser():
     parser = argparse.ArgumentParser(
         prog="xontrib", description="Manages xonsh extensions"
     )
-    subp = parser.add_subparsers(
+    subp = parser.add_subparsers(title="action", dest="action")
+    load = subp.add_parser("load", help="loads xontribs")
+    load.add_argument(
+        "-v", "--verbose", action="store_true", default=False, dest="verbose"
+    )
+    load.add_argument("names", nargs="+", default=(), help="names of xontribs")
+    lyst = subp.add_parser(
+        "list", help=("list xontribs, whether they are " "installed, and loaded.")
+    )
+    lyst.add_argument(
+        "--json", action="store_true", default=False, help="reports results as json"
+    )
+    lyst.add_argument("names", nargs="*", default=(), help="names of xontribs")
+    return parser
+
+
+_MAIN_XONTRIB_ACTIONS = {"load": _load, "list": _list}
+
+
+@unthreadable
+def xontribs_main(args=None, stdin=None):
+    """Alias that loads xontribs"""
+    if not args or (
+        args[0] not in _MAIN_XONTRIB_ACTIONS and args[0] not in {"-h", "--help"}
+    ):
+        args.insert(0, "load")
+    parser = _create_xontrib_parser()
+    ns = parser.parse_args(args)
+    if ns.action is None:  # apply default action
+        ns = parser.parse_args(["load"] + args)
+    return _MAIN_XONTRIB_ACTIONS[ns.action](ns)
