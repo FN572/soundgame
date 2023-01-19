@@ -45,4 +45,38 @@ def _which_create_parser():
         help="Print out how matches were located and show " "near misses on stderr",
     )
     parser.add_argument(
-        "-
+        "-p",
+        "--plain",
+        action="store_true",
+        dest="plain",
+        help="Do not display alias expansions or location of "
+        "where binaries are found. This is the "
+        "default behavior, but the option can be used to "
+        "override the --verbose option",
+    )
+    parser.add_argument("--very-small-rocks", action=AWitchAWitch)
+    if xp.ON_WINDOWS:
+        parser.add_argument(
+            "-e",
+            "--exts",
+            nargs="*",
+            type=str,
+            help="Specify a list of extensions to use instead "
+            "of the standard list for this system. This can "
+            "effectively be used as an optimization to, for "
+            'example, avoid stat\'s of "foo.vbs" when '
+            'searching for "foo" and you know it is not a '
+            'VisualBasic script but ".vbs" is on PATHEXT. '
+            "This option is only supported on Windows",
+            dest="exts",
+        )
+    return parser
+
+
+def print_global_object(arg, stdout):
+    """Print the object."""
+    obj = builtins.__xonsh__.ctx.get(arg)
+    print("global object of {}".format(type(obj)), file=stdout)
+
+
+def print_path(abs_name, from_
