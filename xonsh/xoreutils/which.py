@@ -79,4 +79,34 @@ def print_global_object(arg, stdout):
     print("global object of {}".format(type(obj)), file=stdout)
 
 
-def print_path(abs_name, from_
+def print_path(abs_name, from_where, stdout, verbose=False, captured=False):
+    """Print the name and path of the command."""
+    if xp.ON_WINDOWS:
+        # Use list dir to get correct case for the filename
+        # i.e. windows is case insensitive but case preserving
+        p, f = os.path.split(abs_name)
+        f = next(s.name for s in xp.scandir(p) if s.name.lower() == f.lower())
+        abs_name = os.path.join(p, f)
+        if builtins.__xonsh__.env.get("FORCE_POSIX_PATHS", False):
+            abs_name.replace(os.sep, os.altsep)
+    if verbose:
+        print("{} ({})".format(abs_name, from_where), file=stdout)
+    else:
+        end = "" if captured else "\n"
+        print(abs_name, end=end, file=stdout)
+
+
+def print_alias(arg, stdout, verbose=False):
+    """Print the alias."""
+    if not verbose:
+        if not callable(builtins.aliases[arg]):
+            print(" ".join(builtins.aliases[arg]), file=stdout)
+        else:
+            print(arg, file=stdout)
+    else:
+        print("aliases['{}'] = {}".format(arg, builtins.aliases[arg]), file=stdout)
+        if callable(builtins.aliases[arg]):
+            builtins.__xonsh__.superhelp(builtins.aliases[arg])
+
+
+d
