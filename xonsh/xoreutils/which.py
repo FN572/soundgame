@@ -109,4 +109,40 @@ def print_alias(arg, stdout, verbose=False):
             builtins.__xonsh__.superhelp(builtins.aliases[arg])
 
 
-d
+def which(args, stdin=None, stdout=None, stderr=None, spec=None):
+    """
+    Checks if each arguments is a xonsh aliases, then if it's an executable,
+    then finally return an error code equal to the number of misses.
+    If '-a' flag is passed, run both to return both `xonsh` match and
+    `which` match.
+    """
+    parser = _which_create_parser()
+    if len(args) == 0:
+        parser.print_usage(file=stderr)
+        return -1
+
+    pargs = parser.parse_args(args)
+    verbose = pargs.verbose or pargs.all
+    if spec is not None:
+        captured = spec.captured in xproc.STDOUT_CAPTURE_KINDS
+    else:
+        captured = False
+    if pargs.plain:
+        verbose = False
+    if xp.ON_WINDOWS:
+        if pargs.exts:
+            exts = pargs.exts
+        else:
+            exts = builtins.__xonsh__.env["PATHEXT"]
+    else:
+        exts = None
+    failures = []
+    for arg in pargs.args:
+        nmatches = 0
+        if pargs.all and arg in builtins.__xonsh__.ctx:
+            print_global_object(arg, stdout)
+            nmatches += 1
+        if arg in builtins.aliases and not pargs.skip:
+            print_alias(arg, stdout, verbose)
+            nmatches += 1
+            if not pa
