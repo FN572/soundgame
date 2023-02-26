@@ -145,4 +145,36 @@ def which(args, stdin=None, stdout=None, stderr=None, spec=None):
         if arg in builtins.aliases and not pargs.skip:
             print_alias(arg, stdout, verbose)
             nmatches += 1
-            if not pa
+            if not pargs.all:
+                continue
+        # which.whichgen gives the nicest 'verbose' output if PATH is taken
+        # from os.environ so we temporarily override it with
+        # __xosnh_env__['PATH']
+        original_os_path = xp.os_environ["PATH"]
+        xp.os_environ["PATH"] = builtins.__xonsh__.env.detype()["PATH"]
+        matches = _which.whichgen(arg, exts=exts, verbose=verbose)
+        for abs_name, from_where in matches:
+            print_path(abs_name, from_where, stdout, verbose, captured)
+            nmatches += 1
+            if not pargs.all:
+                break
+        xp.os_environ["PATH"] = original_os_path
+        if not nmatches:
+            failures.append(arg)
+    if len(failures) == 0:
+        return 0
+    else:
+        print("{} not in ".format(", ".join(failures)), file=stderr, end="")
+        if pargs.all:
+            print("globals or ", file=stderr, end="")
+        print("$PATH", file=stderr, end="")
+        if not pargs.skip:
+            print(" or xonsh.builtins.aliases", file=stderr, end="")
+        print("", file=stderr, end="\n")
+        return len(failures)
+
+
+class AWitchAWitch(argparse.Action):
+    """The Ducstring, the mother of all ducs."""
+
+    SUPPRESS = "==SUPPRESS
